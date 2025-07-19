@@ -1,0 +1,139 @@
+{{/* Put your custom <script></script> tags here */}}
+
+{{/* Mermaid.js - only load when needed */}}
+{{ if .Store.Get "hasMermaid" }}
+  <script type="module">
+    import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid/dist/mermaid.esm.min.mjs';
+    
+    // Initialize mermaid and then add fullscreen functionality
+    mermaid.initialize({ startOnLoad: false });
+    
+    // Wait for DOM to be ready
+    document.addEventListener('DOMContentLoaded', async function() {
+      // First render all mermaid diagrams
+      await mermaid.run();
+      
+      // Target the rendered mermaid SVG elements
+      const mermaidElements = document.querySelectorAll('.mermaid');
+      
+      mermaidElements.forEach(function(element) {
+        // Create fullscreen button
+        const fullscreenBtn = document.createElement('button');
+        fullscreenBtn.innerHTML = '⛶';
+        fullscreenBtn.title = 'View in fullscreen';
+        fullscreenBtn.style.cssText = `
+          position: absolute;
+          top: 8px;
+          right: 8px;
+          background: rgba(255, 255, 255, 0.8);
+          border: 1px solid #ccc;
+          border-radius: 4px;
+          padding: 4px 8px;
+          cursor: pointer;
+          font-size: 14px;
+          z-index: 10;
+          backdrop-filter: blur(5px);
+        `;
+        
+        // Create wrapper div with relative positioning
+        const wrapper = document.createElement('div');
+        wrapper.style.position = 'relative';
+        wrapper.style.display = 'inline-block';
+        wrapper.style.width = '100%';
+        
+        // Wrap the mermaid element
+        element.parentNode.insertBefore(wrapper, element);
+        wrapper.appendChild(element);
+        wrapper.appendChild(fullscreenBtn);
+        
+        // Add fullscreen functionality
+        fullscreenBtn.addEventListener('click', function() {
+          // Create fullscreen overlay
+          const overlay = document.createElement('div');
+          overlay.style.cssText = `
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background: white;
+            z-index: 9999;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0;
+            margin: 0;
+          `;
+          
+          // Clone and scale the SVG to fullscreen
+          const svg = element.querySelector('svg');
+          if (svg) {
+            const clonedSvg = svg.cloneNode(true);
+            clonedSvg.style.cssText = `
+              width: 100vw !important;
+              height: 100vh !important;
+              object-fit: contain;
+            `;
+            overlay.appendChild(clonedSvg);
+          }
+          
+          // Create close button
+          const closeBtn = document.createElement('button');
+          closeBtn.innerHTML = '✕';
+          closeBtn.title = 'Close fullscreen';
+          closeBtn.style.cssText = `
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            cursor: pointer;
+            font-size: 18px;
+            font-weight: bold;
+            z-index: 10000;
+          `;
+          
+          overlay.appendChild(closeBtn);
+          document.body.appendChild(overlay);
+          
+          // Close fullscreen function
+          const closeFullscreen = () => {
+            document.body.removeChild(overlay);
+          };
+          
+          closeBtn.addEventListener('click', closeFullscreen);
+          overlay.addEventListener('click', function(e) {
+            if (e.target === overlay) {
+              closeFullscreen();
+            }
+          });
+          
+          // Close on escape key
+          const handleEscape = (e) => {
+            if (e.key === 'Escape') {
+              closeFullscreen();
+              document.removeEventListener('keydown', handleEscape);
+            }
+          };
+          document.addEventListener('keydown', handleEscape);
+        });
+      });
+    });
+  </script>
+{{ end }}
+
+{{/* EXAMPLE - only load script for production
+{{ if eq (hugo.Environment) "production" -}}
+  {{ partial "footer/esbuild" (dict "src" "js/instantpage.js" "load" "async" "transpile" false) -}}
+{{ end -}}
+*/}}
+
+{{/* EXAMPLE - only load script for a page type e.g. contact or gallery
+{{ if eq .Type "gallery" -}}
+  {{ partial "footer/esbuild" (dict "src" "js/gallery.js" "load" "async" "transpile" false) -}}
+{{ end -}}
+*/}}

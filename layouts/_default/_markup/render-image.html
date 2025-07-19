@@ -1,0 +1,6 @@
+<figure class="align-center ">
+  <img loading="lazy" src="{{ .Destination | safeURL }}#center" alt="{{ .PlainText }}" >
+  {{ with .Text }}
+      <figcaption><p>{{ . | safeHTML }}</p></figcaption>
+  {{ end }}
+</figure>
