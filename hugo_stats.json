@@ -270,14 +270,23 @@
       "2025-03-24",
       "2025-05-03",
       "TableOfContents",
+      "batch-convert-with-dataframes",
       "buttonColorMode",
       "database",
+      "datatime-convert",
       "doks-docs-nav",
+      "fastapi",
+      "get-local-time-via-arrow",
+      "get-local-time-via-datetime",
+      "get-local-time-via-whenever",
       "go",
       "offcanvasNavMain",
       "offcanvasNavMainLabel",
       "offcanvasNavSection",
       "offcanvasNavSectionLabel",
+      "pandas",
+      "polars",
+      "pure-numpy",
       "python",
       "query",
       "ruby",
@@ -291,7 +300,8 @@
       "socialMenu",
       "swift",
       "toc",
-      "wasm"
+      "wasm",
+      "web-api"
     ]
   }
 }
