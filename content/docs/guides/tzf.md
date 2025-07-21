@@ -17,7 +17,7 @@ seo:
 It's expensive to init tzf's Finder/FuzzyFinder/DefaultFinder, please consider
 reuse it or as a global var. Below is a global var example:
 
-```go
+```go {hl_lines=["9"]}
 package main
 
 import (

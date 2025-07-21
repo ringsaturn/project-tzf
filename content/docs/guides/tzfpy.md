@@ -94,7 +94,7 @@ The fastest way to get their timezone name is to use dataframes' own map/apply f
 Pandas does provide built-in apply feature, however, it's not very efficient.
 With NumPy's help, we can get a much faster solution.
 
-```python
+```python {hl_lines=["21","25","27"]}
 # https://github.com/ringsaturn/tzfpy/blob/main/examples/tzfpy_with_dataframe_pandas.py
 import time
 
@@ -137,7 +137,7 @@ Output:
 
 ### Polars
 
-```python
+```python {hl_lines=["18-24"]}
 import time
 
 import citiespy
@@ -175,7 +175,7 @@ Output:
 
 ### Pure NumPy
 
-```python
+```python {hl_lines=["21", "24"]}
 import time
 
 import citiespy

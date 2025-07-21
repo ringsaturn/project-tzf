@@ -15,17 +15,17 @@ defaultMarkdownHandler = "goldmark"
 [highlight]
   anchorLineNos = false
   codeFences = true
-  guessSyntax = false
+  guessSyntax = true
   hl_Lines = ''
   hl_inline = false
   lineAnchors = ''
   lineNoStart = 1
-  lineNos = false
+  lineNos = true
   lineNumbersInTable = false
   noClasses = false
   noHl = false
-  style = 'monokai'
-  tabWidth = 2
+  style = 'github'
+  tabWidth = 4
 
 [tableOfContents]
   endLevel = 3

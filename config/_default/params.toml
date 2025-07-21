@@ -1,13 +1,16 @@
 # Hugo
-title = "My Docs"
-description = "Congrats on setting up a new Doks project!"
-images = ["cover.png"]
+title = "Project tzf"
+description = "An ecosystem that convert GPS coordinates to timezones"
+images = ["/img/tzf-social-media.webp"]
 
 # mainSections
 mainSections = ["docs"]
 
-[social]
-  twitter = "getdoks"
+ShowCodeCopyButtons = true
+lineNos = true
+
+# [social]
+#   twitter = "getdoks"
 
 # Doks (@thulite/doks-core)
 [doks]
@@ -131,7 +134,7 @@ mainSections = ["docs"]
     logo = "favicon-512x512.png" # Logo of Organization — favicon-512x512.png (default)
     name = "Thulite" # Name of Organization or Person
     sameAs = [] # E.g. ["https://github.com/thuliteio/thulite", "https://fosstodon.org/@thulite"]
-    images = ["cover.png"] # ["cover.png"] (default)
+    images = ["/img/tzf-social-media.webp"] # ["cover.png"] (default)
     article = [] # Article sections
     newsArticle = [] # NewsArticle sections
     blogPosting = ["blog"] # BlogPosting sections
