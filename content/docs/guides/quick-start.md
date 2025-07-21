@@ -16,17 +16,17 @@ seo:
 
 Project tzf provides multiple languages supports to lookup timezone by longitude and latitude.
 
-| Language or Sever         | Repository Link                                                         | API Doc                                                                                                     | Note                |
-| ------------------------- | ----------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- | ------------------- |
-| Go                        | [`ringsaturn/tzf`](https://github.com/ringsaturn/tzf)                   | [![](https://pkg.go.dev/badge/github.com/ringsaturn/tzf.svg)](https://pkg.go.dev/github.com/ringsaturn/tzf) |                     |
-| Ruby                      | [`HarlemSquirrel/tzf-rb`](https://github.com/HarlemSquirrel/tzf-rb)     |                                                                                                             | build with tzf-rs   |
-| Rust                      | [`ringsaturn/tzf-rs`](https://github.com/ringsaturn/tzf-rs)             | [![](https://docs.rs/tzf-rs/badge.svg)](https://docs.rs/tzf-rs)                                             |                     |
-| Swift                     | [`ringsaturn/tzf-swift`](https://github.com/ringsaturn/tzf-swift)       | [![]([sift_doc_badge])]([swift_doc_url])                                                                    |                     |
-| Python                    | [`ringsaturn/tzfpy`](https://github.com/ringsaturn/tzfpy)               | [`tzfpy.pyi`](https://github.com/ringsaturn/tzfpy/blob/main/tzfpy.pyi)                                      | build with tzf-rs   |
-| HTTP API                  | [`racemap/rust-tz-service`](https://github.com/racemap/rust-tz-service) |                                                                                                             | build with tzf-rs   |
-| Redis Server              | [`ringsaturn/tzf-server`](https://github.com/ringsaturn/tzf-server)     |                                                                                                             | build with tzf      |
-| JS via Wasm(browser only) | [`ringsaturn/tzf-wasm`](https://github.com/ringsaturn/tzf-wasm)         |                                                                                                             | build with tzf-rs   |
-| Online                    | [`ringsaturn/tzf-web`](https://github.com/ringsaturn/tzf-web)           |                                                                                                             | build with tzf-wasm |
+| Language or Sever         | Repository Link                                                         | API Doc                                                                                                     |
+| ------------------------- | ----------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
+| Go                        | [`ringsaturn/tzf`](https://github.com/ringsaturn/tzf)                   | [![](https://pkg.go.dev/badge/github.com/ringsaturn/tzf.svg)](https://pkg.go.dev/github.com/ringsaturn/tzf) |
+| Ruby                      | [`HarlemSquirrel/tzf-rb`](https://github.com/HarlemSquirrel/tzf-rb)     |                                                                                                             |
+| Rust                      | [`ringsaturn/tzf-rs`](https://github.com/ringsaturn/tzf-rs)             | [![](https://docs.rs/tzf-rs/badge.svg)](https://docs.rs/tzf-rs)                                             |
+| Swift                     | [`ringsaturn/tzf-swift`](https://github.com/ringsaturn/tzf-swift)       | [![]([sift_doc_badge])]([swift_doc_url])                                                                    |
+| Python                    | [`ringsaturn/tzfpy`](https://github.com/ringsaturn/tzfpy)               | [`tzfpy.pyi`](https://github.com/ringsaturn/tzfpy/blob/main/tzfpy.pyi)                                      |
+| HTTP API                  | [`racemap/rust-tz-service`](https://github.com/racemap/rust-tz-service) |                                                                                                             |
+| Redis Server              | [`ringsaturn/tzf-server`](https://github.com/ringsaturn/tzf-server)     |                                                                                                             |
+| JS via Wasm(browser only) | [`ringsaturn/tzf-wasm`](https://github.com/ringsaturn/tzf-wasm)         |                                                                                                             |
+| Online                    | [`ringsaturn/tzf-web`](https://github.com/ringsaturn/tzf-web)           |                                                                                                             |
 
 [swift_doc_url]: https://swiftpackageindex.com/ringsaturn/tzf-swift
 [sift_doc_badge]: https://img.shields.io/endpoint?url=https%3A%2F%2Fswiftpackageindex.com%2Fapi%2Fpackages%2Fringsaturn%2Ftzf-swift%2Fbadge%3Ftype%3Dswift-versions
