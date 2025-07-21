@@ -21,6 +21,10 @@ In fact, those name will be used with other datatime related functions and other
 
 ### Get local time via datetime
 
+```bash
+pip install tzfpy
+```
+
 ```python
 # https://github.com/ringsaturn/tzfpy/blob/main/examples/tzfpy_with_datetime.py
 from datetime import datetime, timezone
@@ -43,6 +47,10 @@ Output:
 
 ### Get local time via arrow
 
+```bash
+pip install arrow tzfpy
+```
+
 ```python
 # https://github.com/ringsaturn/tzfpy/blob/main/examples/tzfpy_with_arrow.py
 from zoneinfo import ZoneInfo
@@ -63,6 +71,10 @@ Output:
 ```
 
 ### Get local time via whenever
+
+```bash
+pip install tzfpy whenever
+```
 
 ```python
 # https://github.com/ringsaturn/tzfpy/blob/main/examples/tzfpy_with_whenever.py
@@ -93,6 +105,10 @@ The fastest way to get their timezone name is to use dataframes' own map/apply f
 
 Pandas does provide built-in apply feature, however, it's not very efficient.
 With NumPy's help, we can get a much faster solution.
+
+```bash
+pip install pandas numpy tzfpy
+```
 
 ```python {hl_lines=["21","25","27"]}
 # https://github.com/ringsaturn/tzfpy/blob/main/examples/tzfpy_with_dataframe_pandas.py
@@ -137,6 +153,10 @@ Output:
 
 ### Polars
 
+```bash
+pip install polars tzfpy
+```
+
 ```python {hl_lines=["18-24"]}
 import time
 
@@ -174,6 +194,10 @@ Output:
 
 
 ### Pure NumPy
+
+```bash
+pip install numpy tzfpy
+```
 
 ```python {hl_lines=["21", "24"]}
 import time
@@ -214,6 +238,10 @@ Output:
 ## Web API
 
 ### FastAPI
+
+```bash
+pip install fastapi uvicorn tzfpy
+```
 
 ```python
 from fastapi import FastAPI, Query

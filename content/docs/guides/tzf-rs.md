@@ -18,6 +18,10 @@ It's expensive to init tzf-rs's `Finder`/`FuzzyFinder`/`DefaultFinder`, so
 please consider reusing instances or creating one as a global variable. Below is
 a global variable example:
 
+```bash
+cargo add tzf-rs lazy_static
+```
+
 ```rust {hl_lines=["4-6"]}
 use lazy_static::lazy_static;
 use tzf_rs::DefaultFinder;
