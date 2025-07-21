@@ -223,3 +223,26 @@ do {
     print("Error:", error)
 }
 ```
+
+## Ruby
+
+Ruby version is created and maintained by [HarlemSquirrel](https://github.com/HarlemSquirrel).
+
+Detailed documentation can be found in it's repo [tzf-rb](https://github.com/HarlemSquirrel/tzf-rb).
+
+```bash
+bundle add tzf
+# or
+gem install tzf
+```
+
+```ruby
+# https://github.com/HarlemSquirrel/tzf-rb
+require 'tzf'
+
+TZF.tz_name(40.74771675713742, -73.99350390136448)
+# => "America/New_York"
+
+TZF.tz_names(40.74771675713742, -73.99350390136448)
+# => ["America/New_York"]
+```
