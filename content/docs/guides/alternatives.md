@@ -20,7 +20,7 @@ This page is not a complete list of all alternatives.
 
 Consider see repos in [Lookup Libraries](https://github.com/evansiroky/timezone-boundary-builder?tab=readme-ov-file#lookup-libraries) section of [evansiroky/timezone-boundary-builder](https://github.com/evansiroky/timezone-boundary-builder) first.
 
-A question on StackOverflow also: [How to get a time zone from a location using latitude and longitude coordinates?](https://stackoverflow.com/questions/16086962/).
+A question on Stack Overflow also: [How to get a time zone from a location using latitude and longitude coordinates?](https://stackoverflow.com/questions/16086962/).
 
 ## Go
 
