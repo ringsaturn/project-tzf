@@ -14,7 +14,8 @@ seo:
   robots: "" # custom robot tags (optional)
 ---
 
-Project tzf provides multiple languages supports to lookup timezone by longitude and latitude.
+Project tzf provides multiple languages supports to lookup timezone by longitude
+and latitude.
 
 | Language or Sever         | Repository Link                                                         | API Doc                                                                                                     |
 | ------------------------- | ----------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
@@ -146,7 +147,17 @@ A full example can be found
 ## Python
 
 ```bash
+# Install just tzfpy
 pip install tzfpy
+
+# Install with pytz
+pip install "tzfpy[pytz]"
+
+# Install with tzdata. https://github.com/python/tzdata
+pip install "tzfpy[tzdata]"
+
+# Install via conda, see more in https://github.com/conda-forge/tzfpy-feedstock
+conda install -c conda-forge tzfpy
 ```
 
 ```bash
@@ -226,9 +237,11 @@ do {
 
 ## Ruby
 
-Ruby version is created and maintained by [HarlemSquirrel](https://github.com/HarlemSquirrel).
+Ruby version is created and maintained by
+[HarlemSquirrel](https://github.com/HarlemSquirrel).
 
-Detailed documentation can be found in it's repo [tzf-rb](https://github.com/HarlemSquirrel/tzf-rb).
+Detailed documentation can be found in it's repo
+[tzf-rb](https://github.com/HarlemSquirrel/tzf-rb).
 
 ```bash
 bundle add tzf
@@ -246,3 +259,49 @@ TZF.tz_name(40.74771675713742, -73.99350390136448)
 TZF.tz_names(40.74771675713742, -73.99350390136448)
 # => ["America/New_York"]
 ```
+
+## CLI
+
+There are 2 CLI implementations for project-tzf, one is based on Go, the other
+is based on Rust.
+
+### tzf's CLI
+
+```bash
+go install github.com/ringsaturn/tzf/cmd/tzf@latest
+```
+
+Then:
+
+```bash
+tzf -lng 116.3883 -lat 39.9289
+```
+
+Or batch process:
+
+```bash
+echo -e "116.3883 39.9289\n116.3883, 39.9289" | tzf -stdin-order lng-lat
+```
+
+### tzf-rs's CLI
+
+```bash
+cargo install tzf-rs
+```
+
+Then:
+
+```bash
+tzf --lng 116.3883 --lat 39.9289
+```
+
+Or batch process:
+
+```bash
+echo -e "116.3883 39.9289\n116.3883, 39.9289" | tzf --stdin-order lng-lat
+```
+
+If you are using NixOS, you can install tzf-rs's CLI via Nix, please see
+[NixOS][tzf-rs-nix] for more details, since it's maintained by community.
+
+[tzf-rs-nix]: https://search.nixos.org/packages?channel=unstable&from=0&size=50&sort=relevance&type=packages&query=tzf-rs#

@@ -275,6 +275,7 @@
       "TableOfContents",
       "batch-convert-with-dataframes",
       "buttonColorMode",
+      "cli",
       "database",
       "datatime-convert",
       "doks-docs-nav",
@@ -306,6 +307,8 @@
       "swift",
       "tile-based-indexing",
       "toc",
+      "tzf-rss-cli",
+      "tzfs-cli",
       "wasm",
       "web-api"
     ]
