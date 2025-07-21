@@ -84,6 +84,9 @@ employed Google Maps' Polyline encoding algorithm to compress the coordinate
 sequences into a compact ASCII representation, reducing the file size to about
 4.6 MB for efficient distribution.
 
+If you want to know the actual parameter for the simplification, you can see
+[the code](https://github.com/ringsaturn/tzf/blob/aa625496b23f1e6af92e9b457394bc3e4dc19bbf/reduce/reduce.go#L18).
+
 ## Tile based indexing
 
 A naïve Ray Casting approach operates in O(n^2) time, which is unsuitable for
