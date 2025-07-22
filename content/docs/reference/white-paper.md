@@ -123,7 +123,7 @@ given zoom level:
 This quadtree-like layout ensures parent tiles contain exactly four child tiles,
 allowing aggregation without gaps:
 
-![Tile-based timezone index demo(not the real data being used), A live demo to show polygon and it's index can be view via [tzf-web](tile_index_live_view)](/img/history-of-tzf/preindex-timezone-preview-we.png)
+![Tile-based timezone index demo(not the real data being used), A live demo to show polygon and it's index can be view via [tzf-web][tile_index_live_view]](/img/history-of-tzf/preindex-timezone-preview-we.png)
 
 [tile_index_live_view]: https://ringsaturn.github.io/tzf-web/?markers=%5B%7B%22lat%22%3A52.2076%2C%22lng%22%3A9.668%7D%5D&lat=50.310392&lng=11.887207&zoom=6&showIndex=true
 
