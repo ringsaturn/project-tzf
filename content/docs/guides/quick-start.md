@@ -1,6 +1,6 @@
 ---
 title: "Quick Start"
-description: "Guides lead a user through a specific task they want to accomplish, often with a sequence of steps."
+description: "Get started with Project tzf - convert GPS coordinates to timezones in your preferred programming language."
 summary: ""
 date: 2025-07-19T12:19:49+09:00
 lastmod: 2025-07-19T12:19:49+09:00
