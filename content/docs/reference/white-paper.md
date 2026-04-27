@@ -1,15 +1,15 @@
 ---
 title: "Technical White Paper"
-description: "How tzf achieves high-performance timezone lookup — polygon simplification, topology-aware processing, tile-based indexing, and YStripes."
+description: "How tzf achieves high-performance timezone lookup — topology-aware simplification, shared-edge deduplication, Polyline encoding, tile-based indexing, and YStripes."
 summary: "Design rationale and implementation details behind tzf's data pipeline and spatial indexing strategy."
 date: 2025-07-21T14:20:56+09:00
-lastmod: 2026-04-26T00:00:00+09:00
+lastmod: 2026-04-27T00:00:00+09:00
 draft: false
 weight: 1
 toc: true
 seo:
   title: "Technical White Paper — Project tzf"
-  description: "How tzf achieves fast timezone lookup: polygon simplification, topology-aware processing, Polyline encoding, tile-based indexing, and YStripes index."
+  description: "How tzf achieves fast timezone lookup: topology-aware simplification, shared-edge deduplication, Polyline encoding, tile-based indexing, and YStripes index."
   noindex: false
 ---
 
@@ -30,17 +30,56 @@ The design goals are:
 - At least support Go and Python. (Rust was developed because of PyO3's ecosystem.)
 - Minimal distribution/binary size for backend services.
 
-This white paper covers the four core techniques used in tzf:
+This white paper covers the five core techniques used in tzf:
 
-1. Polygon simplification
-2. Topology-aware simplification
-3. Tile-based indexing (FuzzyFinder pre-index)
-4. YStripes spatial index
+1. Topology-aware simplification (data pipeline stage 1)
+2. Shared-edge deduplication (data pipeline stage 2)
+3. Polyline encoding (data pipeline stage 3)
+4. Tile-based indexing (FuzzyFinder pre-index)
+5. YStripes spatial index
 
-## Polygon simplification
+## Data pipeline overview
 
-First, we converted the GeoJSON polygon data into a binary encoding using
-Protocol Buffers, reducing the file size by approximately 80 MB:
+The raw timezone boundary data starts at ~96 MB as a Protocol Buffers binary
+(`Timezones` format). Three successive offline stages compress it to ~5.4 MB
+before it is embedded in the distributed library:
+
+```
+Raw .bin                    (96 MB,   Timezones)
+  ↓ topology-aware D-P simplification
+topology.bin                (12.5 MB, Timezones,              −86%)
+  ↓ shared-edge deduplication
+topology.topo.bin           (10.0 MB, TopoTimezones,          −89%)
+  ↓ Polyline delta encoding
+topology.compress.topo.bin  ( 5.4 MB, CompressedTopoTimezones,−94%)  ← embedded (lite)
+```
+
+A parallel branch produces the preindex used by `FuzzyFinder`:
+
+```
+topology.bin → preindextzpb → topology.preindex.bin  (2.0 MB)  ← embedded (preindex)
+```
+
+The resulting distribution files are:
+
+| File | Format | Size |
+| ---- | ------ | ---- |
+| Full precision | `CompressedTopoTimezones` | ~17 MB |
+| Topology-simplified (lite) | `CompressedTopoTimezones` | ~5.4 MB |
+| Tile preindex | `PreindexTimezones` | ~2 MB |
+
+The full-precision dataset shrank from ~96 MB (raw protobuf) to ~17 MB — small
+enough that tzf-rs now provides it as an optional Cargo feature rather than
+requiring a manual file download.
+
+These files are distributed via [`ringsaturn/tzf-dist`](https://github.com/ringsaturn/tzf-dist).
+
+## Stage 1 — Topology-aware simplification
+
+### Background: the per-polygon approach and its limits
+
+The raw GeoJSON polygon data is first converted into a binary encoding using
+Protocol Buffers. The schema is straightforward:
 
 ```proto
 message Point {
@@ -63,50 +102,93 @@ message Timezones {
 }
 ```
 
-This conversion still required about 900 MB of memory to load. To further
-optimize, we applied the
+Even after this conversion the data still requires roughly 900 MB of memory
+to load. The natural first step is to apply the
 [Ramer–Douglas–Peucker (RDP) algorithm][Ramer–Douglas–Peucker_algorithm]
-to simplify polygon shapes by reducing the number of points:
+to reduce the number of points in each polygon:
 
 [Ramer–Douglas–Peucker_algorithm]: https://en.wikipedia.org/wiki/Ramer–Douglas–Peucker_algorithm
 
 ![The effect of varying epsilon in a parametric implementation of RDP, [source](https://en.wikipedia.org/wiki/File:RDP,_varying_epsilon.gif)](/img/history-of-tzf/RDP_varying_epsilon.gif)
 
-After filtering, the data size dropped to approximately 11 MB. We then applied
-Google Maps' Polyline encoding algorithm to compress coordinate sequences into
-a compact ASCII representation, reducing the file to about 4.6 MB.
+Applying RDP independently to each polygon shrank the data to about 11 MB.
+However, this naive approach had a fundamental correctness problem
+([tzf#183](https://github.com/ringsaturn/tzf/issues/183)): adjacent timezone
+polygons share edges, but each polygon is simplified in isolation. Because D-P
+removes different intermediate points from each side of a shared boundary, the
+two polygons end up with slightly different edge shapes — producing gaps and
+overlaps that are invisible in the raw data but appear after simplification.
+The `DefaultFinder`'s ±0.02° spatial-tolerance fallback was a workaround for
+this, not a real fix.
 
-If you want to see the actual simplification parameters, refer to
-[the code](https://github.com/ringsaturn/tzf/blob/aa625496b23f1e6af92e9b457394bc3e4dc19bbf/reduce/reduce.go#L18).
+### Topology-aware approach
 
-## Topology-aware simplification
+The fix is to integrate RDP simplification into a topology-aware pipeline that
+processes shared boundaries consistently across all adjacent polygons. Before
+any simplification takes place, a topology graph is built over all polygon rings:
 
-The original per-polygon RDP approach had a fundamental problem ([tzf#183](https://github.com/ringsaturn/tzf/issues/183)):
-adjacent timezone polygons share edges, but each polygon was simplified independently.
-This caused gaps and overlaps at boundaries that were invisible in the raw data but
-appeared after simplification.
+1. **Normalize windings** (CCW exterior, CW holes) so adjacent rings traverse a
+   shared boundary in opposite directions — this is what makes reverse-edge
+   matching reliable.
+2. **Remove zero-length edges** from source data (some rings contain duplicate
+   adjacent vertices that break shared-edge detection).
+3. **Snap T-junction vertices**: if a topology node falls on the interior of an
+   adjacent edge, insert it as a new vertex before analysis begins.
+4. **Detect shared edges** via canonical-key hashing. Classify each segment:
+   - *Fixed*: vertices where three or more rings meet. These anchor points must
+     not move.
+   - *Shared segment interior*: free to be simplified, but only once — all
+     partner rings reuse the same simplified result.
+   - *Non-shared*: simplified independently (coastlines, standalone boundaries).
+5. **Enclave rings** (a hole whose shape equals an inner timezone's exterior)
+   are handled specially: both partner rings rotate to the lexicographically
+   smallest vertex (canonical start) and enter a shared simplification cache,
+   guaranteeing identical output without any fixed vertices.
+6. **Fallback**: rings that simplify to fewer than 3 unique points, produce
+   zero-length edges, or (for small rings ≤ 100 pts) are self-intersecting
+   revert to the original unmodified input ring.
 
-The fix: detect shared edges first, simplify them once, then substitute the
-simplified version back into both adjacent polygons. Neighboring polygons now always
-reference the same simplified boundary, preventing new gaps or overlaps from forming.
+This topology-aware approach was completed in Spring 2026. Its implementation
+is documented in
+[`internal/topology/README.md`](https://github.com/ringsaturn/tzf/blob/v1.1.0/internal/topology/README.md).
 
-This topology-aware approach was completed in Spring 2026. Its implementation is
-documented in [`internal/topology/README.md`](https://github.com/ringsaturn/tzf/blob/v1.1.0/internal/topology/README.md).
+**Result**: 86% point reduction (8 M → 1.09 M points) with topologically
+consistent shared boundaries — no gaps, no unintended overlaps.
 
-The results of combining topology-aware simplification with shared-edge storage
-(each shared edge stored only once) and Polyline compression are significant:
+## Stage 2 — Shared-edge deduplication
 
-| Dataset                   | Format                    | Size  |
-| ------------------------- | ------------------------- | ----- |
-| Full precision            | `CompressedTopoTimezones` | ~17 MB |
-| Topology-simplified (lite)| `CompressedTopoTimezones` | ~5.4 MB |
-| Tile preindex             | `PreindexTimezones`       | ~2 MB  |
+After simplification, long shared boundary segments still appear twice in the
+file — once per adjacent timezone ring. The `deduplicatetzpb` tool converts
+the `Timezones` binary into a `TopoTimezones` format that stores each shared
+segment only once:
 
-The full-precision dataset shrank from ~90 MB (raw protobuf) to ~17 MB — small
-enough that tzf-rs now provides it as an optional Cargo feature rather than
-requiring a manual file download.
+- A global `SharedEdge` library indexes each long shared boundary segment by ID.
+- Each ring becomes a sequence of `RingSegment` entries: either a short inline
+  point sequence (≤ 10 pts) or a forward/reversed reference to a `SharedEdge` ID.
 
-These files are distributed via [`ringsaturn/tzf-dist`](https://github.com/ringsaturn/tzf-dist).
+Winding normalization must run before this step for the same reason it must
+run before simplification: only when adjacent rings traverse their shared
+boundary in opposite directions does the deduplication recognise them as the
+same edge (rather than classifying them as disputed-territory same-direction
+overlaps).
+
+**Result on the simplified data**: ~20% further size reduction
+(12.5 MB → 10.0 MB). The `TopoTimezones` format also round-trips cleanly back
+to full polygons, which makes it a useful interchange format for downstream
+tools.
+
+## Stage 3 — Polyline encoding
+
+The final offline stage applies Google Maps' Encoded Polyline algorithm to
+compress the coordinate sequences stored in `TopoTimezones`. Geographically
+sequential points have small deltas, so delta + zig-zag encoding achieves
+roughly 45% additional compression on the simplified and deduplicated data.
+
+Shared-edge point sequences and inline segment points are delta-encoded;
+edge ID references (int32 forward/reversed references) pass through unchanged.
+
+**Result**: 10.0 MB → 5.4 MB (`CompressedTopoTimezones`), for a combined
+pipeline reduction of 94% from the raw 96 MB source.
 
 ## Tile-based indexing
 
@@ -144,24 +226,41 @@ given zoom level:
 This quadtree-like layout ensures parent tiles contain exactly four child tiles,
 allowing aggregation without gaps:
 
-![Tile-based timezone index demo (not the real data being used). A live demo showing polygons and their index is available via [tzf-web][tile_index_live_view]](/img/history-of-tzf/preindex-timezone-preview-we.png)
+![Tile-based timezone index demo (not the real data being used). A live demo showing polygons and their index is available via [tzf-web][tile_index_live_view]](/img/preindex-timezone-preview-berlin.webp)
 
 [tile_index_live_view]: https://ringsaturn.github.io/tzf-web/?markers=%5B%7B%22lat%22%3A52.2076%2C%22lng%22%3A9.668%7D%5D&lat=50.310392&lng=11.887207&zoom=6&showIndex=true
 
-The preindex stores only tiles that fall **entirely within** a single timezone polygon.
-A tile is added to the index only when it is completely contained by one timezone —
-boundary tiles that straddle multiple polygons are intentionally excluded.
+Each timezone is processed independently. For each timezone:
 
-When querying a point:
-- If the point falls in a covered tile → the timezone is known immediately, with no polygon test needed.
-- If the point falls outside any covered tile (near a border, on a coastline, or in a sparse region) → the preindex returns nothing.
+1. Generate all tiles at the index zoom level (zoom 13) that touch the polygon.
+2. Keep only tiles that fall **entirely within** the polygon (`EnsureInside`).
+3. Drop edge tiles — tiles where any of the 8 surrounding neighbors are absent from the
+   set. This step is applied twice (`dropEdgeLayger = 2`), peeling back two layers from
+   the interior boundary so that tiles near the polygon edge are excluded.
+4. Merge the remaining tiles upward to the aggregation zoom level (zoom 3) via
+   `MergeUp`, then apply `EnsureInside` again on the merged result.
 
-`FuzzyFinder` uses this preindex alone. Its results are accurate for covered tiles, but it returns no
-result rather than guessing for uncovered areas — the caller is responsible for handling the empty case.
+Because each timezone is indexed independently, a tile that falls inside **multiple**
+timezones appears in all of their index entries. The in-memory map is
+`map[Tile][]string`, so a single tile can return several timezone names. This handles
+shared areas such as Asia/Shanghai and Asia/Urumqi, whose overlapping interior region
+generates matching tiles in both timezones' preindex entries.
 
-`DefaultFinder` handles this automatically: it tries the tile preindex first; if no result is returned,
-it falls through to full polygon lookup via `Finder`. This makes it correct for all coordinates while
-retaining preindex speed for the majority of world-city queries.
+When querying a point, the lookup walks from the coarsest zoom (3) to the finest (13)
+and returns all timezone names at the first matching tile:
+- If a matching tile is found → return its timezone list (one name for unambiguous
+  interior tiles, multiple names for shared-area tiles).
+- If no tile matches (border region, coastline, sparse area) → the preindex returns
+  nothing.
+
+`FuzzyFinder` uses this preindex alone. `GetTimezoneNames` returns the full list;
+`GetTimezoneName` returns the first entry. For uncovered areas it returns an error
+rather than guessing — the caller is responsible for handling the empty case.
+
+`DefaultFinder` handles this automatically: it tries the tile preindex first; if no
+result is returned, it falls through to full polygon lookup via `Finder`. This makes
+it correct for all coordinates while retaining preindex speed for the majority of
+world-city queries.
 
 ## YStripes index
 
