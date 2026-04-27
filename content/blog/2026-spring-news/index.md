@@ -32,7 +32,7 @@ The problem was that the dataset is very large. Over the past few years I made m
 
 When I tried again in 2026, I used Claude and Codex across multiple rounds of implementation, verification, and refactoring, and finally got the complete strategy working. The rough flow is illustrated below:
 
-![](https://blog-assets.ringsaturn.me/pic/tzf-spring-news/topology_algo.en.webp)
+![Made by ChatGPT](https://blog-assets.ringsaturn.me/pic/tzf-spring-news/topology_algo.en.webp)
 
 With this strategy in place, it also became possible to implement the [new data storage format goals](https://github.com/ringsaturn/tzf/issues/191) designed last year.
 
