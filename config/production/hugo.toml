@@ -1,3 +1,0 @@
-# Overrides for production environment
-baseurl = "https://project-tzf.ringsaturn.me"
-canonifyURLs = true
