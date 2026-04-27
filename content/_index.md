@@ -13,15 +13,13 @@ draft: false
 
 <div class="hx:mt-6 hx:mb-6">
 {{< hextra/hero-headline >}}
-  <!-- Build modern websites&nbsp;<br class="hx:sm:block hx:hidden" />with Markdown and Hugo -->
   Project tzf.
 {{< /hextra/hero-headline >}}
 </div>
 
 <div class="hx:mb-12">
 {{< hextra/hero-subtitle >}}
-  <!-- Fast, batteries-included Hugo theme&nbsp;<br class="hx:sm:block hx:hidden" />for creating beautiful static websites -->
-  Convert GPS coordinates to timezones&nbsp;<br class="hx:sm:block hx:hidden" />with high performance and multi-language support
+  Convert GPS coordinates to timezones&nbsp;<br class="hx:sm:block hx:hidden" />with high performance & multi-language support
 {{< /hextra/hero-subtitle >}}
 </div>
 
@@ -45,10 +43,3 @@ draft: false
     subtitle="Built on official timezone boundary data with options for both optimized and full-precision lookups."
   >}}
 {{< /hextra/feature-grid >}}
-
-{{< cards >}} {{< card link="docs" title="Docs" icon="book-open" >}}
-
-{{< card link="about" title="About" icon="user" >}}
-
-{{< /cards >}}
-

@@ -1,15 +1,15 @@
 ---
 title: "Data Pipeline"
 description: "Five-layer architecture showing how timezone boundary data flows from source to every language implementation."
-summary: "How GeoJSON boundary data flows through tzf-rel into Go, Rust, Python, Swift, Ruby, WASM, and service layers."
+summary: "How GeoJSON boundary data flows through tzf-dist into Go, Rust, Python, Swift, Ruby, WASM, and service layers."
 date: 2025-07-19T11:25:25+09:00
-lastmod: 2025-07-19T11:25:25+09:00
+lastmod: 2026-04-26T00:00:00+09:00
 draft: false
 weight: 2
 toc: true
 seo:
   title: "Data Pipeline — Project tzf"
-  description: "The five-layer tzf data pipeline: from evansiroky/timezone-boundary-builder GeoJSON through processing, distribution, language implementations, and applications."
+  description: "The five-layer tzf data pipeline: from evansiroky/timezone-boundary-builder GeoJSON through processing, distribution via tzf-dist, language implementations, and applications."
   noindex: false
 ---
 
@@ -23,14 +23,12 @@ graph TD
 
     %% L1 - Core Processing
     subgraph L1["L1 - Core Processing"]
-        TZF[ringsaturn/tzf<br/>Go Implementation]
+        TZF[ringsaturn/tzf<br/>Go Implementation<br/>Topology-aware processing]
     end
 
     %% L2 - Data Distribution
     subgraph L2["L2 - Data Distribution"]
-        TZF_REL[ringsaturn/tzf-rel<br/>CI/CD & Data Processing]
-        TZF_REL_LITE[ringsaturn/tzf-rel-lite<br/>Lite Version for Go]
-        TZF_RUST_CRATE[tzf-rel Rust Crate<br/>Published Data]
+        TZF_DIST[ringsaturn/tzf-dist<br/>Go module + Rust crate<br/>CompressedTopoTimezones format]
     end
 
     %% L3 - Language Implementations
@@ -50,30 +48,24 @@ graph TD
     %% L5 - Applications & Services
     subgraph L5["L5 - Applications & Services"]
         TZF_WEB[ringsaturn/tzf-web<br/>Online Demo]
-        TZF_SERVER[ringsaturn/tzf-server<br/>HTTP API & Redis]
         RUST_TZ_SERVICE[racemap/rust-tz-service<br/>HTTP API]
-        REDIZONE[ringsaturn/redizone<br/>Redis Server]
     end
 
     %% Data Flow
     GeoJSON --> TZF
-    TZF --> TZF_REL
-    TZF_REL --> |copy| TZF_REL_LITE
-    TZF_REL --> |publish| TZF_RUST_CRATE
-    TZF_REL --> |copy| TZF_SWIFT
+    TZF --> TZF_DIST
 
-    %% Go Usage
-    TZF_REL_LITE --> TZF
-    TZF --> TZF_SERVER
+    %% Go uses tzf-dist directly
+    TZF_DIST --> |Go module| TZF
+    TZF_DIST --> |Rust crate| TZF_RS
+    TZF_DIST --> |embedded| TZF_SWIFT
 
     %% Rust Ecosystem
-    TZF_RUST_CRATE --> TZF_RS
     TZF_RS --> TZFPY
     TZF_RS --> TZF_RB
     TZF_RS --> TZF_WASM
     TZF_RS --> PG_TZF
     TZF_RS --> RUST_TZ_SERVICE
-    TZF_RS --> REDIZONE
 
     %% Web Applications
     TZF_WASM --> TZF_WEB
@@ -88,21 +80,24 @@ graph TD
 
     class GeoJSON l0
     class TZF l1
-    class TZF_REL,TZF_REL_LITE,TZF_RUST_CRATE l2
+    class TZF_DIST l2
     class TZF_RS,TZF_SWIFT l3
     class TZFPY,TZF_RB,TZF_WASM,PG_TZF l4
-    class TZF_WEB,TZF_SERVER,RUST_TZ_SERVICE,REDIZONE l5
+    class TZF_WEB,RUST_TZ_SERVICE l5
 ```
 
 - **L0 - Data Source**: Raw geographic timezone boundary data from upstream providers
   - [evansiroky/timezone-boundary-builder](https://github.com/evansiroky/timezone-boundary-builder)
-- **L1 - Core Processing**: Primary data processing and CI/CD infrastructure for the ecosystem
+- **L1 - Core Processing**: Primary data processing — topology-aware polygon simplification,
+  shared-edge deduplication, Polyline encoding, and tile pre-index generation
   - [ringsaturn/tzf](https://github.com/ringsaturn/tzf)
-- **L2 - Data Distribution**: Processed and packaged data ready for consumption by different language ecosystems
-  - [ringsaturn/tzf-rel](https://github.com/ringsaturn/tzf-rel)
-  - [ringsaturn/tzf-rel-lite](https://github.com/ringsaturn/tzf-rel-lite)
-  - [tzf-rel Rust Crate](https://crates.io/crates/tzf-rel)
-- **L3 - Language Implementations**: Core timezone lookup implementations in different programming languages
+- **L2 - Data Distribution**: Processed binary data in `CompressedTopoTimezones` format,
+  distributed as a Go module and Rust crate
+  - [ringsaturn/tzf-dist](https://github.com/ringsaturn/tzf-dist)
+  - Files: `combined-with-oceans.compress.topo.bin` (~17 MB, full precision),
+    `combined-with-oceans.topology.compress.topo.bin` (~5.4 MB, lite),
+    `combined-with-oceans.reduce.preindex.bin` (~2 MB, tile preindex)
+- **L3 - Language Implementations**: Core timezone lookup implementations consuming tzf-dist data
   - [ringsaturn/tzf-rs](https://github.com/ringsaturn/tzf-rs)
   - [ringsaturn/tzf-swift](https://github.com/ringsaturn/tzf-swift)
 - **L4 - Language Bindings & Extensions**: Wrapper libraries and database extensions built on top of core implementations
@@ -112,6 +107,4 @@ graph TD
   - [ringsaturn/pg_tzf](https://github.com/ringsaturn/pg_tzf)
 - **L5 - Applications & Services**: End-user applications, web services, and API servers
   - [ringsaturn/tzf-web](https://github.com/ringsaturn/tzf-web)
-  - [ringsaturn/tzf-server](https://github.com/ringsaturn/tzf-server)
   - [racemap/rust-tz-service](https://github.com/racemap/rust-tz-service)
-  - [ringsaturn/redizone](https://github.com/ringsaturn/redizone)

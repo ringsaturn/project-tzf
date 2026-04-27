@@ -1,9 +1,9 @@
 ---
 title: "Timeline"
-description: "Project tzf development history — key milestones from the initial Go implementation to the v1.0.0 stable release."
+description: "Project tzf development history — from the initial Go implementation through the 2026 Spring updates."
 summary: "Chronological history of key milestones in the tzf ecosystem."
 date: 2025-07-21T10:52:43+09:00
-lastmod: 2025-07-21T10:52:43+09:00
+lastmod: 2026-04-26T00:00:00+09:00
 draft: false
 weight: 5
 toc: true
@@ -63,3 +63,34 @@ tzf-repos' API is stable now.
 
 Created <https://github.com/ringsaturn/pg-tzf>, which is a PostgreSQL extension
 of tzf-rs.
+
+## 2026
+
+### 2026 Spring
+
+**Topology-aware simplification** implemented in tzf v1.1.0, resolving a long-standing
+issue ([tzf#183](https://github.com/ringsaturn/tzf/issues/183)) where independent
+per-polygon RDP simplification created gaps and overlaps at shared timezone borders.
+The new approach detects shared edges first, simplifies them once, and substitutes
+the simplified boundary back into both adjacent polygons.
+
+**New data distribution repository** [`ringsaturn/tzf-dist`](https://github.com/ringsaturn/tzf-dist)
+introduced, distributing data in the new `CompressedTopoTimezones` format:
+
+| File | Size | Description |
+| --- | --- | --- |
+| `combined-with-oceans.compress.topo.bin` | ~17 MB | Full precision |
+| `combined-with-oceans.topology.compress.topo.bin` | ~5.4 MB | Topology-simplified (lite) |
+| `combined-with-oceans.reduce.preindex.bin` | ~2 MB | Tile preindex |
+
+The full-precision dataset shrank from ~90 MB to ~17 MB, making it viable to ship
+as an optional Cargo feature in tzf-rs v1.3.0 (`DefaultFinder::new_full()`).
+
+**YStripes spatial index** (ported from [`tidwall/tg`](https://github.com/tidwall/tg))
+becomes the default polygon-level index in tzf v1.1.0 (Go) and tzf-rs v1.2.0 (Rust).
+Single random-city lookup: ~1 µs on Apple M3 Max.
+
+Releases in this wave: tzf v1.1.0, tzf-rs v1.2.0 / v1.3.0, tzfpy v1.2.0 / v1.3.0,
+tzf-dist v0.0.2026-a, geometry-rs v0.4.1.
+
+Check blog post [tzf Spring 2026 Update]({{< ref "/blog/2026-spring-news/index.md" >}}) for more details.

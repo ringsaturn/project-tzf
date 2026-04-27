@@ -23,7 +23,6 @@ Project tzf provides multi-language support for looking up a timezone by longitu
 | Ruby                      | [`HarlemSquirrel/tzf-rb`](https://github.com/HarlemSquirrel/tzf-rb)     |                                                                                                             |
 | JS via Wasm (browser)     | [`ringsaturn/tzf-wasm`](https://github.com/ringsaturn/tzf-wasm)         |                                                                                                             |
 | HTTP API                  | [`racemap/rust-tz-service`](https://github.com/racemap/rust-tz-service) |                                                                                                             |
-| Redis Server              | [`ringsaturn/tzf-server`](https://github.com/ringsaturn/tzf-server)     |                                                                                                             |
 | Online Demo               | [`ringsaturn/tzf-web`](https://github.com/ringsaturn/tzf-web)           |                                                                                                             |
 
 [swift_doc_url]: https://swiftpackageindex.com/ringsaturn/tzf-swift
@@ -96,29 +95,26 @@ fn main() {
 ```
 
 <details>
-<summary>Full-precision support</summary>
+<summary>Full-precision support (v1.3.0+)</summary>
 
-By default, tzf-rs uses simplified shape data. For 100% accurate lookup, download the
-[full dataset](https://github.com/ringsaturn/tzf-rel/blob/main/combined-with-oceans.bin)
-(~90 MB) and load it manually:
+Since v1.3.0, full-precision data is available via an optional Cargo feature.
+Because the full dataset (~17 MB) exceeds crates.io size limits, it must be
+referenced via a git dependency:
+
+```toml
+[dependencies]
+tzf-rs = { git = "https://github.com/ringsaturn/tzf-rs", tag = "v{X}.{Y}.{Z}", features = ["full"], default-features = false }
+```
 
 ```rust
-use tzf_rs::Finder;
-use tzf_rs::gen::tzf::v1::Timezones;
-
-pub fn load_full() -> Vec<u8> {
-    include_bytes!("./combined-with-oceans.bin").to_vec()
-}
+use tzf_rs::DefaultFinder;
 
 fn main() {
-    let file_bytes: Vec<u8> = load_full();
-    let finder = Finder::from_pb(Timezones::try_from(file_bytes).unwrap_or_default());
+    let finder = DefaultFinder::new_full();
     let tz_name = finder.get_tz_name(139.767125, 35.681236);
     println!("tz_name: {}", tz_name);
 }
 ```
-
-A full example is available [here](https://github.com/ringsaturn/tzf-rs/pull/170).
 
 </details>
 

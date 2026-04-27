@@ -30,12 +30,15 @@ For 100% accurate lookups, use the full dataset:
 
 ## How much memory does tzf use?
 
-| Mode          | Init   | After GC |
-| ------------- | ------ | -------- |
-| Default (Go)  | ~150 MB | ~60 MB  |
-| Full (Go)     | ~900 MB | ~660 MB |
+| Mode (Go)                                     | Memory  |
+| --------------------------------------------- | ------- |
+| DefaultFinder (topology-simplified + preindex) | ~75 MB |
+| Finder (topology-simplified)                   | ~66 MB |
+| FullFinder (full-precision + preindex)         | ~422 MB |
 
-Memory figures are for the Go implementation. Rust and Python figures are similar for the default mode.
+Rust memory is similar; enabling the YStripes index adds roughly 30–40 MB.
+Full-precision mode in Rust (with YStripes) uses ~560 MB.
+Python uses the Rust binary internally, so its footprint matches the Rust default mode.
 
 ## Why is initialization slow?
 
@@ -52,13 +55,20 @@ Library releases follow within a short time of each upstream data release.
 
 ## What is the difference between Finder, FuzzyFinder, and DefaultFinder?
 
-| Class           | Data used          | Accuracy      | Speed  |
-| --------------- | ------------------ | ------------- | ------ |
-| `FuzzyFinder`   | Tile-based index   | Approximate   | Fastest |
-| `Finder`        | Simplified polygons | Good          | Fast   |
-| `DefaultFinder` | Both (tile → polygon) | Good       | Fast   |
+| Class           | Data used               | Coverage                          | Speed   |
+| --------------- | ----------------------- | --------------------------------- | ------- |
+| `FuzzyFinder`   | Tile preindex only      | Interior tiles only — no result for border/uncovered areas | Fastest |
+| `Finder`        | Polygon data            | Full global coverage              | Fast    |
+| `DefaultFinder` | Tile preindex + polygon | Full global coverage              | Fast    |
 
-`DefaultFinder` is the recommended choice for most use cases: it uses the tile index for an O(1) initial filter and then runs precise polygon lookup only on the small set of candidates.
+**FuzzyFinder** preindex stores only tiles that lie entirely within a single timezone polygon.
+When a query point lands in a covered tile it returns the correct timezone immediately.
+When it does not — near borders, coastlines, or sparse regions — it returns nothing rather than guessing.
+It is not "approximate": results are accurate, but coverage is incomplete.
+
+**DefaultFinder** (recommended) tries the tile preindex first; if no result is found it falls back to full
+polygon lookup. This gives near-constant speed for the majority of world-city queries while remaining
+correct for all coordinates.
 
 ## What license does tzf use?
 
