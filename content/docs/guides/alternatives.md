@@ -1,16 +1,15 @@
 ---
 title: "Alternatives"
-description: ""
-summary: ""
+description: "Other GPS-coordinate-to-timezone libraries across Go, Rust, Python, Ruby, Swift, and databases."
+summary: "A curated list of alternative timezone lookup libraries for various languages and environments."
 date: 2025-07-19T12:39:57+09:00
 lastmod: 2025-07-19T12:39:57+09:00
-weight: 10000
+weight: 90
 toc: true
 seo:
-  title: "" # custom title (optional)
-  description: "" # custom description (recommended)
-  canonical: "" # custom canonical URL (optional)
-  noindex: false # false (default) or true
+  title: "Alternatives — Project tzf"
+  description: "Other GPS-coordinate-to-timezone libraries for Go, Rust, Python, Ruby, Swift, and databases."
+  noindex: false
 ---
 
 Please be aware that different projects may have different design goals(speed, accuracy, data sources, etc.).

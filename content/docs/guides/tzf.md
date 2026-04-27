@@ -1,21 +1,22 @@
 ---
-title: "Best Practices for tzf"
-description: ""
-summary: ""
+title: "Go (tzf)"
+description: "Best practices and advanced usage patterns for the Go implementation of tzf."
+summary: "Best practices for using tzf in Go — including global finder reuse and production patterns."
 date: 2025-07-21T12:14:46+09:00
 lastmod: 2025-07-21T12:14:46+09:00
 draft: false
-weight: 1000
+weight: 1
 toc: true
 seo:
-  title: "" # custom title (optional)
-  description: "" # custom description (recommended)
-  canonical: "" # custom canonical URL (optional)
-  noindex: false # false (default) or true
+  title: "Go (tzf) Guide — Project tzf"
+  description: "Best practices for the Go tzf library — reusing Finder instances, global variables, and production patterns."
+  noindex: false
 ---
 
-It's expensive to init tzf's Finder/FuzzyFinder/DefaultFinder, please consider
-reuse it or as a global var. Below is a global var example:
+## Reuse the Finder
+
+Initializing a `Finder`, `FuzzyFinder`, or `DefaultFinder` is expensive — it loads and parses the timezone data file.
+Always reuse a single instance, for example as a package-level variable:
 
 ```go {hl_lines=["9"]}
 package main

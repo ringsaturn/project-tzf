@@ -1,25 +1,23 @@
 ---
-title: Best Practices for tzfpy
-description: ""
-summary: ""
+title: "Python (tzfpy)"
+description: "Best practices and integration patterns for tzfpy — datetime conversion, batch processing, and web APIs."
+summary: "Using tzfpy with datetime libraries, data frames (Pandas, Polars, NumPy), and FastAPI."
 date: 2025-07-21T12:06:56+09:00
 lastmod: 2025-07-21T12:06:56+09:00
 draft: false
-weight: 1002
+weight: 3
 toc: true
 seo:
-  title: "" # custom title (optional)
-  description: "" # custom description (recommended)
-  canonical: "" # custom canonical URL (optional)
-  noindex: false # false (default) or true
+  title: "Python (tzfpy) Guide — Project tzf"
+  description: "tzfpy best practices — datetime conversion, batch processing with Pandas/Polars/NumPy, and FastAPI integration."
+  noindex: false
 ---
 
-tzfpy's feature is very simple, only convert GPS coordinates to timezone name.
-In fact, those name will be used with other datatime related functions and other use cases.
+tzfpy returns an IANA timezone name string. This section shows how to use that name with common Python libraries.
 
-## Datatime convert
+## Datetime conversion
 
-### Get local time via datetime
+### Using `zoneinfo` (stdlib)
 
 ```bash
 pip install tzfpy
@@ -45,7 +43,7 @@ Output:
 2025-04-29 01:33:56.325194+09:00
 ```
 
-### Get local time via arrow
+### Using `arrow`
 
 ```bash
 pip install arrow tzfpy
@@ -70,7 +68,7 @@ Output:
 2025-04-29T10:33:45.551282+09:00
 ```
 
-### Get local time via whenever
+### Using `whenever`
 
 ```bash
 pip install tzfpy whenever
@@ -82,11 +80,8 @@ from tzfpy import get_tz
 from whenever import Instant
 
 now = Instant.now()
-
 tz = get_tz(139.7744, 35.6812)  # Tokyo
-
 now = now.to_tz(tz)
-
 print(now)
 ```
 
@@ -96,15 +91,11 @@ Output:
 2025-04-29T10:33:28.427784+09:00[Asia/Tokyo]
 ```
 
-## Batch convert with dataframes
+## Batch processing with data frames
 
-Consider a table that contains many cities and their GPS coordinates.
-The fastest way to get their timezone name is to use dataframes' own map/apply functions.
+For bulk coordinate-to-timezone conversion, use vectorized operations rather than row-by-row loops.
 
-### Pandas
-
-Pandas does provide built-in apply feature, however, it's not very efficient.
-With NumPy's help, we can get a much faster solution.
+### Pandas + NumPy
 
 ```bash
 pip install pandas numpy tzfpy
@@ -119,36 +110,29 @@ import numpy as np
 import pandas as pd
 import tzfpy
 
-# lazy init
+# Trigger lazy init before the benchmark
 _ = tzfpy.get_tz(0, 0)
 
-
-cities_as_dict = []
-for city in citiespy.all_cities():
-    cities_as_dict.append({"name": city.name, "lng": city.lng, "lat": city.lat})
-
+cities_as_dict = [{"name": c.name, "lng": c.lng, "lat": c.lat} for c in citiespy.all_cities()]
 df = pd.DataFrame(cities_as_dict)
 
-
 start = time.perf_counter()
-df["tz_from_tzfpy"] = df.apply(lambda x: tzfpy.get_tz(x.lng, x.lat), axis=1)
+df["tz"] = df.apply(lambda x: tzfpy.get_tz(x.lng, x.lat), axis=1)
 end = time.perf_counter()
-print(f"[tzfpy_with_dataframe] Pandas apply Time taken: {end - start} seconds")
+print(f"Pandas apply: {end - start:.3f}s")
 
-vec_tzfpy_get_tz = np.vectorize(tzfpy.get_tz)
+vec_get_tz = np.vectorize(tzfpy.get_tz)
 start = time.perf_counter()
-df["tz_from_tzfpy_vec"] = vec_tzfpy_get_tz(df.lng, df.lat)
+df["tz_vec"] = vec_get_tz(df.lng, df.lat)
 end = time.perf_counter()
-print(
-    f"[tzfpy_with_dataframe] Pandas apply with NumPy vectorize Time taken: {end - start} seconds"
-)
+print(f"NumPy vectorize: {end - start:.3f}s")
 ```
 
 Output:
 
 ```
-[tzfpy_with_dataframe] Pandas apply Time taken: 0.8276746249757707 seconds
-[tzfpy_with_dataframe] Pandas apply with NumPy vectorize Time taken: 0.348435917054303 seconds
+Pandas apply: 0.828s
+NumPy vectorize: 0.348s
 ```
 
 ### Polars
@@ -157,21 +141,16 @@ Output:
 pip install polars tzfpy
 ```
 
-```python {hl_lines=["18-24"]}
+```python {hl_lines=["13-19"]}
 import time
 
 import citiespy
 import polars as pl
 import tzfpy
 
-# lazy init
 _ = tzfpy.get_tz(0, 0)
 
-
-cities_as_dict = []
-for city in citiespy.all_cities():
-    cities_as_dict.append({"name": city.name, "lng": city.lng, "lat": city.lat})
-
+cities_as_dict = [{"name": c.name, "lng": c.lng, "lat": c.lat} for c in citiespy.all_cities()]
 df = pl.from_dicts(cities_as_dict)
 
 start = time.perf_counter()
@@ -180,18 +159,17 @@ df = df.with_columns(
     .map_elements(
         lambda cols: tzfpy.get_tz(cols["lng"], cols["lat"]), return_dtype=pl.Utf8
     )
-    .alias("tz_from_tzfpy")
+    .alias("tz")
 )
 end = time.perf_counter()
-print(f"[tzfpy_with_dataframe] Polars Time taken: {end - start} seconds")
+print(f"Polars: {end - start:.3f}s")
 ```
 
 Output:
 
 ```
-[tzfpy_with_dataframe] Polars Time taken: 0.34632241702638566 seconds
+Polars: 0.346s
 ```
-
 
 ### Pure NumPy
 
@@ -199,7 +177,7 @@ Output:
 pip install numpy tzfpy
 ```
 
-```python {hl_lines=["21", "24"]}
+```python {hl_lines=["14", "17"]}
 import time
 
 import citiespy
@@ -207,37 +185,25 @@ import numpy as np
 import pandas as pd
 import tzfpy
 
-# lazy init
 _ = tzfpy.get_tz(0, 0)
 
-
-cities_as_dict = []
-for city in citiespy.all_cities():
-    cities_as_dict.append({"name": city.name, "lng": city.lng, "lat": city.lat})
-
+cities_as_dict = [{"name": c.name, "lng": c.lng, "lat": c.lat} for c in citiespy.all_cities()]
 df = pd.DataFrame(cities_as_dict)
 
-lngs = df.lng.values
-lats = df.lat.values
-
-vec_tzfpy_get_tz = np.vectorize(tzfpy.get_tz)
-
+vec_get_tz = np.vectorize(tzfpy.get_tz)
 start = time.perf_counter()
-_ = vec_tzfpy_get_tz(lngs, lats)
+_ = vec_get_tz(df.lng.values, df.lat.values)
 end = time.perf_counter()
-print(f"[tzfpy_with_dataframe] Numpy Time taken: {end - start} seconds")
+print(f"NumPy: {end - start:.3f}s")
 ```
 
 Output:
 
 ```
-[tzfpy_with_dataframe] Numpy Time taken: 0.33512612502090633 seconds
+NumPy: 0.335s
 ```
 
-
-## Web API
-
-### FastAPI
+## Web API with FastAPI
 
 ```bash
 pip install fastapi uvicorn tzfpy
@@ -248,7 +214,7 @@ from fastapi import FastAPI, Query
 from pydantic import BaseModel, Field
 from tzfpy import data_version, get_tz, get_tzs, timezonenames
 
-# lazy init
+# Trigger lazy init at startup
 _ = get_tz(0, 0)
 
 
@@ -264,7 +230,7 @@ class TimezonesResponse(BaseModel):
 
 class TimezonenamesResponse(BaseModel):
     timezonenames: list[str] = Field(
-        ..., description="Timezonenames", examples=[["Etc/GMT+1", "Etc/GMT+2"]]
+        ..., description="All timezone names", examples=[["Etc/GMT+1", "Etc/GMT+2"]]
     )
 
 
@@ -272,61 +238,21 @@ class DataVersionResponse(BaseModel):
     data_version: str = Field(..., description="Data version", examples=["2025b"])
 
 
-app = FastAPI(
-    title="tzfpy with FastAPI",
-    description="tzfpy with FastAPI",
-    contact={
-        "name": "tzfpy",
-        "url": "https://github.com/ringsaturn/tzfpy",
-    },
-)
-
-
-@app.get("/")
-def read_root():
-    return {"message": "Hello, World!"}
+app = FastAPI(title="tzfpy with FastAPI")
 
 
 @app.get("/timezone", response_model=TimezoneResponse)
 def get_timezone(
-    longitude: float = Query(
-        ...,
-        description="Longitude",
-        ge=-180,
-        le=180,
-        examples=[139.767125],
-        openapi_examples={"example-Tokyo": {"value": 139.767125}},
-    ),
-    latitude: float = Query(
-        ...,
-        description="Latitude",
-        ge=-90,
-        le=90,
-        examples=[35.681236],
-        openapi_examples={"example-Tokyo": {"value": 35.681236}},
-    ),
+    longitude: float = Query(..., ge=-180, le=180, examples=[139.767125]),
+    latitude: float = Query(..., ge=-90, le=90, examples=[35.681236]),
 ):
     return TimezoneResponse(timezone=get_tz(longitude, latitude))
 
 
 @app.get("/timezones", response_model=TimezonesResponse)
 def get_timezones(
-    longitude: float = Query(
-        ...,
-        description="Longitude",
-        ge=-180,
-        le=180,
-        examples=[87.617733],
-        openapi_examples={"example-Urumqi": {"value": 87.617733}},
-    ),
-    latitude: float = Query(
-        ...,
-        description="Latitude",
-        ge=-90,
-        le=90,
-        examples=[43.792818],
-        openapi_examples={"example-Urumqi": {"value": 43.792818}},
-    ),
+    longitude: float = Query(..., ge=-180, le=180, examples=[87.617733]),
+    latitude: float = Query(..., ge=-90, le=90, examples=[43.792818]),
 ):
     return TimezonesResponse(timezones=get_tzs(longitude, latitude))
 
@@ -343,6 +269,5 @@ def get_data_version():
 
 if __name__ == "__main__":
     import uvicorn
-
     uvicorn.run(app, host="0.0.0.0", port=8010)
 ```

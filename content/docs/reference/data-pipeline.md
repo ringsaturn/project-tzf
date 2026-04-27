@@ -1,16 +1,16 @@
 ---
 title: "Data Pipeline"
-description: ""
-summary: ""
+description: "Five-layer architecture showing how timezone boundary data flows from source to every language implementation."
+summary: "How GeoJSON boundary data flows through tzf-rel into Go, Rust, Python, Swift, Ruby, WASM, and service layers."
 date: 2025-07-19T11:25:25+09:00
 lastmod: 2025-07-19T11:25:25+09:00
-weight: 200
+draft: false
+weight: 2
 toc: true
 seo:
-  title: "" # custom title (optional)
-  description: "" # custom description (recommended)
-  canonical: "" # custom canonical URL (optional)
-  noindex: false # false (default) or true
+  title: "Data Pipeline — Project tzf"
+  description: "The five-layer tzf data pipeline: from evansiroky/timezone-boundary-builder GeoJSON through processing, distribution, language implementations, and applications."
+  noindex: false
 ---
 
 ```mermaid

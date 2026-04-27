@@ -1,17 +1,16 @@
 ---
 title: "Terminology"
-description: "Comprehensive reference of terms and concepts used in the tzf ecosystem"
-summary: "Key terminology for GPS coordinate to timezone conversion using the tzf ecosystem"
+description: "Comprehensive reference of terms and concepts used in the tzf ecosystem."
+summary: "Key terminology for GPS coordinate to timezone conversion using the tzf ecosystem."
 date: 2025-07-21T21:09:40+09:00
 lastmod: 2025-07-21T21:09:40+09:00
 draft: false
-weight: 999
+weight: 3
 toc: true
 seo:
-  title: "TZF Terminology Reference" # custom title (optional)
-  description: "Complete reference of terms used in the tzf ecosystem for GPS coordinate to timezone conversion" # custom description (recommended)
-  canonical: "" # custom canonical URL (optional)
-  noindex: false # false (default) or true
+  title: "Terminology — Project tzf"
+  description: "Complete reference of terms used in the tzf ecosystem for GPS coordinate to timezone conversion."
+  noindex: false
 ---
 
 ## Geographic and Coordinate Terms

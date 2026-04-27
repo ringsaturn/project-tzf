@@ -1,17 +1,16 @@
 ---
 title: "Technical White Paper"
-description: ""
-summary: ""
+description: "How tzf achieves high-performance timezone lookup — polygon simplification and tile-based indexing explained."
+summary: "Design rationale and implementation details behind tzf's polygon simplification and tile-based spatial index."
 date: 2025-07-21T14:20:56+09:00
 lastmod: 2025-07-21T14:20:56+09:00
 draft: false
-weight: 100
+weight: 1
 toc: true
 seo:
-  title: "" # custom title (optional)
-  description: "" # custom description (recommended)
-  canonical: "" # custom canonical URL (optional)
-  noindex: false # false (default) or true
+  title: "Technical White Paper — Project tzf"
+  description: "How tzf achieves fast timezone lookup: Ramer–Douglas–Peucker polygon simplification, Polyline encoding, and tile-based spatial indexing."
+  noindex: false
 ---
 
 ## Introduction
