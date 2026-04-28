@@ -12,7 +12,7 @@ title: tzf Spring 2026 Update
 description: A major update for the tzf project family in spring 2026, introducing topology-aware processing to eliminate gaps and overlaps in simplified polygon data, a new efficient data distribution format, and YStripes index acceleration for Go and Rust versions. Performance benchmarks included.
 ---
 
-*<u>Originally frpublished on my personal blog: [tzf Spring 2026 Update](https://blog.ringsaturn.me/en/posts/2026-04-26-tzf-spring-news/)</u>*
+*<u>Originally published on my personal blog: [tzf Spring 2026 Update](https://blog.ringsaturn.me/en/posts/2026-04-26-tzf-spring-news/)</u>*
 
 It has been a few years since the tzf project family was started. The last systematic look back at its development history was [History of package tzf]({{< ref "/blog/history-of-tzf/index.md" >}}) in early 2023. Since then, there have been various updates and maintenance work, mostly focused on non-core optimizations and supplementary features.
 
