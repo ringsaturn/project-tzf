@@ -34,8 +34,6 @@ seo:
   robots: "" # custom robot tags (optional)
 ---
 
-![](/img/history-of-tzf/tzf-post-cover.webp)
-
 The basic development work of tzf and related projects has basically stabilized.
 In the previous article, there are sporadic information about the development
 and design process:
