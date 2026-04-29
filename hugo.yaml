@@ -2,6 +2,7 @@
 title: Project tzf
 hasCJKLanguage: true
 enableRobotsTXT: true
+enableGitInfo: true
 theme: hextra
 
 baseURL: "https://project-tzf.ringsaturn.me"
@@ -49,6 +50,10 @@ menu:
     - name: Blog
       pageRef: /blog
       weight: 2
+    - name: Search
+      weight: 6
+      params:
+        type: search
     # - name: Contact ↗
     #   url: "https://github.com/imfing"
     #   weight: 3
@@ -68,8 +73,12 @@ menu:
     #     icon: x-twitter
 
 params:
+  externalLinkDecoration: true
+  displayUpdatedDate: true
   page:
     width: wide
+    contextMenu:
+      enable: true
 
   navbar:
     displayTitle: true
@@ -90,6 +99,17 @@ params:
       sortOrder: desc
   toc:
     displayTags: true
+
+  search:
+    enable: true
+    type: flexsearch
+
+    flexsearch:
+      # index page by: content | summary | heading | title
+      index: content
+      # full | forward | reverse | strict
+      # https://github.com/nextapps-de/flexsearch/#tokenizer-prefix-search
+      tokenize: forward
 
 security:
   enableInlineShortcodes: false
@@ -126,3 +146,7 @@ security:
       - tailwindcss
       allowWrite: []
       disable: false
+
+outputs:
+  page: [html, markdown]
+  section: [html, rss, markdown]

@@ -25,7 +25,7 @@ weight: 95
 
 如需 100% 准确的查询，请使用完整数据集：
 - **Go**：`tzf.NewFullFinder()`
-- **Rust**：启用 `full` feature（参见[快速开始]({{< relref "getting-started" >}})）
+- **Rust**：启用 `full` feature（参见[快速开始]({{< relref "getting-started#rust" >}})）
 - **Python/tzfpy**：目前不支持完整精度模式
 
 ## tzf 使用多少内存？

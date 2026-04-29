@@ -25,7 +25,7 @@ weight: 95
 
 100% 正確な検索には、完全データセットを使用してください：
 - **Go**: `tzf.NewFullFinder()`
-- **Rust**: `full` feature を有効にする（[はじめる]({{< relref "getting-started" >}})を参照）
+- **Rust**: `full` feature を有効にする（[はじめる]({{< relref "getting-started#rust" >}})を参照）
 - **Python/tzfpy**: 完全精度モードは現在サポートされていません
 
 ## tzf はどのくらいメモリを使用しますか？
