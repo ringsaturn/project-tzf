@@ -18,6 +18,6 @@ Project tzf は GPS 座標（経度、緯度）を
 
 {{< cards >}}
   {{< card link="getting-started" title="はじめる" icon="play" subtitle="お好みの言語でタイムゾーン検索をインストールして実行。" >}}
-  {{< card link="guide" title="言語ガイド" icon="book-open" subtitle="Go、Rust、Python のベストプラクティス、パターン、高度な使い方。" >}}
+  {{< card link="guides" title="言語ガイド" icon="book-open" subtitle="Go、Rust、Python のベストプラクティス、パターン、高度な使い方。" >}}
   {{< card link="reference" title="リファレンス" icon="academic-cap" subtitle="技術ホワイトペーパー、データパイプラインアーキテクチャ、用語集、プロジェクトの歴史。" >}}
 {{< /cards >}}

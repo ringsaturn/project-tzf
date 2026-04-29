@@ -18,6 +18,6 @@ Project tzf 是一个多语言生态系统，用于将 GPS 坐标（经度、纬
 
 {{< cards >}}
   {{< card link="getting-started" title="快速开始" icon="play" subtitle="安装并使用你喜欢的语言进行时区查询。" >}}
-  {{< card link="guide" title="语言指南" icon="book-open" subtitle="Go、Rust 和 Python 的最佳实践、模式及高级用法。" >}}
+  {{< card link="guides" title="语言指南" icon="book-open" subtitle="Go、Rust 和 Python 的最佳实践、模式及高级用法。" >}}
   {{< card link="reference" title="参考文档" icon="academic-cap" subtitle="技术白皮书、数据管线架构、术语表和项目历史。" >}}
 {{< /cards >}}

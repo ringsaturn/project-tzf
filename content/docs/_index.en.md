@@ -18,6 +18,6 @@ It prioritizes performance and low memory footprint, making it suitable for high
 
 {{< cards >}}
   {{< card link="getting-started" title="Getting Started" icon="play" subtitle="Install and run timezone lookup in your language of choice." >}}
-  {{< card link="guide" title="Language Guides" icon="book-open" subtitle="Best practices, patterns, and advanced usage for Go, Rust, and Python." >}}
+  {{< card link="guides" title="Language Guides" icon="book-open" subtitle="Best practices, patterns, and advanced usage for Go, Rust, and Python." >}}
   {{< card link="reference" title="Reference" icon="academic-cap" subtitle="Technical white paper, data pipeline architecture, terminology, and project history." >}}
 {{< /cards >}}
