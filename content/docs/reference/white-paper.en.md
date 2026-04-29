@@ -41,32 +41,40 @@ This white paper covers the five core techniques used in tzf:
 ## Data pipeline overview
 
 The raw timezone boundary data starts at ~96 MB as a Protocol Buffers binary
-(`Timezones` format). Three successive offline stages compress it to ~5.4 MB
-before it is embedded in the distributed library:
+(`Timezones` format). Two parallel offline pipelines produce three distribution
+files (file names carry the `combined-with-oceans.` prefix):
+
+**Full-precision pipeline** — dedup + compress only, no simplification:
 
 ```
 Raw .bin                    (96 MB,   Timezones)
-  ↓ topology-aware D-P simplification
-topology.bin                (12.5 MB, Timezones,              −86%)
   ↓ shared-edge deduplication
-topology.topo.bin           (10.0 MB, TopoTimezones,          −89%)
+.topo.bin                   (54.6 MB, TopoTimezones,              −43%)
   ↓ Polyline delta encoding
-topology.compress.topo.bin  ( 5.4 MB, CompressedTopoTimezones,−94%)  ← embedded (lite)
+.compress.topo.bin          (17 MB,   CompressedTopoTimezones,    −82%)  ← embedded (full)
 ```
 
-A parallel branch produces the preindex used by `FuzzyFinder`:
+**Lite pipeline** — topology-aware simplification + dedup + compress, with a
+preindex branch:
 
 ```
-topology.bin → preindextzpb → topology.preindex.bin  (2.0 MB)  ← embedded (preindex)
+Raw .bin                              (96 MB,   Timezones)
+  ↓ topology-aware D-P simplification
+.topology.bin                         (12.5 MB, Timezones,              −87%)
+  ├─→ preindextzpb → .topology.preindex.bin  (2.0 MB)  ← embedded (preindex)
+  ↓ shared-edge deduplication
+.topology.topo.bin                    (10.0 MB, TopoTimezones,          −90%)
+  ↓ Polyline delta encoding
+.topology.compress.topo.bin           ( 5.4 MB, CompressedTopoTimezones,−94%)  ← embedded (lite)
 ```
 
 The resulting distribution files are:
 
 | File | Format | Size |
 | ---- | ------ | ---- |
-| Full precision | `CompressedTopoTimezones` | ~17 MB |
-| Topology-simplified (lite) | `CompressedTopoTimezones` | ~5.4 MB |
-| Tile preindex | `PreindexTimezones` | ~2 MB |
+| `combined-with-oceans.compress.topo.bin` | `CompressedTopoTimezones` | ~17 MB |
+| `combined-with-oceans.topology.compress.topo.bin` | `CompressedTopoTimezones` | ~5.4 MB |
+| `combined-with-oceans.topology.preindex.bin` | `PreindexTimezones` | ~2 MB |
 
 The full-precision dataset shrank from ~96 MB (raw protobuf) to ~17 MB — small
 enough that tzf-rs now provides it as an optional Cargo feature rather than

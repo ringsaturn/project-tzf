@@ -1,7 +1,0 @@
-{{ range hugo.Data.termbase.terms }}
-<h2>{{ .category }}</h2>
-{{ range .entries }}
-<h3 id="{{ .id }}">{{ .term }}</h3>
-{{ .definition | markdownify }}
-{{ end }}
-{{ end }}

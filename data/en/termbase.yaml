@@ -1,0 +1,39 @@
+- term: Coordinate Order
+  definition: "All tzf APIs use (longitude, latitude) order, consistent with GeoJSON. Not (latitude, longitude)."
+
+- term: Multiple Timezones
+  definition: "Points near borders may return multiple timezones. Use GetTimezoneNames / get_tz_names / get_tzs / getTimezones."
+
+- term: FuzzyFinder
+  definition: "Tile-preindex-only lookup. Fastest (~470 ns / ~9 MB) but returns nothing for border or coastal areas."
+
+- term: Finder
+  definition: "Full polygon lookup with YStripes index. Covers all coordinates (~1–2 µs, ~66 MB)."
+
+- term: DefaultFinder
+  definition: "Combines FuzzyFinder and Finder: preindex first, polygon fallback. Recommended for most use cases (~1 µs, ~75 MB)."
+
+- term: Data Version
+  definition: "Timezone boundary data version string, e.g. '2025b'. Accessible via DataVersion() (Go), data_version() (Python/Rust)."
+
+- term: tzf-dist
+  definition: "Data distribution repository (ringsaturn/tzf-dist). Ships processed binary files as a Go module and Rust crate."
+
+- term: Polygon Simplification
+  definition: "Ramer–Douglas–Peucker algorithm applied to reduce polygon point count. May introduce ~1 km inaccuracies near borders."
+
+- term: Topology-Aware Simplification
+  definition: "RDP variant that processes shared polygon edges once, preventing gaps and overlaps at timezone borders. Introduced in tzf v1.1.0."
+
+- term: Tile-Based Indexing
+  definition: "Spatial index of tiles fully inside a timezone polygon. Enables O(1) lookup for interior points without polygon testing."
+
+- term: YStripes Index
+  definition: "Per-polygon index from tidwall/tg. Partitions edges into horizontal stripes for fast point-in-polygon testing. Default since tzf v1.1.0 (Go) and tzf-rs v1.2.0 (Rust)."
+
+- term: CGO
+  abbr: CGO
+  definition: "C/Go interop used in early tzfpy. Replaced by PyO3 since tzfpy v0.11.0."
+
+- term: PyO3
+  definition: "Rust/Python FFI framework used in tzfpy since v0.11.0, replacing CGO. Eliminates memory leaks across the FFI boundary."
