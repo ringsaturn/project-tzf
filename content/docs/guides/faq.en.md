@@ -25,7 +25,7 @@ which may produce incorrect results for points within roughly 1 km of a timezone
 
 For 100% accurate lookups, use the full dataset:
 - **Go**: `tzf.NewFullFinder()`
-- **Rust**: load `combined-with-oceans.bin` manually (see [Getting Started]({{< relref "getting-started" >}}))
+- **Rust**: enable the `full` feature (see [Getting Started]({{< relref "getting-started" >}}))
 - **Python/tzfpy**: full-precision mode is not currently supported
 
 ## How much memory does tzf use?
