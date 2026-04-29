@@ -1,19 +1,16 @@
 ---
-title: "Blog"
-description: ""
-summary: ""
-date: 2023-09-07T16:21:44+02:00
-lastmod: 2023-09-07T16:21:44+02:00
+date: '2023-09-07T16:21:44+02:00'
+description: ''
 draft: false
-weight: 50
-categories: []
-tags: []
-contributors: []
-pinned: false
 homepage: false
+lastmod: '2023-09-07T16:21:44+02:00'
+pinned: false
 seo:
-  title: "" # custom title (optional)
-  description: "" # custom description (recommended)
-  canonical: "" # custom canonical URL (optional)
-  robots: "" # custom robot tags (optional)
+  canonical: ''
+  description: ''
+  robots: ''
+  title: ''
+summary: ''
+title: Blog
+weight: 50
 ---

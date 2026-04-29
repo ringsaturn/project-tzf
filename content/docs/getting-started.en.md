@@ -1,15 +1,15 @@
 ---
-title: "Getting Started"
-description: "Install and use Project tzf in your preferred programming language — Go, Rust, Python, Swift, Ruby, Wasm, and more."
-summary: "Quick install and usage examples for all supported languages."
-date: 2025-07-19T12:19:49+09:00
-lastmod: 2025-07-19T12:19:49+09:00
+date: '2025-07-19T12:19:49+09:00'
+description: Install and use Project tzf in your preferred programming language — Go, Rust, Python, Swift, Ruby, Wasm, and more.
 draft: false
-weight: 1
-toc: true
+lastmod: '2025-07-19T12:19:49+09:00'
 seo:
-  title: "Getting Started — Project tzf"
-  description: "Install and run timezone lookup from GPS coordinates in Go, Rust, Python, Swift, Ruby, WebAssembly, or via HTTP API."
+  description: Install and run timezone lookup from GPS coordinates in Go, Rust, Python, Swift, Ruby, WebAssembly, or via HTTP API.
+  title: Getting Started — Project tzf
+summary: Quick install and usage examples for all supported languages.
+title: Getting Started
+toc: true
+weight: 1
 ---
 
 Project tzf provides multi-language support for looking up a timezone by longitude and latitude.

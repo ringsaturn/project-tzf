@@ -1,15 +1,15 @@
 ---
-title: "Documentation"
-description: "Project tzf documentation — convert GPS coordinates to timezone names with high performance across multiple languages."
-summary: ""
-date: 2025-07-19T12:19:49+09:00
-lastmod: 2025-07-19T12:19:49+09:00
+date: '2025-07-19T12:19:49+09:00'
+description: Project tzf documentation — convert GPS coordinates to timezone names with high performance across multiple languages.
 draft: false
-weight: 1
-toc: false
+lastmod: '2025-07-19T12:19:49+09:00'
 seo:
-  title: "Project tzf Documentation"
-  description: "Learn how to convert GPS coordinates to timezone names using Project tzf — available for Go, Rust, Python, Swift, Ruby, WebAssembly, and more."
+  description: Learn how to convert GPS coordinates to timezone names using Project tzf — available for Go, Rust, Python, Swift, Ruby, WebAssembly, and more.
+  title: Project tzf Documentation
+summary: ''
+title: Documentation
+toc: false
+weight: 1
 ---
 
 Project tzf is a multi-language ecosystem for converting GPS coordinates (longitude, latitude) to

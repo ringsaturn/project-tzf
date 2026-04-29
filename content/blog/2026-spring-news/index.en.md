@@ -3,13 +3,13 @@ author: ringsaturn
 cover:
   image: https://blog-assets.ringsaturn.me/pic/tzf-spring-news/cover.webp
 date: '2026-04-26'
+description: A major update for the tzf project family in spring 2026, introducing topology-aware processing to eliminate gaps and overlaps in simplified polygon data, a new efficient data distribution format, and YStripes index acceleration for Go and Rust versions. Performance benchmarks included.
 tags:
 - tzf
 - Side Project
 - Geo
 - timezone
 title: tzf Spring 2026 Update
-description: A major update for the tzf project family in spring 2026, introducing topology-aware processing to eliminate gaps and overlaps in simplified polygon data, a new efficient data distribution format, and YStripes index acceleration for Go and Rust versions. Performance benchmarks included.
 ---
 
 > [!NOTE]

@@ -1,16 +1,16 @@
 ---
-title: "Benchmarks"
-description: "Performance benchmarks for tzf implementations across Go and Rust."
-summary: "Benchmark results for tzf (Go) and tzf-rs (Rust) covering different finder types, datasets, and index modes."
-date: 2025-07-19T13:58:16+09:00
-lastmod: 2026-04-26T00:00:00+09:00
+date: '2025-07-19T13:58:16+09:00'
+description: Performance benchmarks for tzf implementations across Go and Rust.
 draft: false
-weight: 4
-toc: true
+lastmod: '2026-04-26T00:00:00+09:00'
 seo:
-  title: "Benchmarks — Project tzf"
-  description: "Performance benchmark results for tzf and tzf-rs covering default, fuzzy, and full-precision finders with YStripes and preindex."
+  description: Performance benchmark results for tzf and tzf-rs covering default, fuzzy, and full-precision finders with YStripes and preindex.
   noindex: false
+  title: Benchmarks — Project tzf
+summary: Benchmark results for tzf (Go) and tzf-rs (Rust) covering different finder types, datasets, and index modes.
+title: Benchmarks
+toc: true
+weight: 4
 ---
 
 There are two separate benchmark setups with different purposes:

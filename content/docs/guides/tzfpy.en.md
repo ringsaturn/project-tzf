@@ -1,16 +1,16 @@
 ---
-title: "Python (tzfpy)"
-description: "Best practices and integration patterns for tzfpy — datetime conversion, batch processing, and web APIs."
-summary: "Using tzfpy with datetime libraries, data frames (Pandas, Polars, NumPy), and FastAPI."
-date: 2025-07-21T12:06:56+09:00
-lastmod: 2025-07-21T12:06:56+09:00
+date: '2025-07-21T12:06:56+09:00'
+description: Best practices and integration patterns for tzfpy — datetime conversion, batch processing, and web APIs.
 draft: false
-weight: 3
-toc: true
+lastmod: '2025-07-21T12:06:56+09:00'
 seo:
-  title: "Python (tzfpy) Guide — Project tzf"
-  description: "tzfpy best practices — datetime conversion, batch processing with Pandas/Polars/NumPy, and FastAPI integration."
+  description: tzfpy best practices — datetime conversion, batch processing with Pandas/Polars/NumPy, and FastAPI integration.
   noindex: false
+  title: Python (tzfpy) Guide — Project tzf
+summary: Using tzfpy with datetime libraries, data frames (Pandas, Polars, NumPy), and FastAPI.
+title: Python (tzfpy)
+toc: true
+weight: 3
 ---
 
 tzfpy returns an IANA timezone name string. This section shows how to use that name with common Python libraries.

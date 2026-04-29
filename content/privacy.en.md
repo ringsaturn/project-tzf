@@ -1,14 +1,14 @@
 ---
-title: "Privacy Policy"
-description: ""
-summary: ""
-date: 2023-09-07T17:19:07+02:00
-lastmod: 2023-09-07T17:19:07+02:00
+date: '2023-09-07T17:19:07+02:00'
+description: ''
 draft: false
-type: "legal"
+lastmod: '2023-09-07T17:19:07+02:00'
 seo:
-  title: "" # custom title (optional)
-  description: "" # custom description (recommended)
-  canonical: "" # custom canonical URL (optional)
-  robots: "" # custom robot tags (optional)
+  canonical: ''
+  description: ''
+  robots: ''
+  title: ''
+summary: ''
+title: Privacy Policy
+type: legal
 ---

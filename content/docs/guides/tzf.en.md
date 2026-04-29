@@ -1,16 +1,16 @@
 ---
-title: "Go (tzf)"
-description: "Best practices and advanced usage patterns for the Go implementation of tzf."
-summary: "Best practices for using tzf in Go — including global finder reuse and production patterns."
-date: 2025-07-21T12:14:46+09:00
-lastmod: 2025-07-21T12:14:46+09:00
+date: '2025-07-21T12:14:46+09:00'
+description: Best practices and advanced usage patterns for the Go implementation of tzf.
 draft: false
-weight: 1
-toc: true
+lastmod: '2025-07-21T12:14:46+09:00'
 seo:
-  title: "Go (tzf) Guide — Project tzf"
-  description: "Best practices for the Go tzf library — reusing Finder instances, global variables, and production patterns."
+  description: Best practices for the Go tzf library — reusing Finder instances, global variables, and production patterns.
   noindex: false
+  title: Go (tzf) Guide — Project tzf
+summary: Best practices for using tzf in Go — including global finder reuse and production patterns.
+title: Go (tzf)
+toc: true
+weight: 1
 ---
 
 ## Reuse the Finder

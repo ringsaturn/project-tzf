@@ -1,16 +1,16 @@
 ---
-title: "Rust (tzf-rs)"
-description: "Best practices and advanced usage patterns for the Rust implementation of tzf."
-summary: "Best practices for using tzf-rs in Rust — Finder reuse, YStripes index, full-precision mode, and integration patterns."
-date: 2025-07-21T14:19:40+09:00
-lastmod: 2025-07-21T14:19:40+09:00
+date: '2025-07-21T14:19:40+09:00'
+description: Best practices and advanced usage patterns for the Rust implementation of tzf.
 draft: false
-weight: 2
-toc: true
+lastmod: '2025-07-21T14:19:40+09:00'
 seo:
-  title: "Rust (tzf-rs) Guide — Project tzf"
-  description: "Best practices for the Rust tzf-rs library — reusing Finder instances, YStripes index, full-precision mode, and integrating with HTTP and Redis services."
+  description: Best practices for the Rust tzf-rs library — reusing Finder instances, YStripes index, full-precision mode, and integrating with HTTP and Redis services.
   noindex: false
+  title: Rust (tzf-rs) Guide — Project tzf
+summary: Best practices for using tzf-rs in Rust — Finder reuse, YStripes index, full-precision mode, and integration patterns.
+title: Rust (tzf-rs)
+toc: true
+weight: 2
 ---
 
 ## Reuse the Finder

@@ -1,16 +1,16 @@
 ---
-title: "FAQ"
-description: "Frequently asked questions about Project tzf — accuracy, memory, coordinate order, and more."
-summary: "Answers to common questions about tzf's design, limitations, and usage."
-date: 2025-07-19T11:07:00+09:00
-lastmod: 2025-07-19T11:07:00+09:00
+date: '2025-07-19T11:07:00+09:00'
+description: Frequently asked questions about Project tzf — accuracy, memory, coordinate order, and more.
 draft: false
-weight: 95
-toc: true
+lastmod: '2025-07-19T11:07:00+09:00'
 seo:
-  title: "FAQ — Project tzf"
-  description: "Frequently asked questions about Project tzf — accuracy, memory usage, coordinate order, and data updates."
+  description: Frequently asked questions about Project tzf — accuracy, memory usage, coordinate order, and data updates.
   noindex: false
+  title: FAQ — Project tzf
+summary: Answers to common questions about tzf's design, limitations, and usage.
+title: FAQ
+toc: true
+weight: 95
 ---
 
 ## What is the coordinate order?

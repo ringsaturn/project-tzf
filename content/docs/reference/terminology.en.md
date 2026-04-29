@@ -1,16 +1,16 @@
 ---
-title: "Terminology"
-description: "Reference of project-specific terms and concepts in the tzf ecosystem."
-summary: "Finder classes, data files, algorithms, and performance reference for tzf."
-date: 2025-07-21T21:09:40+09:00
-lastmod: 2026-04-29T00:00:00+09:00
+date: '2025-07-21T21:09:40+09:00'
+description: Reference of project-specific terms and concepts in the tzf ecosystem.
 draft: false
-weight: 3
-toc: true
+lastmod: '2026-04-29T00:00:00+09:00'
 seo:
-  title: "Terminology — Project tzf"
-  description: "Reference of tzf-specific terms: Finder classes, tzf-dist data files, polygon simplification, topology-aware processing, tile indexing, YStripes, and memory usage."
+  description: 'Reference of tzf-specific terms: Finder classes, tzf-dist data files, polygon simplification, topology-aware processing, tile indexing, YStripes, and memory usage.'
   noindex: false
+  title: Terminology — Project tzf
+summary: Finder classes, data files, algorithms, and performance reference for tzf.
+title: Terminology
+toc: true
+weight: 3
 ---
 
 ## API Behavior

@@ -1,16 +1,16 @@
 ---
-title: "Technical White Paper"
-description: "How tzf achieves high-performance timezone lookup — topology-aware simplification, shared-edge deduplication, Polyline encoding, tile-based indexing, and YStripes."
-summary: "Design rationale and implementation details behind tzf's data pipeline and spatial indexing strategy."
-date: 2025-07-21T14:20:56+09:00
-lastmod: 2026-04-27T00:00:00+09:00
+date: '2025-07-21T14:20:56+09:00'
+description: How tzf achieves high-performance timezone lookup — topology-aware simplification, shared-edge deduplication, Polyline encoding, tile-based indexing, and YStripes.
 draft: false
-weight: 1
-toc: true
+lastmod: '2026-04-27T00:00:00+09:00'
 seo:
-  title: "Technical White Paper — Project tzf"
-  description: "How tzf achieves fast timezone lookup: topology-aware simplification, shared-edge deduplication, Polyline encoding, tile-based indexing, and YStripes index."
+  description: 'How tzf achieves fast timezone lookup: topology-aware simplification, shared-edge deduplication, Polyline encoding, tile-based indexing, and YStripes index.'
   noindex: false
+  title: Technical White Paper — Project tzf
+summary: Design rationale and implementation details behind tzf's data pipeline and spatial indexing strategy.
+title: Technical White Paper
+toc: true
+weight: 1
 ---
 
 ## Introduction

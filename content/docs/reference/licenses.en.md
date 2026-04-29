@@ -1,16 +1,16 @@
 ---
-title: "Licenses"
-description: "Licensing information for Project tzf code and timezone data."
-summary: "MIT license for code, ODbL for data, and the Anti CSDN License rider."
-date: 2025-07-21T21:05:16+09:00
-lastmod: 2025-07-21T21:05:16+09:00
+date: '2025-07-21T21:05:16+09:00'
+description: Licensing information for Project tzf code and timezone data.
 draft: false
-weight: 6
-toc: true
+lastmod: '2025-07-21T21:05:16+09:00'
 seo:
-  title: "Licenses — Project tzf"
-  description: "Project tzf code is MIT licensed. Timezone data is ODbL licensed. tzf/tzf-rs/tzfpy also carry an Anti CSDN License rider."
+  description: Project tzf code is MIT licensed. Timezone data is ODbL licensed. tzf/tzf-rs/tzfpy also carry an Anti CSDN License rider.
   noindex: false
+  title: Licenses — Project tzf
+summary: MIT license for code, ODbL for data, and the Anti CSDN License rider.
+title: Licenses
+toc: true
+weight: 6
 ---
 
 By default, project-tzf's code are licensed under the MIT license.

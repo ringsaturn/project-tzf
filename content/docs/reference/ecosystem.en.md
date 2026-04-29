@@ -1,16 +1,16 @@
 ---
-title: "Ecosystem"
-description: "Five-layer architecture showing how timezone boundary data flows from source to every language implementation."
-summary: "How GeoJSON boundary data flows through tzf-dist into Go, Rust, Python, Swift, Ruby, WASM, and service layers."
-date: 2025-07-19T11:25:25+09:00
-lastmod: 2026-04-29T00:00:00+09:00
+date: '2025-07-19T11:25:25+09:00'
+description: Five-layer architecture showing how timezone boundary data flows from source to every language implementation.
 draft: false
-weight: 2
-toc: true
+lastmod: '2026-04-29T00:00:00+09:00'
 seo:
-  title: "Ecosystem — Project tzf"
-  description: "The five-layer tzf ecosystem: from evansiroky/timezone-boundary-builder GeoJSON through processing, distribution via tzf-dist, language implementations, and applications."
+  description: 'The five-layer tzf ecosystem: from evansiroky/timezone-boundary-builder GeoJSON through processing, distribution via tzf-dist, language implementations, and applications.'
   noindex: false
+  title: Ecosystem — Project tzf
+summary: How GeoJSON boundary data flows through tzf-dist into Go, Rust, Python, Swift, Ruby, WASM, and service layers.
+title: Ecosystem
+toc: true
+weight: 2
 ---
 
 ```mermaid

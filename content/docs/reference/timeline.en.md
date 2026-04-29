@@ -1,16 +1,16 @@
 ---
-title: "Timeline"
-description: "Project tzf development history — from the initial Go implementation through the 2026 Spring updates."
-summary: "Chronological history of key milestones in the tzf ecosystem."
-date: 2025-07-21T10:52:43+09:00
-lastmod: 2026-04-26T00:00:00+09:00
+date: '2025-07-21T10:52:43+09:00'
+description: Project tzf development history — from the initial Go implementation through the 2026 Spring updates.
 draft: false
-weight: 5
-toc: true
+lastmod: '2026-04-26T00:00:00+09:00'
 seo:
-  title: "Timeline — Project tzf"
-  description: "Development timeline for Project tzf — from the first Go release in 2022 through the v1.0.0 stable release in 2025."
+  description: Development timeline for Project tzf — from the first Go release in 2022 through the v1.0.0 stable release in 2025.
   noindex: false
+  title: Timeline — Project tzf
+summary: Chronological history of key milestones in the tzf ecosystem.
+title: Timeline
+toc: true
+weight: 5
 ---
 
 ## 2022

@@ -1,37 +1,37 @@
 ---
-title: "History of package tzf"
-description: "Introduces the evolution of tzf, from the initial implementation in Go, to the later Python extension, and finally to the current Rust implementation with a PyO3 wrapper."
-# summary: "Introduces the evolution of tzf, from the initial implementation in Go, to the later Python extension, and finally to the current Rust implementation with a PyO3 wrapper."
-date: 2023-01-31
-lastmod: 2025-04-29
-draft: false
-weight: 50
 author: ringsaturn
+categories: []
+contributors:
+- ringsaturn
 cover:
   image: /img/history-of-tzf/tzf-post-cover.webp
-math: true
-toc: true
-categories: []
-tags:
-  - Python
-  - Go
-  - Geo
-  - Timezone
-  - Rust
-  - PyO3
-  - Geometry
-  - Caiyun
-  - tzf
-  - tzfpy
-  - tzf-rs
-contributors: ["ringsaturn"]
-pinned: false
+date: '2023-01-31'
+description: Introduces the evolution of tzf, from the initial implementation in Go, to the later Python extension, and finally to the current Rust implementation with a PyO3 wrapper.
+draft: false
 homepage: false
+lastmod: '2025-04-29'
+math: true
+pinned: false
 seo:
-  title: "" # custom title (optional)
-  description: "" # custom description (recommended)
-  canonical: "" # custom canonical URL (optional)
-  robots: "" # custom robot tags (optional)
+  canonical: ''
+  description: ''
+  robots: ''
+  title: ''
+tags:
+- Python
+- Go
+- Geo
+- Timezone
+- Rust
+- PyO3
+- Geometry
+- Caiyun
+- tzf
+- tzfpy
+- tzf-rs
+title: History of package tzf
+toc: true
+weight: 50
 ---
 
 The basic development work of tzf and related projects has basically stabilized.
