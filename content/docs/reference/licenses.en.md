@@ -13,7 +13,7 @@ toc: true
 weight: 6
 ---
 
-By default, project-tzf's code are licensed under the MIT license.
-And tzf-rel, tzf-rel-lite's data are licensed under ODbL license, same as upstream [`evansiroky/timezone-boundary-builder`](https://github.com/evansiroky/timezone-boundary-builder).
+By default, project-tzf's code is licensed under the MIT license.
+And tzf-dist's data is licensed under the ODbL license, same as upstream [`evansiroky/timezone-boundary-builder`](https://github.com/evansiroky/timezone-boundary-builder).
 
-But for tzf/tzf-rs/tzfpy, a license named "Anti CSDN License" is applied, which is used to prevent use of the code in CSDN, has no effect on other use cases.
+However, tzf/tzf-rs/tzfpy also carry an "Anti CSDN License" rider that prevents use of the code on the CSDN platform but has no effect on other use cases.

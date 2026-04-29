@@ -42,7 +42,7 @@ graph TD
         TZFPY[ringsaturn/tzfpy<br/>Python 绑定]
         TZF_RB[HarlemSquirrel/tzf-rb<br/>Ruby 绑定]
         TZF_WASM[ringsaturn/tzf-wasm<br/>浏览器 WASM]
-        PG_TZF[ringsaturn/pg_tzf<br/>PostgreSQL 扩展]
+        PG_TZF[ringsaturn/pg-tzf<br/>PostgreSQL 扩展]
     end
 
     %% L5 - 应用与服务
@@ -96,7 +96,7 @@ graph TD
   - [ringsaturn/tzf-dist](https://github.com/ringsaturn/tzf-dist)
   - 文件：`combined-with-oceans.compress.topo.bin`（约 17 MB，完整精度）、
     `combined-with-oceans.topology.compress.topo.bin`（约 5.4 MB，精简版）、
-    `combined-with-oceans.reduce.preindex.bin`（约 2 MB，瓦片预索引）
+    `combined-with-oceans.topology.preindex.bin`（约 2 MB，瓦片预索引）
 - **L3 - 语言实现**：消费 tzf-dist 数据的核心时区查询实现
   - [ringsaturn/tzf-rs](https://github.com/ringsaturn/tzf-rs)
   - [ringsaturn/tzf-swift](https://github.com/ringsaturn/tzf-swift)
@@ -104,7 +104,7 @@ graph TD
   - [ringsaturn/tzfpy](https://github.com/ringsaturn/tzfpy)
   - [HarlemSquirrel/tzf-rb](https://github.com/HarlemSquirrel/tzf-rb)
   - [ringsaturn/tzf-wasm](https://github.com/ringsaturn/tzf-wasm)
-  - [ringsaturn/pg_tzf](https://github.com/ringsaturn/pg_tzf)
+  - [ringsaturn/pg-tzf](https://github.com/ringsaturn/pg-tzf)
 - **L5 - 应用与服务**：终端用户应用、Web 服务和 API 服务器
   - [ringsaturn/tzf-web](https://github.com/ringsaturn/tzf-web)
   - [racemap/rust-tz-service](https://github.com/racemap/rust-tz-service)

@@ -42,7 +42,7 @@ graph TD
         TZFPY[ringsaturn/tzfpy<br/>Python Bindings]
         TZF_RB[HarlemSquirrel/tzf-rb<br/>Ruby Bindings]
         TZF_WASM[ringsaturn/tzf-wasm<br/>WASM for Browsers]
-        PG_TZF[ringsaturn/pg_tzf<br/>PostgreSQL Extension]
+        PG_TZF[ringsaturn/pg-tzf<br/>PostgreSQL Extension]
     end
 
     %% L5 - Applications & Services
@@ -96,7 +96,7 @@ graph TD
   - [ringsaturn/tzf-dist](https://github.com/ringsaturn/tzf-dist)
   - Files: `combined-with-oceans.compress.topo.bin` (~17 MB, full precision),
     `combined-with-oceans.topology.compress.topo.bin` (~5.4 MB, lite),
-    `combined-with-oceans.reduce.preindex.bin` (~2 MB, tile preindex)
+    `combined-with-oceans.topology.preindex.bin` (~2 MB, tile preindex)
 - **L3 - Language Implementations**: Core timezone lookup implementations consuming tzf-dist data
   - [ringsaturn/tzf-rs](https://github.com/ringsaturn/tzf-rs)
   - [ringsaturn/tzf-swift](https://github.com/ringsaturn/tzf-swift)
@@ -104,7 +104,7 @@ graph TD
   - [ringsaturn/tzfpy](https://github.com/ringsaturn/tzfpy)
   - [HarlemSquirrel/tzf-rb](https://github.com/HarlemSquirrel/tzf-rb)
   - [ringsaturn/tzf-wasm](https://github.com/ringsaturn/tzf-wasm)
-  - [ringsaturn/pg_tzf](https://github.com/ringsaturn/pg_tzf)
+  - [ringsaturn/pg-tzf](https://github.com/ringsaturn/pg-tzf)
 - **L5 - Applications & Services**: End-user applications, web services, and API servers
   - [ringsaturn/tzf-web](https://github.com/ringsaturn/tzf-web)
   - [racemap/rust-tz-service](https://github.com/racemap/rust-tz-service)

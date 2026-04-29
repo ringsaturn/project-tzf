@@ -243,7 +243,7 @@ Each timezone is processed independently. For each timezone:
 1. Generate all tiles at the index zoom level (zoom 13) that touch the polygon.
 2. Keep only tiles that fall **entirely within** the polygon (`EnsureInside`).
 3. Drop edge tiles — tiles where any of the 8 surrounding neighbors are absent from the
-   set. This step is applied twice (`dropEdgeLayger = 2`), peeling back two layers from
+   set. This step is applied twice (`dropEdgeLayer = 2`), peeling back two layers from
    the interior boundary so that tiles near the polygon edge are excluded.
 4. Merge the remaining tiles upward to the aggregation zoom level (zoom 3) via
    `MergeUp`, then apply `EnsureInside` again on the merged result.

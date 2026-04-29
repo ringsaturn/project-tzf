@@ -37,7 +37,7 @@ Release first version of <https://github.com/ringsaturn/tzf-rs>.
 Replace Go binding with Rust binding via PyO3, released as
 [`0.10.0`](https://pypi.org/project/tzfpy/0.10.0/) of tzfpy.
 
-tzfpy moved to it's own repo <https://github.com/ringsaturn/tzfpy>.
+tzfpy moved to its own repo <https://github.com/ringsaturn/tzfpy>.
 
 ## 2024
 
@@ -81,7 +81,7 @@ introduced, distributing data in the new `CompressedTopoTimezones` format:
 | --- | --- | --- |
 | `combined-with-oceans.compress.topo.bin` | ~17 MB | Full precision |
 | `combined-with-oceans.topology.compress.topo.bin` | ~5.4 MB | Topology-simplified (lite) |
-| `combined-with-oceans.reduce.preindex.bin` | ~2 MB | Tile preindex |
+| `combined-with-oceans.topology.preindex.bin` | ~2 MB | Tile preindex |
 
 The full-precision dataset shrank from ~90 MB to ~17 MB, making it viable to ship
 as an optional Cargo feature in tzf-rs v1.3.0 (`DefaultFinder::new_full()`).

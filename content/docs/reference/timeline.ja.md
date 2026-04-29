@@ -77,7 +77,7 @@ tzf-rs の PostgreSQL 拡張である <https://github.com/ringsaturn/pg-tzf> を
 | --- | --- | --- |
 | `combined-with-oceans.compress.topo.bin` | 約 17 MB | 完全精度 |
 | `combined-with-oceans.topology.compress.topo.bin` | 約 5.4 MB | トポロジー簡略化（ライト版） |
-| `combined-with-oceans.reduce.preindex.bin` | 約 2 MB | タイルプレインデックス |
+| `combined-with-oceans.topology.preindex.bin` | 約 2 MB | タイルプレインデックス |
 
 完全精度データセットが約 90 MB から約 17 MB に縮小され、
 tzf-rs v1.3.0 でオプションの Cargo feature として提供可能になりました

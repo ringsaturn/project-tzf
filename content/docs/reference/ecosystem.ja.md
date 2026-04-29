@@ -42,7 +42,7 @@ graph TD
         TZFPY[ringsaturn/tzfpy<br/>Python バインディング]
         TZF_RB[HarlemSquirrel/tzf-rb<br/>Ruby バインディング]
         TZF_WASM[ringsaturn/tzf-wasm<br/>ブラウザ用 WASM]
-        PG_TZF[ringsaturn/pg_tzf<br/>PostgreSQL 拡張]
+        PG_TZF[ringsaturn/pg-tzf<br/>PostgreSQL 拡張]
     end
 
     %% L5 - アプリケーションとサービス
@@ -96,7 +96,7 @@ graph TD
   - [ringsaturn/tzf-dist](https://github.com/ringsaturn/tzf-dist)
   - ファイル：`combined-with-oceans.compress.topo.bin`（約 17 MB、完全精度）、
     `combined-with-oceans.topology.compress.topo.bin`（約 5.4 MB、ライト版）、
-    `combined-with-oceans.reduce.preindex.bin`（約 2 MB、タイルプレインデックス）
+    `combined-with-oceans.topology.preindex.bin`（約 2 MB、タイルプレインデックス）
 - **L3 - 言語実装**：tzf-dist データを消費するコアタイムゾーン検索実装
   - [ringsaturn/tzf-rs](https://github.com/ringsaturn/tzf-rs)
   - [ringsaturn/tzf-swift](https://github.com/ringsaturn/tzf-swift)
@@ -104,7 +104,7 @@ graph TD
   - [ringsaturn/tzfpy](https://github.com/ringsaturn/tzfpy)
   - [HarlemSquirrel/tzf-rb](https://github.com/HarlemSquirrel/tzf-rb)
   - [ringsaturn/tzf-wasm](https://github.com/ringsaturn/tzf-wasm)
-  - [ringsaturn/pg_tzf](https://github.com/ringsaturn/pg_tzf)
+  - [ringsaturn/pg-tzf](https://github.com/ringsaturn/pg-tzf)
 - **L5 - アプリケーションとサービス**：エンドユーザーアプリケーション、Web サービス、API サーバー
   - [ringsaturn/tzf-web](https://github.com/ringsaturn/tzf-web)
   - [racemap/rust-tz-service](https://github.com/racemap/rust-tz-service)

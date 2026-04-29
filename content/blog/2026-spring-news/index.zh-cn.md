@@ -18,7 +18,7 @@ title: tzf 的春季更新
 
 1. 引入拓扑感知机制，解决多边形简化过程中额外引入的空隙和重叠问题；
 2. 基于拓扑感知机制，开发更高效的数据分发格式，完整精度数据约 17MB，简化数据约 5.4MB；
-3. 参考 tg 项目，引入 YStripes 索引加速。
+3. 参考 tidwall/tg 项目，引入 YStripes 索引加速。
 
 ## 拓扑感知机制
 
@@ -44,7 +44,7 @@ title: tzf 的春季更新
 
 对于简化后的数据集，如果不做 polyline 压缩，体积还会轻微膨胀。原因是此前有很多小的多边形细节会被直接抹去，现在引入了新的判定条件，出于精度考虑保留了大量细小多边形细节。另一方面，因为边界本身已经被大幅简化，共享边界只存储一份带来的优化效果也没有完整精度数据那么显著。目前引入共享边界识别和 polyline 处理后，简化数据集大约 5.4MB，仍然可以接受。
 
-不过这里还是要提一句，tzf 系列项目使用完整精度数据时，运行过程中需要的内存在 500MB 左右，这个占用还是很大，暂时没有进一步优化的计划，并且这个功能暂时不会下方到 Python binding 中。即使使用简化数据集，也需要约 100MB 内存。tzf 系列项目，特别是 Go、Rust、Python 三个版本，设计之初就是为了服务高并发后端 API 场景，可以接受一定的内存占用，换取几乎无感的处理耗时，同时边界精度也不能过度简化。在这个场景下，内存占用、处理速度、数据精度需要一起权衡。具体用什么、怎么用，还是要以各自的实际情况为准。
+不过这里还是要提一句，tzf 系列项目使用完整精度数据时，运行过程中需要的内存在 500MB 左右，这个占用还是很大，暂时没有进一步优化的计划，并且这个功能暂时不会下放到 Python binding 中。即使使用简化数据集，也需要约 100MB 内存。tzf 系列项目，特别是 Go、Rust、Python 三个版本，设计之初就是为了服务高并发后端 API 场景，可以接受一定的内存占用，换取几乎无感的处理耗时，同时边界精度也不能过度简化。在这个场景下，内存占用、处理速度、数据精度需要一起权衡。具体用什么、怎么用，还是要以各自的实际情况为准。
 
 具体的功能可以参考代码的文档 [`internal/topology/README.md`](https://github.com/ringsaturn/tzf/blob/v1.1.0/internal/topology/README.md)。
 
@@ -54,7 +54,7 @@ title: tzf 的春季更新
 | ------------------------------------------------- | ------ | --------------------------------------------------- |
 | `combined-with-oceans.compress.topo.bin`          | ~17MB  | 完整精度：共享边界去重 + polyline 压缩              |
 | `combined-with-oceans.topology.compress.topo.bin` | ~5.4MB | 简化版：拓扑感知简化 + 共享边界去重 + polyline 压缩 |
-| `combined-with-oceans.reduce.preindex.bin`        | ~2MB   | FuzzyFinder 使用的瓦片预索引                        |
+| `combined-with-oceans.topology.preindex.bin`        | ~2MB   | FuzzyFinder 使用的瓦片预索引                        |
 
 ## YStripes 索引
 
@@ -128,7 +128,7 @@ Python 本身主要是 binding，这里就不贴 benchmark 结果了。不过值
 
 后续维护工作会相对轻一些，主要集中在数据文件更新、项目依赖更新和少量接口兼容工作上。
 
-上述的开发混在了不同时间段，对应的 release 参考：
+上述的开发分散在不同时间段，对应的 release 参考：
 
 - https://github.com/ringsaturn/geometry-rs/releases/tag/v0.4.1
 - https://github.com/ringsaturn/tzf-rs/releases/tag/v1.2.0

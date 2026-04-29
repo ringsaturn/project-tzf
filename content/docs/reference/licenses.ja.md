@@ -14,6 +14,6 @@ weight: 6
 ---
 
 デフォルトでは、project-tzf のコードは MIT ライセンスです。
-また、tzf-rel、tzf-rel-lite のデータは上流の [`evansiroky/timezone-boundary-builder`](https://github.com/evansiroky/timezone-boundary-builder) と同様に ODbL ライセンスです。
+また、tzf-dist のデータは上流の [`evansiroky/timezone-boundary-builder`](https://github.com/evansiroky/timezone-boundary-builder) と同様に ODbL ライセンスです。
 
 ただし、tzf/tzf-rs/tzfpy には「反 CSDN ライセンス」と呼ばれるライセンスが適用されており、CSDN でのコード使用を防止するためのものです。この条項は他のユースケースに影響しません。

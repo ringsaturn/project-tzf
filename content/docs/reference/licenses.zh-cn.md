@@ -14,6 +14,6 @@ weight: 6
 ---
 
 默认情况下，project-tzf 的代码使用 MIT 许可证。
-而 tzf-rel、tzf-rel-lite 的数据使用 ODbL 许可证，与上游 [`evansiroky/timezone-boundary-builder`](https://github.com/evansiroky/timezone-boundary-builder) 一致。
+而 tzf-dist 的数据使用 ODbL 许可证，与上游 [`evansiroky/timezone-boundary-builder`](https://github.com/evansiroky/timezone-boundary-builder) 一致。
 
 但对于 tzf/tzf-rs/tzfpy，附加了一份名为"反 CSDN 许可证"的许可条款，用于防止在 CSDN 平台上使用该代码，该条款对其他使用场景无影响。

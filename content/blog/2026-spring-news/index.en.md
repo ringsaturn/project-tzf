@@ -43,11 +43,11 @@ To maintain backward compatibility, the new binary data has been split into a ne
 
 Since shared boundaries can now be identified, there is no need to store lengthy boundaries twice; they are stored once and encoded with polyline compression.
 
-The effect is significant. Previously, tzf distributed the full dataset in pb format at roughly 90 MB uncompressed and ~50 MB zipped. Now, with shared boundaries stored only once and polyline-encoded, the full-precision data is ~17 MB, or ~10 MB zipped. I'm quite satisfied that full-precision data can be compressed to this size. It is also precisely because of this acceptable file size that tzf-rs now finally offers an optional feature to support the full dataset. Previously, due to the 90 MB size, users had to download the full dataset themselves and provide the file path.
+The effect is significant. Previously, tzf distributed the full dataset in pb format at roughly 90 MB uncompressed and ~50 MB zipped. Now, with shared boundaries stored only once and polyline-encoded, the full-precision data is ~17 MB, or ~10 MB zipped. I'm quite satisfied that full-precision data can be compressed to this size. This acceptable file size is what makes it possible for tzf-rs to now finally offer an optional feature to support the full dataset. Previously, due to the 90 MB size, users had to download the full dataset themselves and provide the file path.
 
 For the simplified dataset, omitting polyline compression would actually cause a slight size increase. The reason is that many small polygon details that were previously discarded are now retained under new criteria for precision reasons. On the other hand, because the boundaries themselves have already been greatly simplified, the benefit of storing shared boundaries only once is less pronounced than with full-precision data. Currently, with shared-boundary detection and polyline processing, the simplified dataset is ~5.4 MB, which is still acceptable.
 
-One thing worth noting: when tzf uses full-precision data, runtime memory usage is around 500 MB, which is significant — there are no plans to optimize this further for now, and this feature will not be brought down to the Python binding for the time being. Even with the simplified dataset, around 100 MB of memory is needed. The tzf family — especially the Go, Rust, and Python versions — was designed from the start for high-concurrency backend API scenarios, where a certain memory footprint is acceptable in exchange for near-zero-latency lookups and boundary accuracy that cannot be overly simplified. Memory usage, processing speed, and data precision all need to be balanced together. What to use and how to use it ultimately depends on each user's actual requirements.
+One thing worth noting: when tzf uses full-precision data, runtime memory usage is around 500 MB, which is significant — there are no plans to optimize this further for now, and this feature will not be ported to the Python bindings for the time being. Even with the simplified dataset, around 100 MB of memory is needed. The tzf family — especially the Go, Rust, and Python versions — was designed from the start for high-concurrency backend API scenarios, where a certain memory footprint is acceptable in exchange for near-zero-latency lookups and boundary accuracy that cannot be overly simplified. Memory usage, processing speed, and data precision all need to be balanced together. What to use and how to use it ultimately depends on each user's actual requirements.
 
 For more details on this feature, refer to the code documentation at [`internal/topology/README.md`](https://github.com/ringsaturn/tzf/blob/v1.1.0/internal/topology/README.md).
 
@@ -57,7 +57,7 @@ Current data files are as follows:
 | ------------------------------------------------- | ------ | ------------------------------------------------------------------------ |
 | `combined-with-oceans.compress.topo.bin`          | ~17MB  | Full precision: shared-edge dedup + polyline compression                 |
 | `combined-with-oceans.topology.compress.topo.bin` | ~5.4MB | Lite: topology-aware simplify + shared-edge dedup + polyline compression |
-| `combined-with-oceans.reduce.preindex.bin`        | ~2MB   | Tile pre-index for FuzzyFinder                                           |
+| `combined-with-oceans.topology.preindex.bin`        | ~2MB   | Tile pre-index for FuzzyFinder                                           |
 
 ## YStripes Index
 

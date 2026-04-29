@@ -78,7 +78,7 @@ RDP 简化会在共享时区边界处产生间隙和重叠。
 | --- | --- | --- |
 | `combined-with-oceans.compress.topo.bin` | 约 17 MB | 完整精度 |
 | `combined-with-oceans.topology.compress.topo.bin` | 约 5.4 MB | 拓扑简化（精简版） |
-| `combined-with-oceans.reduce.preindex.bin` | 约 2 MB | 瓦片预索引 |
+| `combined-with-oceans.topology.preindex.bin` | 约 2 MB | 瓦片预索引 |
 
 完整精度数据集从约 90 MB 缩减至约 17 MB，使得在 tzf-rs v1.3.0 中
 作为可选 Cargo feature 提供成为可能（`DefaultFinder::new_full()`）。

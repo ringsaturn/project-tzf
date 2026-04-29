@@ -39,7 +39,7 @@ fn main() {
 
 ## YStripes 索引（自 v1.2.0 起默认启用）
 
-`DefaultFinder::new()` 默认启用 YStripes 空间索引，在现代硬件上随机单次查询约 ~1 µs。如需关闭（例如为了减少内存或构建时间）：
+`DefaultFinder::new()` 默认启用 YStripes 空间索引，在现代硬件上单次随机查询约 1 µs。如需关闭（例如为了减少内存或构建时间）：
 
 ```rust
 use tzf_rs::{DefaultFinder, FinderOptions};

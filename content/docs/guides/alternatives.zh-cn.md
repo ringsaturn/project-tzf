@@ -57,7 +57,7 @@ Stack Overflow 上还有一个相关问题：[How to get a time zone from a loca
 
 ## 数据库
 
-- <u>**<https://github.com/ringsaturn/pg_tzf>**</u>
+- <u>**<https://github.com/ringsaturn/pg-tzf>**</u>
 - [Building a location to time zone API with SpatiaLite, OpenStreetMap and Datasette](https://simonwillison.net/2017/Dec/12/location-time-zone-api/)
 - [Geospatial SQL queries in SQLite using TG, sqlite-tg and datasette-sqlite-tg](https://til.simonwillison.net/sqlite/sqlite-tg)
 - <https://github.com/LittleGreenViper/LGV_TZ_Lookup> with MySQL
