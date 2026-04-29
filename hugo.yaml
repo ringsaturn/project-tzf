@@ -17,6 +17,11 @@ languages:
     locale: zh-CN
     weight: 2
     title: tzf 项目
+  ja:
+    label: 日本語
+    locale: ja
+    weight: 4
+    title: tzf プロジェクト
 
 # # import hextra as module
 # module:
