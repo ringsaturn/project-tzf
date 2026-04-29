@@ -1,5 +1,5 @@
 ---
-title: "Project tzf"
+title: ""
 description: "Convert GPS coordinates to timezone names with high performance and multi-language support."
 date: 2023-09-07T16:33:54+02:00
 draft: false
