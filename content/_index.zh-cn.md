@@ -24,7 +24,7 @@ title: ''
 </div>
 
 <div class="hx:mb-6">
-{{< hextra/hero-button text="快速开始" link="docs" >}}
+{{< hextra/hero-button text="快速开始" link="docs/getting-started" >}}
 </div>
 
 <div class="hx:mt-6"></div>
