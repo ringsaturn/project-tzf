@@ -88,7 +88,7 @@ lazy_static! {
 }
 
 fn main() {
-    // 坐标采用 (经度, 纬度) 顺序。
+    // 坐标采用 (经度，纬度) 顺序。
     print!("{:?}\n", FINDER.get_tz_name(116.3883, 39.9289));
     print!("{:?}\n", FINDER.get_tz_names(116.3883, 39.9289));
 }
@@ -135,7 +135,7 @@ conda install -c conda-forge tzfpy
 
 ```python
 >>> from tzfpy import get_tz, get_tzs
->>> get_tz(116.3883, 39.9289)   # (经度, 纬度) 顺序
+>>> get_tz(116.3883, 39.9289)   # (经度，纬度) 顺序
 'Asia/Shanghai'
 >>> get_tzs(87.4160, 44.0400)   # 返回所有匹配的时区
 ['Asia/Shanghai', 'Asia/Urumqi']
@@ -161,14 +161,14 @@ do {
     let finder = try DefaultFinder()
 
     let timezone = try finder.getTimezone(lng: 116.3833, lat: 39.9167)
-    print("北京时区:", timezone)
+    print("北京时区：", timezone)
 
     let timezones = try finder.getTimezones(lng: 87.5703, lat: 43.8146)
-    print("可能存在的多个时区:", timezones)
+    print("可能存在的多个时区：", timezones)
 
-    print("数据版本:", finder.dataVersion())
+    print("数据版本：", finder.dataVersion())
 } catch {
-    print("错误:", error)
+    print("错误：", error)
 }
 ```
 
@@ -208,7 +208,7 @@ TZF.tz_names(40.74771675713742, -73.99350390136448)
         await init();
         const finder = new WasmFinder();
         const timezone = finder.get_tz_name(-74.006, 40.7128);
-        console.log("纽约时区:", timezone);
+        console.log("纽约时区：", timezone);
       }
 
       loadWasm();

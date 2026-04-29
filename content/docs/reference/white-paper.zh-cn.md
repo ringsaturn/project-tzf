@@ -4,7 +4,7 @@ description: tzf 如何实现高性能时区查询——拓扑感知简化、共
 draft: false
 lastmod: '2026-04-27T00:00:00+09:00'
 seo:
-  description: 'tzf 如何实现快速时区查询：拓扑感知简化、共享边去重、Polyline 编码、瓦片索引和 YStripes 索引。'
+  description: tzf 如何实现快速时区查询：拓扑感知简化、共享边去重、Polyline 编码、瓦片索引和 YStripes 索引。
   noindex: false
   title: 技术白皮书——Project tzf
 summary: tzf 数据管线和空间索引策略背后的设计理念及实现细节。

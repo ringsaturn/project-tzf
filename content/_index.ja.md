@@ -1,6 +1,6 @@
 ---
 date: '2023-09-07T16:33:54+02:00'
-description: GPS座標をタイムゾーン名に変換。高性能、多言語対応。
+description: GPS 座標をタイムゾーン名に変換。高性能、多言語対応。
 draft: false
 title: ''
 ---
@@ -19,7 +19,7 @@ title: ''
 
 <div class="hx:mb-12">
 {{< hextra/hero-subtitle >}}
-  GPS座標をタイムゾーン名に変換&nbsp;<br class="hx:sm:block hx:hidden" />高性能・多言語対応
+  GPS 座標をタイムゾーン名に変換&nbsp;<br class="hx:sm:block hx:hidden" />高性能・多言語対応
 {{< /hextra/hero-subtitle >}}
 </div>
 

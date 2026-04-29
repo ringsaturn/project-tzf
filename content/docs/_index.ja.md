@@ -1,6 +1,6 @@
 ---
 date: '2025-07-19T12:19:49+09:00'
-description: Project tzf ドキュメント——GPS座標をタイムゾーン名に高性能・多言語で変換。
+description: Project tzf ドキュメント——GPS 座標をタイムゾーン名に高性能・多言語で変換。
 draft: false
 lastmod: '2025-07-19T12:19:49+09:00'
 seo:

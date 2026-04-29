@@ -88,7 +88,7 @@ lazy_static! {
 }
 
 fn main() {
-    // 座標は (経度, 緯度) の順です。
+    // 座標は (経度，緯度) の順です。
     print!("{:?}\n", FINDER.get_tz_name(116.3883, 39.9289));
     print!("{:?}\n", FINDER.get_tz_names(116.3883, 39.9289));
 }
@@ -136,7 +136,7 @@ conda install -c conda-forge tzfpy
 
 ```python
 >>> from tzfpy import get_tz, get_tzs
->>> get_tz(116.3883, 39.9289)   # (経度, 緯度) の順
+>>> get_tz(116.3883, 39.9289)   # (経度，緯度) の順
 'Asia/Shanghai'
 >>> get_tzs(87.4160, 44.0400)   # 一致するすべてのタイムゾーンを返す
 ['Asia/Shanghai', 'Asia/Urumqi']
@@ -162,12 +162,12 @@ do {
     let finder = try DefaultFinder()
 
     let timezone = try finder.getTimezone(lng: 116.3833, lat: 39.9167)
-    print("北京のタイムゾーン:", timezone)
+    print("北京のタイムゾーン：", timezone)
 
     let timezones = try finder.getTimezones(lng: 87.5703, lat: 43.8146)
-    print("複数の候補タイムゾーン:", timezones)
+    print("複数の候補タイムゾーン：", timezones)
 
-    print("データバージョン:", finder.dataVersion())
+    print("データバージョン：", finder.dataVersion())
 } catch {
     print("エラー:", error)
 }
@@ -209,7 +209,7 @@ TZF.tz_names(40.74771675713742, -73.99350390136448)
         await init();
         const finder = new WasmFinder();
         const timezone = finder.get_tz_name(-74.006, 40.7128);
-        console.log("ニューヨークのタイムゾーン:", timezone);
+        console.log("ニューヨークのタイムゾーン：", timezone);
       }
 
       loadWasm();

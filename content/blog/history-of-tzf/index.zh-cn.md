@@ -26,7 +26,7 @@ toc: true
 ---
 
 tzf
-及相关项目的基础开发工作基本稳定了，在之前的文章零星有些开发和设计过程的资料:
+及相关项目的基础开发工作基本稳定了，在之前的文章零星有些开发和设计过程的资料：
 
 - 2022-05-29,
   [在 Go 中将经纬度转时区](https://blog.ringsaturn.me/posts/timezone-go/)
@@ -46,14 +46,14 @@ tzf
 目前在用的经纬度转时区的库是
 [timezonefinder](https://github.com/jannikmi/timezonefinder)
 目前使用的问题是多边形边缘会比较慢，在之前的版本中多边形边缘的查询可能需要 200ms
-甚至 800ms， 在
+甚至 800ms，在
 [timezonefinder@6.1.0](https://github.com/jannikmi/timezonefinder/blob/master/CHANGELOG.rst#610-2022-08-15)
 版本中切换到了 C 实现的 Ray Cast
 算法上，但还是不那么稳定，最快与最慢之间的耗时差距比较大，
 于是尝试自己开发一个经纬度转时区的包库。
 
 在之前的[行政区划数据处理][lnglat2adcode]中已经了解了 Point in Polygon 问题以及
-Ray Casting 算法。 所以问题就缩小到了数据从哪里来。 感谢开源社区的力量，有个
+Ray Casting 算法。所以问题就缩小到了数据从哪里来。感谢开源社区的力量，有个
 [timezone-boundary-builder](https://github.com/evansiroky/timezone-boundary-builder)
 项目会大体跟随 [Timezone Database](https://www.iana.org/time-zones)
 的更新而发布最新的时区多边形信息（但是作者不保证每次数据库的更新都会跟随发布）。
@@ -61,14 +61,14 @@ Ray Casting 算法。 所以问题就缩小到了数据从哪里来。 感谢开
 
 [lnglat2adcode]: https://blog.ringsaturn.me/posts/geo-computing-2/
 
-采用了 GeoJSON 做处理。 这个文件压缩后 45MB 左右，解压缩后
+采用了 GeoJSON 做处理。这个文件压缩后 45MB 左右，解压缩后
 155MB，对于项目而言太大了，所以第一个问题就是如何降低数据体积。
 
 一个最简单的思路就是用效率更高的二进制编码格式存储，团队对 Protocol Buffers
-比较熟悉， 也就编写了 [`tzinfo.proto`][tzpb] 文件。需要注意的是在 GeoJSON 的定义
+比较熟悉，也就编写了 [`tzinfo.proto`][tzpb] 文件。需要注意的是在 GeoJSON 的定义
 [RFC 7946][rfc7946] 中 Polygon
 是很多曲线形状，其中第一个表示的多边形的外部形状，
-其余的都是内部形状，即多边形中间的洞。 这类数据用 proto 语法是
+其余的都是内部形状，即多边形中间的洞。这类数据用 proto 语法是
 `repeated repeated Point`，这是不被 Protocol Buffers 支持的定义。
 需要拆成两个字段才能表示：
 
@@ -96,8 +96,8 @@ message Timezones {
 [tzpb]: https://github.com/ringsaturn/tzf/blob/main/pb/tzf/v1/tzinfo.proto
 [rfc7946]: https://www.rfc-editor.org/rfc/rfc7946
 
-经过处理后文件体积降低了 80MB 左右。 这部分数据完整加载到内存里大约需要 900MB
-左右，体积太大了，需要再降低。 如果细看 GeoJSON
+经过处理后文件体积降低了 80MB 左右。这部分数据完整加载到内存里大约需要 900MB
+左右，体积太大了，需要再降低。如果细看 GeoJSON
 文件里的坐标会发现他们的点间距是比较密的，但是实际业务中不需要那么高的精度。
 所以第一个优化策略就是降低点的数据量。
 
@@ -111,7 +111,7 @@ message Timezones {
 
 做到这里在想，11MB
 的二进制文件放到各种二进制分发场景里是不是还是有点大，于是调研了一下坐标数据压缩的方案，
-发现 [Polyline] 是比较合适的。 这是 Google Maps
+发现 [Polyline] 是比较合适的。这是 Google Maps
 压缩连续坐标的算法，原理是除了第一个点以外点，全部存储成相对于上一个点的偏移量，
 然后将偏移量通过位运算取出对二进制序列做运算后处理成 ASCII。
 经过一通数据处理，时区多边形数据文件压缩到了
@@ -126,7 +126,7 @@ message Timezones {
 比较慢，所以期望这部分执行的频次要尽可能低，所以开始设计时区的索引机制。
 
 按照行政区划的处理经验，这里应该启用 RTree，避免遍历所有的多边形。
-但是在全球城市数据的 benchmark 中并没有太好的收益。 原因有两个：
+但是在全球城市数据的 benchmark 中并没有太好的收益。原因有两个：
 
 1. 时区的总数量并不大，只有几百个，和行政区划数千个相比差了 10 倍。
    在静态语言里这个量级的遍历对性能影响还不构成绝对大头。
@@ -135,9 +135,9 @@ message Timezones {
 
 所以 RTree 并不太适合。
 
-那么怎么构造时区的索引数据呢？ 10
+那么怎么构造时区的索引数据呢？10
 月底时候我在想，既然多边形能用外嵌的四边形模糊匹配，那能否用内镶多边形表示近似的形状？
-之前在行政区划上用 Uber H3 做过类型的事情， 但是因为 H3
+之前在行政区划上用 Uber H3 做过类型的事情，但是因为 H3
 的父节点不能完整包含子节点会留下太多的真空地带，效果并不好。
 于是目光转向了[气象站数据查询][geo-computing-1]用的地图瓦片格式。
 
@@ -165,7 +165,7 @@ message Timezones {
 └───────────┴───────────┴───────────┘
 ```
 
-说来神奇，还真行，是能表示一定的形状信息的。 而且瓦片因为设计上采用了
+说来神奇，还真行，是能表示一定的形状信息的。而且瓦片因为设计上采用了
 QuadTree（四叉树），父节点恰好包含 4 个子节点，
 可以利用小瓦片聚合，不用担心有遗留的区域：
 
@@ -177,25 +177,25 @@ QuadTree（四叉树），父节点恰好包含 4 个子节点，
 
 在最开始，这个时区项目是在 Go 中尝试实现的，项目在 MIT License 下开源
 [tzf](https://github.com/ringsaturn/tzf)。
-上文提到的数据时区数据转换、降低数据量、压缩、构造索引的功能都是命令行工具， 在
-[tzf/cmd] 目录下， 构造好的二进制数据文件则发布在 [tzf-rel] 仓库中，利用 Go 的
+上文提到的数据时区数据转换、降低数据量、压缩、构造索引的功能都是命令行工具，在
+[tzf/cmd] 目录下，构造好的二进制数据文件则发布在 [tzf-rel] 仓库中，利用 Go 的
 `embed` 机制发布。
 
 [tzf/cmd]: https://github.com/ringsaturn/tzf/tree/main/cmd
 [tzf-rel]: https://github.com/ringsaturn/tzf-rel
 
-Go 里都就绪之后尝试用 CGO 打包成 `.so` 文件供 Python 调用。 利用 [cibuildwheel]
+Go 里都就绪之后尝试用 CGO 打包成 `.so` 文件供 Python 调用。利用 [cibuildwheel]
 构建各个平台的 wheel 避免安装的时候再走编译。
 基本的测试用下来没有什么问题，就是发现需要手动回收返回的对象，否则会发生内存泄漏
-[tzf#63]。 但是在 Python 侧调用 CGO
-的回收方法会导致程序某些情况的执行速度慢一倍左右。 在想有没有更优雅的方式呢？
+[tzf#63]。但是在 Python 侧调用 CGO
+的回收方法会导致程序某些情况的执行速度慢一倍左右。在想有没有更优雅的方式呢？
 
 [cibuildwheel]: https://github.com/pypa/cibuildwheel
 [tzf#63]: https://github.com/ringsaturn/tzf/pull/63
 
 将目光转向了 Rust，这门语言有 [PyO3](https://github.com/PyO3/pyo3) 和
 [Maturin](https://github.com/PyO3/maturin) 这样的好工具能直接打包成 Python
-包库， 也不用手动回收对象，并且在之前做的一些 benchmark 中发现 CPU 密集型场景
+包库，也不用手动回收对象，并且在之前做的一些 benchmark 中发现 CPU 密集型场景
 Rust 比 Go 会快一些。
 
 于是开始用 Rust 实现 tzf 里的数据文件加载、构造地图索引、多边形搜索等事情。
@@ -203,8 +203,8 @@ Rust 比 Go 会快一些。
 有非常丰富的地理计算功能。
 
 结果在时区数据处理上，耗时 1700000 ns，而在 Go 里一般在 12000 ns，慢了 100
-多倍。 这个问题大概率是算法实现的效率问题，所以经过了一个下午和编译器的报警， 将
-Go 里用的地理计算功能移植到了 Rust 中，项目是 [geometry-rs]。 重新运行了
+多倍。这个问题大概率是算法实现的效率问题，所以经过了一个下午和编译器的报警，将
+Go 里用的地理计算功能移植到了 Rust 中，项目是 [geometry-rs]。重新运行了
 benchmark，
 
 [geometry-rs]: https://github.com/ringsaturn/geometry-rs
@@ -213,11 +213,11 @@ benchmark，
 
 原因在哪里呢？
 首先做了尝试，在循环遍历的时候尽量不迭代对象，而是用索引值去取，至少在 Go
-里这个是有一定优化空间的。 想试一下，结果没有什么波动。
+里这个是有一定优化空间的。想试一下，结果没有什么波动。
 然后偶然间注意到了当时因为和 Rust 编译器大战各种报错的时候，
 图省事直接将点序列用了 `to_owned` 向函数传递，而这个对象很大，有几百万个点。
-将这一步[替换成指针][fix_vec]，性能立刻就上来了，大约 30000 ns， 因为原始的的 Go
-实现在多边形数据内部还额外构造了一层预索引， 而 Rust
+将这一步[替换成指针][fix_vec]，性能立刻就上来了，大约 30000 ns，因为原始的的 Go
+实现在多边形数据内部还额外构造了一层预索引，而 Rust
 并没有实现这部分功能，所以慢一些是可以接受的。
 
 [fix_vec]: https://github.com/ringsaturn/geometry-rs/commit/925593c825dcbe0a704f65802b6e541b85108771

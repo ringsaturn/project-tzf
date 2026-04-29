@@ -31,7 +31,7 @@ lazy_static! {
 }
 
 fn main() {
-    // 座標は (経度, 緯度) の順です。
+    // 座標は (経度，緯度) の順です。
     print!("{:?}\n", FINDER.get_tz_name(116.3883, 39.9289));
     print!("{:?}\n", FINDER.get_tz_names(116.3883, 39.9289));
 }

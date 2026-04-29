@@ -13,7 +13,7 @@ toc: true
 weight: 4
 ---
 
-プロジェクトには目的の異なる2つの独立したベンチマークセットアップがあります：
+プロジェクトには目的の異なる 2 つの独立したベンチマークセットアップがあります：
 
 **継続的ベンチマーク**——ソースと結果は <https://github.com/ringsaturn/tz-benchmark>、
 可視化は <https://ringsaturn.github.io/tz-benchmark/> で確認できます。

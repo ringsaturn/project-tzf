@@ -1,10 +1,10 @@
 ---
 date: '2025-07-19T11:25:25+09:00'
-description: タイムゾーン境界データがソースから各言語実装に流れるまでの5層アーキテクチャ。
+description: タイムゾーン境界データがソースから各言語実装に流れるまでの 5 層アーキテクチャ。
 draft: false
 lastmod: '2026-04-29T00:00:00+09:00'
 seo:
-  description: '5層の tzf エコシステム：evansiroky/timezone-boundary-builder の GeoJSON から処理、tzf-dist 経由の配布、言語実装、アプリケーションまで。'
+  description: 5 層の tzf エコシステム：evansiroky/timezone-boundary-builder の GeoJSON から処理、tzf-dist 経由の配布、言語実装、アプリケーションまで。
   noindex: false
   title: エコシステム——Project tzf
 summary: GeoJSON 境界データが tzf-dist を通じて Go、Rust、Python、Swift、Ruby、WASM、サービス層に流れる仕組み。

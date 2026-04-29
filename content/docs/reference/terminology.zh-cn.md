@@ -4,7 +4,7 @@ description: tzf 生态系统中项目特定术语和概念的参考。
 draft: false
 lastmod: '2026-04-29T00:00:00+09:00'
 seo:
-  description: 'tzf 特定术语参考：Finder 类、tzf-dist 数据文件、多边形简化、拓扑感知处理、瓦片索引、YStripes 及内存用量。'
+  description: tzf 特定术语参考：Finder 类、tzf-dist 数据文件、多边形简化、拓扑感知处理、瓦片索引、YStripes 及内存用量。
   noindex: false
   title: 术语表——Project tzf
 summary: tzf 的 Finder 类、数据文件、算法及性能参考。
@@ -17,8 +17,8 @@ weight: 3
 
 ### 坐标顺序 {#coordinate-order}
 
-所有 tzf 实现均采用 **(经度, 纬度)** 顺序——与 GeoJSON 和大多数地理 API 一致。
-请注意，部分系统（Google Maps URL、许多教材）使用 (纬度, 经度)，传递数值前请仔细确认。
+所有 tzf 实现均采用 **(经度，纬度)** 顺序——与 GeoJSON 和大多数地理 API 一致。
+请注意，部分系统（Google Maps URL、许多教材）使用 (纬度，经度)，传递数值前请仔细确认。
 
 ### 多时区 {#multiple-timezones}
 
