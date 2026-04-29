@@ -8,7 +8,7 @@ draft: false
 weight: 200
 toc: false
 sidebar:
-  collapsed: true
+  open: true
 seo:
   title: "Reference — Project tzf"
   description: "Technical reference documentation for Project tzf, including the white paper, data pipeline architecture, terminology glossary, benchmarks, timeline, and licenses."

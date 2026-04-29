@@ -10,6 +10,8 @@ toc: false
 seo:
   title: "Language Guides — Project tzf"
   description: "Best practices and advanced usage patterns for tzf (Go), tzf-rs (Rust), tzfpy (Python), and alternatives."
+sidebar:
+  open: true
 ---
 
 These guides cover best practices and common integration patterns for each language implementation.
