@@ -220,7 +220,7 @@ message Timezones {
 这种类四叉树布局确保父瓦片恰好包含四个子瓦片，
 可以实现无间隙聚合：
 
-![基于瓦片的时区索引演示（非真实数据）。可通过 [tzf-web][tile_index_live_view] 查看带多边形的实时索引演示](/img/preindex-timezone-preview-berlin.webp)
+![基于瓦片的时区索引演示。可通过 [tzf-web][tile_index_live_view] 查看带多边形的实时索引演示](/img/preindex-timezone-preview-berlin.webp)
 
 [tile_index_live_view]: https://ringsaturn.github.io/tzf-web/?markers=%5B%7B%22lat%22%3A52.2076%2C%22lng%22%3A9.668%7D%5D&lat=50.310392&lng=11.887207&zoom=6&showIndex=true
 

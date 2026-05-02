@@ -219,7 +219,7 @@ message Timezones {
 この四分木ライクなレイアウトにより、親タイルが正確に 4 つの子タイルを含み、
 ギャップなしの集約が可能です：
 
-![タイルベースのタイムゾーンインデックスのデモ（実際のデータではありません）。ポリゴンとインデックスを含むライブデモは [tzf-web][tile_index_live_view] で確認できます](/img/preindex-timezone-preview-berlin.webp)
+![タイルベースのタイムゾーンインデックスのデモ。ポリゴンとインデックスを含むライブデモは [tzf-web][tile_index_live_view] で確認できます](/img/preindex-timezone-preview-berlin.webp)
 
 [tile_index_live_view]: https://ringsaturn.github.io/tzf-web/?markers=%5B%7B%22lat%22%3A52.2076%2C%22lng%22%3A9.668%7D%5D&lat=50.310392&lng=11.887207&zoom=6&showIndex=true
 
