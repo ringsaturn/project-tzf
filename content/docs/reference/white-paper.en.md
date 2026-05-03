@@ -1,10 +1,10 @@
 ---
-date: '2025-07-21T14:20:56+09:00'
-description: How tzf achieves high-performance timezone lookup — topology-aware simplification, shared-edge deduplication, Polyline encoding, tile-based indexing, and YStripes.
+date: "2025-07-21T14:20:56+09:00"
+description: How tzf achieves high-performance timezone lookup — topology-aware simplification, shared-edge deduplication, Polyline encoding, tile-based indexing, YStripes, and 1°×1° grid index.
 draft: false
-lastmod: '2026-04-27T00:00:00+09:00'
+lastmod: "2026-05-03T00:00:00+09:00"
 seo:
-  description: 'How tzf achieves fast timezone lookup: topology-aware simplification, shared-edge deduplication, Polyline encoding, tile-based indexing, and YStripes index.'
+  description: "How tzf achieves fast timezone lookup: topology-aware simplification, shared-edge deduplication, Polyline encoding, tile-based indexing, YStripes index, and 1°×1° grid index."
   noindex: false
   title: Technical White Paper — Project tzf
 summary: Design rationale and implementation details behind tzf's data pipeline and spatial indexing strategy.
@@ -30,15 +30,23 @@ The design goals are:
 - At least support Go and Python. (Rust was developed because of PyO3's ecosystem.)
 - Minimal distribution/binary size for backend services.
 
-This white paper covers the five core techniques used in tzf:
+This white paper covers tzf's core optimization techniques in two categories:
 
-1. Topology-aware simplification (data pipeline stage 1)
-2. Shared-edge deduplication (data pipeline stage 2)
-3. Polyline encoding (data pipeline stage 3)
+**Offline data pipeline** — transforms raw boundary data into compact, pre-indexed
+distribution files:
+
+1. Topology-aware simplification (stage 1)
+2. Shared-edge deduplication (stage 2)
+3. Polyline encoding (stage 3)
+
+**Runtime query optimization** — accelerates lookups at query time; the tile-based
+index and grid index depend on auxiliary data structures embedded by the pipeline:
+
 4. Tile-based indexing (FuzzyFinder pre-index)
 5. YStripes spatial index
+6. 1°×1° Grid Index
 
-## Data pipeline overview
+## Offline data pipeline
 
 The raw timezone boundary data starts at ~96 MB as a Protocol Buffers binary
 (`Timezones` format). Two parallel offline pipelines produce three distribution
@@ -70,11 +78,11 @@ Raw .bin                              (96 MB,   Timezones)
 
 The resulting distribution files are:
 
-| File | Format | Size |
-| ---- | ------ | ---- |
-| `combined-with-oceans.compress.topo.bin` | `CompressedTopoTimezones` | ~17 MB |
+| File                                              | Format                    | Size    |
+| ------------------------------------------------- | ------------------------- | ------- |
+| `combined-with-oceans.compress.topo.bin`          | `CompressedTopoTimezones` | ~17 MB  |
 | `combined-with-oceans.topology.compress.topo.bin` | `CompressedTopoTimezones` | ~5.4 MB |
-| `combined-with-oceans.topology.preindex.bin` | `PreindexTimezones` | ~2 MB |
+| `combined-with-oceans.topology.preindex.bin`      | `PreindexTimezones`       | ~2 MB   |
 
 The full-precision dataset shrank from ~96 MB (raw protobuf) to ~17 MB — small
 enough that tzf-rs now provides it as an optional Cargo feature rather than
@@ -82,9 +90,9 @@ requiring a manual file download.
 
 These files are distributed via [`ringsaturn/tzf-dist`](https://github.com/ringsaturn/tzf-dist).
 
-## Stage 1 — Topology-aware simplification
+### Stage 1 — Topology-aware simplification
 
-### Background: the per-polygon approach and its limits
+#### Background: the per-polygon approach and its limits
 
 The raw GeoJSON polygon data is first converted into a binary encoding using
 Protocol Buffers. The schema is straightforward:
@@ -129,7 +137,7 @@ overlaps that are invisible in the raw data but appear after simplification.
 The `DefaultFinder`'s ±0.02° spatial-tolerance fallback was a workaround for
 this, not a real fix.
 
-### Topology-aware approach
+#### Topology-aware approach
 
 The fix is to integrate RDP simplification into a topology-aware pipeline that
 processes shared boundaries consistently across all adjacent polygons. Before
@@ -143,11 +151,11 @@ any simplification takes place, a topology graph is built over all polygon rings
 3. **Snap T-junction vertices**: if a topology node falls on the interior of an
    adjacent edge, insert it as a new vertex before analysis begins.
 4. **Detect shared edges** via canonical-key hashing. Classify each segment:
-   - *Fixed*: vertices where three or more rings meet. These anchor points must
+   - _Fixed_: vertices where three or more rings meet. These anchor points must
      not move.
-   - *Shared segment interior*: free to be simplified, but only once — all
+   - _Shared segment interior_: free to be simplified, but only once — all
      partner rings reuse the same simplified result.
-   - *Non-shared*: simplified independently (coastlines, standalone boundaries).
+   - _Non-shared_: simplified independently (coastlines, standalone boundaries).
 5. **Enclave rings** (a hole whose shape equals an inner timezone's exterior)
    are handled specially: both partner rings rotate to the lexicographically
    smallest vertex (canonical start) and enter a shared simplification cache,
@@ -163,7 +171,7 @@ is documented in
 **Result**: 86% point reduction (8 M → 1.09 M points) with topologically
 consistent shared boundaries — no gaps, no unintended overlaps.
 
-## Stage 2 — Shared-edge deduplication
+### Stage 2 — Shared-edge deduplication
 
 After simplification, long shared boundary segments still appear twice in the
 file — once per adjacent timezone ring. The `deduplicatetzpb` tool converts
@@ -185,7 +193,7 @@ overlaps).
 to full polygons, which makes it a useful interchange format for downstream
 tools.
 
-## Stage 3 — Polyline encoding
+### Stage 3 — Polyline encoding
 
 The final offline stage applies Google Maps' Encoded Polyline algorithm to
 compress the coordinate sequences stored in `TopoTimezones`. Geographically
@@ -198,7 +206,9 @@ edge ID references (int32 forward/reversed references) pass through unchanged.
 **Result**: 10.0 MB → 5.4 MB (`CompressedTopoTimezones`), for a combined
 pipeline reduction of 94% from the raw 96 MB source.
 
-## Tile-based indexing
+## Runtime query optimization
+
+### Tile-based indexing
 
 A naïve Ray Casting approach operates in O(n²) time, which is unsuitable for
 high-concurrency backend services. We considered spatial R-trees but found
@@ -256,6 +266,7 @@ generates matching tiles in both timezones' preindex entries.
 
 When querying a point, the lookup walks from the coarsest zoom (3) to the finest (13)
 and returns all timezone names at the first matching tile:
+
 - If a matching tile is found → return its timezone list (one name for unambiguous
   interior tiles, multiple names for shared-area tiles).
 - If no tile matches (border region, coastline, sparse area) → the preindex returns
@@ -270,7 +281,10 @@ result is returned, it falls through to full polygon lookup via `Finder`. This m
 it correct for all coordinates while retaining preindex speed for the majority of
 world-city queries.
 
-## YStripes index
+The tile preindex is built offline as a separate `.topology.preindex.bin` file and
+loaded alongside the lite compressed binary.
+
+### YStripes index
 
 Starting from tzf v1.1.0 (Go) and tzf-rs v1.2.0 (Rust), the polygon-level point-in-polygon
 test uses a YStripes spatial index, ported from Josh Baker's
@@ -286,3 +300,28 @@ consistently run below 1 µs on modern hardware with `DefaultFinder`.
 
 For algorithm details, see the author's explanation in
 [`POLYGON_INDEXING.md`](https://github.com/tidwall/tg/blob/main/docs/POLYGON_INDEXING.md).
+
+### 1°×1° Grid Index
+
+Starting from tzf v1.2.0 / tzf-rs v1.3.3, the `CompressedTopoTimezones` binary embeds a 1°×1° grid
+index built automatically at the end of the compress stage. The globe is partitioned
+into 360 × 180 = 64,800 cells; each cell stores the sorted list of timezone indices
+whose bounding box intersects it. Only cells that contain at least one timezone are
+stored (~65,000–65,500 worldwide), adding roughly 870 KB to the distribution files.
+
+At query time, `Finder` performs an O(1) map lookup to reduce PIP candidates from
+~444 timezones to typically 1–3. When a cell contains exactly one candidate and the
+query point is away from the antimeridian and poles, the PIP test is skipped entirely.
+Files built without a grid index fall back transparently to the original full linear
+scan, so the API is unchanged for callers using older data.
+
+Inspired by [`twitchax/rtz`](https://github.com/twitchax/rtz).
+
+**Performance (Apple M3 Max, May 2026):**
+
+| Scenario                                       | Before  | After   | Improvement |
+| ---------------------------------------------- | ------- | ------- | ----------- |
+| Edge queries (lite finder)                     | 2108 ns | 1060 ns | **2.0×**    |
+| Random world cities (lite finder)              | 1742 ns | 452 ns  | **3.9×**    |
+| Edge queries (full finder, no preindex)        | 2057 ns | 1019 ns | **2.0×**    |
+| Random world cities (full finder, no preindex) | 1955 ns | 606 ns  | **3.2×**    |
