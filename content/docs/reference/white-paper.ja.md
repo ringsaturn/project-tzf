@@ -268,24 +268,6 @@ message Timezones {
 タイルプレインデックスはオフラインで独立した `.topology.preindex.bin` ファイルとして構築され、
 ライト版の圧縮バイナリと並行してロードされます。
 
-### YStripes インデックス
-
-tzf v1.1.0 (Go) および tzf-rs v1.2.0 (Rust) 以降、ポリゴンレベルのポイントイン-
-ポリゴンテストは、Josh Baker の [`tidwall/tg`](https://github.com/tidwall/tg) プロジェクトから
-移植された YStripes 空間インデックスを使用します。
-
-YStripes は、各ポリゴンのエッジを水平ストライプに事前分割することで、
-単純なレイキャスティングを改善します。クエリポイントに対して、該当するストライプ内の
-エッジのみがテストされ、完全な空間ツリーのオーバーヘッドなしでポリゴンごとの作業量を
-大幅に削減します。
-
-これはデフォルトで有効です。無効にする（メモリ制約のある環境など）には、
-Rust の `FinderOptions` を使用します。YStripes を使用すると、`DefaultFinder` で
-最新ハードウェア上で単一ランダム都市検索が一貫して 1 µs 未満で動作します。
-
-アルゴリズムの詳細については、作者による説明
-[`POLYGON_INDEXING.md`](https://github.com/tidwall/tg/blob/main/docs/POLYGON_INDEXING.md) を参照してください。
-
 ### 1°×1° グリッドインデックス
 
 tzf v1.2.0 / tzf-rs v1.3.3 以降、`CompressedTopoTimezones` バイナリは圧縮ステージ末尾に
@@ -311,3 +293,21 @@ tzf v1.2.0 / tzf-rs v1.3.3 以降、`CompressedTopoTimezones` バイナリは圧
 | ランダム世界都市（lite finder）                | 1742 ns | 452 ns  | **3.9×** |
 | エッジクエリ（full finder、preindex なし）     | 2057 ns | 1019 ns | **2.0×** |
 | ランダム世界都市（full finder、preindex なし） | 1955 ns | 606 ns  | **3.2×** |
+
+### YStripes インデックス
+
+tzf v1.1.0 (Go) および tzf-rs v1.2.0 (Rust) 以降、ポリゴンレベルのポイントイン-
+ポリゴンテストは、Josh Baker の [`tidwall/tg`](https://github.com/tidwall/tg) プロジェクトから
+移植された YStripes 空間インデックスを使用します。
+
+YStripes は、各ポリゴンのエッジを水平ストライプに事前分割することで、
+単純なレイキャスティングを改善します。クエリポイントに対して、該当するストライプ内の
+エッジのみがテストされ、完全な空間ツリーのオーバーヘッドなしでポリゴンごとの作業量を
+大幅に削減します。
+
+これはデフォルトで有効です。無効にする（メモリ制約のある環境など）には、
+Rust の `FinderOptions` を使用します。YStripes を使用すると、`DefaultFinder` で
+最新ハードウェア上で単一ランダム都市検索が一貫して 1 µs 未満で動作します。
+
+アルゴリズムの詳細については、作者による説明
+[`POLYGON_INDEXING.md`](https://github.com/tidwall/tg/blob/main/docs/POLYGON_INDEXING.md) を参照してください。

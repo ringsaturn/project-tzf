@@ -284,23 +284,6 @@ world-city queries.
 The tile preindex is built offline as a separate `.topology.preindex.bin` file and
 loaded alongside the lite compressed binary.
 
-### YStripes index
-
-Starting from tzf v1.1.0 (Go) and tzf-rs v1.2.0 (Rust), the polygon-level point-in-polygon
-test uses a YStripes spatial index, ported from Josh Baker's
-[`tidwall/tg`](https://github.com/tidwall/tg) project.
-
-YStripes improves on naive ray casting by pre-partitioning each polygon's edges into
-horizontal stripes. For a query point, only edges in the relevant stripe are tested,
-reducing per-polygon work substantially without the overhead of a full spatial tree.
-
-This is enabled by default; disabling it (e.g. in memory-constrained environments)
-is possible via `FinderOptions` in Rust. With YStripes, single random-city lookups
-consistently run below 1 µs on modern hardware with `DefaultFinder`.
-
-For algorithm details, see the author's explanation in
-[`POLYGON_INDEXING.md`](https://github.com/tidwall/tg/blob/main/docs/POLYGON_INDEXING.md).
-
 ### 1°×1° Grid Index
 
 Starting from tzf v1.2.0 / tzf-rs v1.3.3, the `CompressedTopoTimezones` binary embeds a 1°×1° grid
@@ -325,3 +308,20 @@ Inspired by [`twitchax/rtz`](https://github.com/twitchax/rtz).
 | Random world cities (lite finder)              | 1742 ns | 452 ns  | **3.9×**    |
 | Edge queries (full finder, no preindex)        | 2057 ns | 1019 ns | **2.0×**    |
 | Random world cities (full finder, no preindex) | 1955 ns | 606 ns  | **3.2×**    |
+
+### YStripes index
+
+Starting from tzf v1.1.0 (Go) and tzf-rs v1.2.0 (Rust), the polygon-level point-in-polygon
+test uses a YStripes spatial index, ported from Josh Baker's
+[`tidwall/tg`](https://github.com/tidwall/tg) project.
+
+YStripes improves on naive ray casting by pre-partitioning each polygon's edges into
+horizontal stripes. For a query point, only edges in the relevant stripe are tested,
+reducing per-polygon work substantially without the overhead of a full spatial tree.
+
+This is enabled by default; disabling it (e.g. in memory-constrained environments)
+is possible via `FinderOptions` in Rust. With YStripes, single random-city lookups
+consistently run below 1 µs on modern hardware with `DefaultFinder`.
+
+For algorithm details, see the author's explanation in
+[`POLYGON_INDEXING.md`](https://github.com/tidwall/tg/blob/main/docs/POLYGON_INDEXING.md).
