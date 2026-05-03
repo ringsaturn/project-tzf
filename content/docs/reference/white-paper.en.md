@@ -43,8 +43,8 @@ distribution files:
 index and grid index depend on auxiliary data structures embedded by the pipeline:
 
 4. Tile-based indexing (FuzzyFinder pre-index)
-5. YStripes spatial index
-6. 1°×1° Grid Index
+5. 1°×1° Grid Index
+6. YStripes spatial index
 
 ## Offline data pipeline
 
