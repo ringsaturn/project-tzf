@@ -1,18 +1,18 @@
 ---
 date: '2025-07-19T12:19:49+09:00'
-description: 安装并使用你喜欢的编程语言运行 Project tzf——Go、Rust、Python、Swift、Ruby、Wasm 等。
+description: 使用 Go、Rust、Python、Swift、Ruby、Wasm 等语言安装并运行 Project tzf。
 draft: false
 lastmod: '2025-07-19T12:19:49+09:00'
 seo:
-  description: 在 Go、Rust、Python、Swift、Ruby、WebAssembly 中安装并运行 GPS 坐标转时区查询，或通过 HTTP API 使用。
-  title: 快速开始——Project tzf
-summary: 所有支持语言的快速安装和使用示例。
+  description: 使用 Go、Rust、Python、Swift、Ruby、WebAssembly 安装并运行 GPS 坐标到时区查询，也可通过 HTTP API 调用。
+  title: 快速开始 - Project tzf
+summary: 支持语言和服务的快速安装与使用示例。
 title: 快速开始
 toc: true
 weight: 1
 ---
 
-Project tzf 提供多语言支持，可根据经纬度查询时区。
+Project tzf 支持多种语言和服务，可根据经纬度查询时区。
 
 | 语言或服务              | 仓库                                                                    | API 文档                                                                                                    |
 | ----------------------- | ----------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
@@ -53,7 +53,7 @@ func main() {
 }
 ```
 
-如需 100% 准确的结果，请使用 `NewFullFinder`（**尽可能复用实例**——初始化开销较大）：
+如需 100% 准确的结果，请使用 `NewFullFinder`。该实例初始化开销较大，建议尽可能复用：
 
 ```go
 package main
@@ -97,8 +97,8 @@ fn main() {
 <details>
 <summary>完整精度支持（v1.3.0+）</summary>
 
-自 v1.3.0 起，可通过可选的 Cargo feature 使用完整精度数据。
-由于完整数据集（约 17 MB）超出 crates.io 的大小限制，需要通过 git 依赖引用：
+自 v1.3.0 起，可通过可选 Cargo feature 使用完整精度数据。
+由于完整数据集约 17 MB，超出 crates.io 的大小限制，需要通过 git 依赖引用：
 
 ```toml
 [dependencies]
@@ -137,11 +137,11 @@ conda install -c conda-forge tzfpy
 >>> from tzfpy import get_tz, get_tzs
 >>> get_tz(116.3883, 39.9289)   # (经度，纬度) 顺序
 'Asia/Shanghai'
->>> get_tzs(87.4160, 44.0400)   # 返回所有匹配的时区
+>>> get_tzs(87.4160, 44.0400)   # 返回全部匹配时区
 ['Asia/Shanghai', 'Asia/Urumqi']
 ```
 
-Python 不支持完整精度模式。
+Python 版本暂不支持完整精度模式。
 
 ## Swift
 
@@ -174,8 +174,8 @@ do {
 
 ## Ruby
 
-Ruby 支持由 [HarlemSquirrel](https://github.com/HarlemSquirrel) 创建和维护。
-详细文档请参见 [tzf-rb](https://github.com/HarlemSquirrel/tzf-rb)。
+Ruby 版本由 [HarlemSquirrel](https://github.com/HarlemSquirrel) 创建并维护。
+详细用法请参见 [tzf-rb](https://github.com/HarlemSquirrel/tzf-rb)。
 
 ```bash
 bundle add tzf
@@ -222,7 +222,7 @@ TZF.tz_names(40.74771675713742, -73.99350390136448)
 
 ## CLI
 
-Go 和 Rust 实现均提供了命令行工具。
+Go 和 Rust 实现均提供命令行工具。
 
 ### Go CLI
 
@@ -250,5 +250,5 @@ tzf --lng 116.3883 --lat 39.9289
 echo -e "116.3883 39.9289\n116.3883, 39.9289" | tzf --stdin-order lng-lat
 ```
 
-NixOS 用户可以通过 Nix 安装 `tzf-rs`——
+NixOS 用户可以通过 Nix 安装 `tzf-rs`。
 详见 [NixOS packages](https://search.nixos.org/packages?channel=unstable&query=tzf-rs)。
