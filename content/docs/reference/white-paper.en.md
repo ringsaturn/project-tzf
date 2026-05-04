@@ -300,15 +300,6 @@ scan, so the API is unchanged for callers using older data.
 
 Inspired by [`twitchax/rtz`](https://github.com/twitchax/rtz).
 
-**Performance (Apple M3 Max, May 2026):**
-
-| Scenario                                       | Before  | After   | Improvement |
-| ---------------------------------------------- | ------- | ------- | ----------- |
-| Edge queries (lite finder)                     | 2108 ns | 1060 ns | **2.0×**    |
-| Random world cities (lite finder)              | 1742 ns | 452 ns  | **3.9×**    |
-| Edge queries (full finder, no preindex)        | 2057 ns | 1019 ns | **2.0×**    |
-| Random world cities (full finder, no preindex) | 1955 ns | 606 ns  | **3.2×**    |
-
 ### YStripes index
 
 Starting from tzf v1.1.0 (Go) and tzf-rs v1.2.0 (Rust), the polygon-level point-in-polygon

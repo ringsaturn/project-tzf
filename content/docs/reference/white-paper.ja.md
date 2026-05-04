@@ -285,15 +285,6 @@ tzf v1.2.0 / tzf-rs v1.3.3 以降、`CompressedTopoTimezones` バイナリは圧
 
 [`twitchax/rtz`](https://github.com/twitchax/rtz) に着想を得ています。
 
-**パフォーマンス（Apple M3 Max、2026 年 5 月）：**
-
-| シナリオ                                       | 導入前  | 導入後  | 改善     |
-| ---------------------------------------------- | ------- | ------- | -------- |
-| エッジクエリ（lite finder）                    | 2108 ns | 1060 ns | **2.0×** |
-| ランダム世界都市（lite finder）                | 1742 ns | 452 ns  | **3.9×** |
-| エッジクエリ（full finder、preindex なし）     | 2057 ns | 1019 ns | **2.0×** |
-| ランダム世界都市（full finder、preindex なし） | 1955 ns | 606 ns  | **3.2×** |
-
 ### YStripes インデックス
 
 tzf v1.1.0 (Go) および tzf-rs v1.2.0 (Rust) 以降、ポリゴンレベルのポイントイン-
