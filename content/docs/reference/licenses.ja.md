@@ -6,7 +6,7 @@ lastmod: '2025-07-21T21:05:16+09:00'
 seo:
   description: Project tzf のコードは MIT ライセンスです。タイムゾーンデータは ODbL ライセンスです。tzf/tzf-rs/tzfpy には反 CSDN ライセンス条項も付随します。
   noindex: false
-  title: ライセンス——Project tzf
+  title: ライセンス - Project tzf
 summary: コードは MIT ライセンス、データは ODbL ライセンス、および反 CSDN ライセンス条項。
 title: ライセンス
 toc: true

@@ -1,10 +1,10 @@
 ---
 date: '2025-07-19T12:19:49+09:00'
-description: Project tzf 文档——将 GPS 坐标转换为时区名称，高性能、多语言支持。
+description: Project tzf 文档，用于将 GPS 坐标高性能地转换为时区名称，支持多种语言。
 draft: false
 lastmod: '2025-07-19T12:19:49+09:00'
 seo:
-  description: 了解如何使用 Project tzf 将 GPS 坐标转换为时区名称——支持 Go、Rust、Python、Swift、Ruby、WebAssembly 等。
+  description: 了解如何使用 Project tzf 将 GPS 坐标转换为时区名称，支持 Go、Rust、Python、Swift、Ruby、WebAssembly 等。
   title: Project tzf 文档
 summary: ''
 title: 文档

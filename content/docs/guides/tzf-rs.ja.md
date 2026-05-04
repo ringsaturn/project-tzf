@@ -4,10 +4,10 @@ description: Rust 版 tzf-rs のベストプラクティスと高度な使用パ
 draft: false
 lastmod: '2025-07-21T14:19:40+09:00'
 seo:
-  description: Rust tzf-rs ライブラリのベストプラクティス——Finder インスタンスの再利用、YStripes インデックス、完全精度モード、HTTP および Redis サービスとの統合。
+  description: Rust tzf-rs ライブラリのベストプラクティス。Finder インスタンスの再利用、YStripes インデックス、完全精度モード、HTTP および Redis サービスとの統合を扱います。
   noindex: false
-  title: Rust (tzf-rs) ガイド——Project tzf
-summary: Rust で tzf-rs を使用する際のベストプラクティス——Finder の再利用、YStripes インデックス、完全精度モード、統合パターン。
+  title: Rust (tzf-rs) ガイド - Project tzf
+summary: Rust で tzf-rs を使用する際のベストプラクティス。Finder の再利用、YStripes インデックス、完全精度モード、統合パターンを含みます。
 title: Rust (tzf-rs)
 toc: true
 weight: 2
@@ -15,7 +15,7 @@ weight: 2
 
 ## Finder の再利用
 
-`Finder`、`FuzzyFinder`、`DefaultFinder` の初期化は高コストです——タイムゾーンデータを読み込んで解析します。
+`Finder`、`FuzzyFinder`、`DefaultFinder` の初期化は高コストです。タイムゾーンデータを読み込んで解析します。
 常に単一のインスタンスを再利用してください。例えば `lazy_static` グローバル変数として：
 
 ```bash
@@ -58,7 +58,7 @@ fn main() {
 ## 完全精度モード (v1.3.0+)
 
 デフォルトでは tzf-rs はトポロジー簡略化データ（約 5.4 MB）を使用します。100% 正確な検索には
-`full` feature を有効にします（完全データセット約 17 MB；サイズ制限のため crates.io ではなく git 依存関係で利用）：
+`full` feature を有効にします。完全データセットは約 17 MB あり、crates.io のサイズ制限を超えるため git 依存関係で利用します：
 
 ```toml
 [dependencies]

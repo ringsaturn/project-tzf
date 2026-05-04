@@ -6,7 +6,7 @@ lastmod: '2025-07-21T21:05:16+09:00'
 seo:
   description: Project tzf 代码使用 MIT 许可证。时区数据使用 ODbL 许可证。tzf/tzf-rs/tzfpy 还附带反 CSDN 许可证条款。
   noindex: false
-  title: 许可证——Project tzf
+  title: 许可证 - Project tzf
 summary: 代码采用 MIT 许可证，数据采用 ODbL 许可证，以及反 CSDN 许可证条款。
 title: 许可证
 toc: true

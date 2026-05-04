@@ -1,10 +1,10 @@
 ---
 date: '2025-07-19T12:19:49+09:00'
-description: Project tzf ドキュメント——GPS 座標をタイムゾーン名に高性能・多言語で変換。
+description: Project tzf ドキュメント。GPS 座標をタイムゾーン名に高速変換し、複数言語に対応します。
 draft: false
 lastmod: '2025-07-19T12:19:49+09:00'
 seo:
-  description: Project tzf を使って GPS 座標をタイムゾーン名に変換する方法——Go、Rust、Python、Swift、Ruby、WebAssembly などに対応。
+  description: Project tzf を使って GPS 座標をタイムゾーン名に変換する方法。Go、Rust、Python、Swift、Ruby、WebAssembly などに対応します。
   title: Project tzf ドキュメント
 summary: ''
 title: ドキュメント

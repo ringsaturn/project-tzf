@@ -1,12 +1,12 @@
 ---
 date: '2025-07-21T10:52:43+09:00'
-description: Project tzf 开发历史——从最初的 Go 实现到 2026 年春季更新。
+description: Project tzf 开发历史 - 从最初的 Go 实现到 2026 年春季更新。
 draft: false
 lastmod: '2026-04-26T00:00:00+09:00'
 seo:
-  description: Project tzf 的开发时间线——从 2022 年首个 Go 版本到 2025 年 v1.0.0 稳定版发布。
+  description: Project tzf 的开发时间线 - 从 2022 年首个 Go 版本到 2025 年 v1.0.0 稳定版发布。
   noindex: false
-  title: 时间线——Project tzf
+  title: 时间线 - Project tzf
 summary: tzf 生态系统中各关键里程碑的时间顺序历史。
 title: 时间线
 toc: true

@@ -5,7 +5,7 @@ lastmod: '2025-07-19T12:39:57+09:00'
 seo:
   description: 其他 GPS 坐标转时区库，适用于 Go、Rust、Python、Ruby、Swift 及数据库。
   noindex: false
-  title: 替代方案——Project tzf
+  title: 替代方案 - Project tzf
 summary: 各种语言和环境下替代时区查询库的汇总列表。
 title: 替代方案
 toc: true

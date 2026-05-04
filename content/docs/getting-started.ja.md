@@ -1,18 +1,18 @@
 ---
 date: '2025-07-19T12:19:49+09:00'
-description: お好みのプログラミング言語で Project tzf をインストールして使用——Go、Rust、Python、Swift、Ruby、Wasm など。
+description: Go、Rust、Python、Swift、Ruby、Wasm などで Project tzf をインストールして実行する方法。
 draft: false
 lastmod: '2025-07-19T12:19:49+09:00'
 seo:
-  description: Go、Rust、Python、Swift、Ruby、WebAssembly で GPS 座標からタイムゾーン検索をインストールして実行、または HTTP API 経由で利用。
-  title: はじめる——Project tzf
-summary: 全対応言語のクイックインストールと使用例。
+  description: Go、Rust、Python、Swift、Ruby、WebAssembly で GPS 座標からタイムゾーンを検索する方法。HTTP API 経由でも利用できます。
+  title: はじめる - Project tzf
+summary: 対応言語とサービスのインストール手順と使用例。
 title: はじめる
 toc: true
 weight: 1
 ---
 
-Project tzf は経度・緯度からタイムゾーンを検索するための多言語サポートを提供します。
+Project tzf は複数の言語とサービスに対応し、経度・緯度からタイムゾーンを検索できます。
 
 | 言語 / サービス          | リポジトリ                                                              | API ドキュメント                                                                                            |
 | ----------------------- | ----------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------- |
@@ -53,7 +53,7 @@ func main() {
 }
 ```
 
-100% 正確な結果が必要な場合は `NewFullFinder` を使用します（**必ず再利用してください**——初期化コストが高いです）：
+100% 正確な結果が必要な場合は `NewFullFinder` を使用します。初期化コストが高いため、できるだけ再利用してください：
 
 ```go
 package main
@@ -98,7 +98,7 @@ fn main() {
 <summary>完全精度サポート (v1.3.0+)</summary>
 
 v1.3.0 以降、オプションの Cargo feature で完全精度データを利用できます。
-完全データセット（約 17 MB）は crates.io のサイズ制限を超えるため、
+完全データセットは約 17 MB あり、crates.io のサイズ制限を超えるため、
 git 依存関係で参照する必要があります：
 
 ```toml
@@ -142,7 +142,7 @@ conda install -c conda-forge tzfpy
 ['Asia/Shanghai', 'Asia/Urumqi']
 ```
 
-Python は完全精度モードをサポートしていません。
+Python 版は現在、完全精度モードをサポートしていません。
 
 ## Swift
 
@@ -175,8 +175,8 @@ do {
 
 ## Ruby
 
-Ruby サポートは [HarlemSquirrel](https://github.com/HarlemSquirrel) によって作成・保守されています。
-詳細なドキュメントは [tzf-rb](https://github.com/HarlemSquirrel/tzf-rb) を参照してください。
+Ruby 版は [HarlemSquirrel](https://github.com/HarlemSquirrel) が作成し、保守しています。
+詳しい使い方は [tzf-rb](https://github.com/HarlemSquirrel/tzf-rb) を参照してください。
 
 ```bash
 bundle add tzf
@@ -251,5 +251,5 @@ tzf --lng 116.3883 --lat 39.9289
 echo -e "116.3883 39.9289\n116.3883, 39.9289" | tzf --stdin-order lng-lat
 ```
 
-NixOS ユーザーは Nix 経由で `tzf-rs` をインストールできます——
+NixOS ユーザーは Nix 経由で `tzf-rs` をインストールできます。
 詳細は [NixOS packages](https://search.nixos.org/packages?channel=unstable&query=tzf-rs) を参照してください。

@@ -5,7 +5,7 @@ lastmod: '2025-07-19T12:39:57+09:00'
 seo:
   description: Go、Rust、Python、Ruby、Swift、データベース向けの他の GPS 座標→タイムゾーン変換ライブラリ。
   noindex: false
-  title: 代替ライブラリ——Project tzf
+  title: 代替ライブラリ - Project tzf
 summary: さまざまな言語と環境向けの代替タイムゾーン検索ライブラリの一覧。
 title: 代替ライブラリ
 toc: true

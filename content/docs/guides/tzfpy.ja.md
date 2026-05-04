@@ -1,12 +1,12 @@
 ---
 date: '2025-07-21T12:06:56+09:00'
-description: tzfpy のベストプラクティスと統合パターン——日時変換、バッチ処理、Web API。
+description: tzfpy のベストプラクティスと統合パターン。日時変換、バッチ処理、Web API を扱います。
 draft: false
 lastmod: '2025-07-21T12:06:56+09:00'
 seo:
-  description: tzfpy のベストプラクティス——日時変換、Pandas/Polars/NumPy を使ったバッチ処理、FastAPI 統合。
+  description: tzfpy のベストプラクティス。日時変換、Pandas/Polars/NumPy を使ったバッチ処理、FastAPI 統合を扱います。
   noindex: false
-  title: Python (tzfpy) ガイド——Project tzf
+  title: Python (tzfpy) ガイド - Project tzf
 summary: tzfpy を日時ライブラリ、データフレーム（Pandas、Polars、NumPy）、FastAPI で使用する方法。
 title: Python (tzfpy)
 toc: true
@@ -93,7 +93,7 @@ print(now)
 
 ## データフレームを使ったバッチ処理
 
-大量の座標からタイムゾーンへの変換には、行ごとのループではなくベクトル化された操作を使用してください。
+大量の座標からタイムゾーンへ変換する場合は、行ごとのループを避け、ベクトル化された操作を使用してください。
 
 ### Pandas + NumPy
 

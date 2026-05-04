@@ -4,10 +4,10 @@ description: Rust 版 tzf-rs 的最佳实践和高级用法模式。
 draft: false
 lastmod: '2025-07-21T14:19:40+09:00'
 seo:
-  description: Rust tzf-rs 库的最佳实践——复用 Finder 实例、YStripes 索引、完整精度模式以及集成 HTTP 和 Redis 服务。
+  description: Rust tzf-rs 库的最佳实践，包括复用 Finder 实例、YStripes 索引、完整精度模式，以及集成 HTTP 和 Redis 服务。
   noindex: false
-  title: Rust (tzf-rs) 指南——Project tzf
-summary: tzf-rs 在 Rust 中的最佳实践——Finder 复用、YStripes 索引、完整精度模式和集成模式。
+  title: Rust (tzf-rs) 指南 - Project tzf
+summary: tzf-rs 在 Rust 中的最佳实践，包括 Finder 复用、YStripes 索引、完整精度模式和集成模式。
 title: Rust (tzf-rs)
 toc: true
 weight: 2
@@ -15,7 +15,7 @@ weight: 2
 
 ## 复用 Finder
 
-初始化 `Finder`、`FuzzyFinder` 或 `DefaultFinder` 开销较大——需要加载和解析时区数据文件。
+初始化 `Finder`、`FuzzyFinder` 或 `DefaultFinder` 开销较大，需要加载和解析时区数据文件。
 请始终复用单个实例，例如使用 `lazy_static` 全局变量：
 
 ```bash
@@ -58,7 +58,7 @@ fn main() {
 ## 完整精度模式（v1.3.0+）
 
 默认情况下 tzf-rs 使用拓扑简化数据（约 5.4 MB）。如需 100% 准确的查询结果，
-启用 `full` feature（完整数据集约 17 MB；因超出 crates.io 大小限制，需通过 git 依赖引用）：
+启用 `full` feature。完整数据集约 17 MB，因超出 crates.io 大小限制，需通过 git 依赖引用：
 
 ```toml
 [dependencies]

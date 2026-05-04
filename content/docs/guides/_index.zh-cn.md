@@ -5,7 +5,7 @@ draft: false
 lastmod: '2023-09-07T16:06:50+02:00'
 seo:
   description: tzf (Go)、tzf-rs (Rust)、tzfpy (Python) 及替代方案的最佳实践和高级用法模式。
-  title: 语言指南——Project tzf
+  title: 语言指南 - Project tzf
 sidebar:
   open: true
 summary: ''

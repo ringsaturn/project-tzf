@@ -6,7 +6,7 @@ lastmod: '2026-04-29T00:00:00+09:00'
 seo:
   description: tzf 特定术语参考：Finder 类、tzf-dist 数据文件、多边形简化、拓扑感知处理、瓦片索引、YStripes 及内存用量。
   noindex: false
-  title: 术语表——Project tzf
+  title: 术语表 - Project tzf
 summary: tzf 的 Finder 类、数据文件、算法及性能参考。
 title: 术语表
 toc: true
@@ -17,7 +17,7 @@ weight: 3
 
 ### 坐标顺序 {#coordinate-order}
 
-所有 tzf 实现均采用 **(经度，纬度)** 顺序——与 GeoJSON 和大多数地理 API 一致。
+所有 tzf 实现均采用 **(经度，纬度)** 顺序，与 GeoJSON 和大多数地理 API 一致。
 请注意，部分系统（Google Maps URL、许多教材）使用 (纬度，经度)，传递数值前请仔细确认。
 
 ### 多时区 {#multiple-timezones}
@@ -41,17 +41,17 @@ weight: 3
 - 点落在被覆盖的瓦片中 → 立即返回正确的时区，无需多边形测试。
 - 点落在任何覆盖瓦片之外（边界、海岸线、稀疏区域）→ **返回空结果**。
 
-对被覆盖的瓦片结果是准确的；调用者需处理空结果情况。
+对被覆盖的瓦片，结果是准确的。调用者需处理空结果情况。
 最快的选项（约 470 ns / 约 9 MB），但不覆盖所有坐标。
 
 ### Finder {#finder}
 
 使用拓扑简化数据集和 YStripes 索引进行完整多边形查询。
-覆盖所有全球坐标（约 1–2 µs，约 66 MB）。
+覆盖全球全部坐标（约 1 到 2 µs，约 66 MB）。
 
 ### DefaultFinder {#defaultfinder}
 
-结合 FuzzyFinder 和 Finder：首先查询瓦片预索引；如果无结果返回，
+结合 FuzzyFinder 和 Finder：首先查询瓦片预索引。如果无结果返回，
 则回退到完整多边形查询。对大多数内部区域查询提供预索引速度，
 同时对所有坐标保持正确性（约 1 µs，约 75 MB）。**推荐用于大多数使用场景。**
 
@@ -89,7 +89,7 @@ weight: 3
 
 ### 多边形简化 {#polygon-simplification}
 
-使用 [Ramer–Douglas–Peucker (RDP)](https://en.wikipedia.org/wiki/Ramer%E2%80%93Douglas%E2%80%93Peucker_algorithm)
+使用 [Ramer-Douglas-Peucker (RDP)](https://en.wikipedia.org/wiki/Ramer%E2%80%93Douglas%E2%80%93Peucker_algorithm)
 算法减少时区边界多边形中的点数。
 将原始 protobuf 数据从内存中约 900 MB 缩减到磁盘上约 11 MB，精度损失可接受
 （在距离边界约 1 公里以内的结果可能不正确）。
@@ -100,7 +100,7 @@ weight: 3
 （[tzf#183](https://github.com/ringsaturn/tzf/issues/183)）。
 
 首先检测相邻多边形之间的共享边，仅简化一次，然后替换回
-两个多边形——防止简化过程产生新的间隙或重叠。
+两个多边形，防止简化过程产生新的间隙或重叠。
 在 tzf v1.1.0（2026 年春季）中引入。实现细节：
 [`internal/topology/README.md`](https://github.com/ringsaturn/tzf/blob/v1.1.0/internal/topology/README.md)。
 
@@ -108,13 +108,13 @@ weight: 3
 
 `FuzzyFinder` 使用的预计算空间索引。将地球表面在固定缩放级别上
 划分为四边形瓦片（受地图瓦片格式启发）。仅当瓦片完全被一个时区多边形
-包含时才添加到索引中——边界瓦片被有意排除。
+包含时才添加到索引中。边界瓦片会被有意排除。
 对内部点实现无需多边形测试的 O(1) 预过滤。
 
 ### YStripes 索引 {#ystripes}
 
 从 Josh Baker 的 [`tidwall/tg`](https://github.com/tidwall/tg) 移植的逐多边形空间索引。
-将每个多边形的边划分为水平条带；对于给定的查询点，仅测试匹配条带中的边。
+将每个多边形的边划分为水平条带。对于给定的查询点，仅测试匹配条带中的边。
 自 tzf v1.1.0 (Go) 和 tzf-rs v1.2.0 (Rust) 起默认启用。
 在现代硬件上单次随机城市查询约 1 µs。
 算法详情：[`POLYGON_INDEXING.md`](https://github.com/tidwall/tg/blob/main/docs/POLYGON_INDEXING.md)。
@@ -132,9 +132,9 @@ Go 实现的近似数值（Rust 类似）：
 | FullFinder（完整精度 + 预索引） | 约 422 MB |
 | FullFinder（仅完整精度） | 约 413 MB |
 
-Rust 启用 YStripes 索引在无索引基线上增加约 30–40 MB。
+Rust 启用 YStripes 索引后，相比无索引基线约增加 30 到 40 MB。
 Rust 完整精度模式（启用 YStripes）约需 560 MB。
-Python (tzfpy) 内部使用 Rust 二进制文件；默认模式约需 120 MB。
+Python (tzfpy) 内部使用 Rust 二进制文件，默认模式约需 120 MB。
 
 ## 内部实现
 

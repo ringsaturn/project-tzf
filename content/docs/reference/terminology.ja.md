@@ -6,7 +6,7 @@ lastmod: '2026-04-29T00:00:00+09:00'
 seo:
   description: tzf 固有の用語リファレンス：Finder クラス、tzf-dist データファイル、ポリゴン簡略化、トポロジー認識処理、タイルインデックス、YStripes、メモリ使用量。
   noindex: false
-  title: 用語集——Project tzf
+  title: 用語集 - Project tzf
 summary: tzf の Finder クラス、データファイル、アルゴリズム、パフォーマンスリファレンス。
 title: 用語集
 toc: true
@@ -17,7 +17,7 @@ weight: 3
 
 ### 座標順序 {#coordinate-order}
 
-すべての tzf 実装は **(経度，緯度)** の順序を使用します——GeoJSON やほとんどの地理 API と同様です。
+すべての tzf 実装は **(経度，緯度)** の順序を使用します。GeoJSON やほとんどの地理 API と同じです。
 一部のシステム（Google Maps URL、多くの教科書）では (緯度，経度) を使用するため、値を渡す前に再確認してください。
 
 ### 複数タイムゾーン {#multiple-timezones}
@@ -41,13 +41,13 @@ weight: 3
 - ポイントがカバーされたタイル内にある → ポリゴンテストなしで正しいタイムゾーンを即座に返します。
 - ポイントがカバーされたタイルの外にある（境界付近、海岸線、疎な地域）→ **結果なしを返します**。
 
-カバーされたタイルの結果は正確です；呼び出し側は空のケースを処理する必要があります。
+カバーされたタイルの結果は正確です。呼び出し側は空結果を処理する必要があります。
 最速のオプション（約 470 ns / 約 9 MB）ですが、すべての座標をカバーするわけではありません。
 
 ### Finder {#finder}
 
 トポロジー簡略化データセットと YStripes インデックスを使用した完全なポリゴン検索。
-全世界の座標をカバーします（約 1–2 µs、約 66 MB）。
+全世界の座標をカバーします（約 1 から 2 µs、約 66 MB）。
 
 ### DefaultFinder {#defaultfinder}
 
@@ -89,7 +89,7 @@ FuzzyFinder と Finder を組み合わせたものです：まずタイルプレ
 
 ### ポリゴン簡略化 {#polygon-simplification}
 
-[Ramer–Douglas–Peucker (RDP)](https://en.wikipedia.org/wiki/Ramer%E2%80%93Douglas%E2%80%93Peucker_algorithm)
+[Ramer-Douglas-Peucker (RDP)](https://en.wikipedia.org/wiki/Ramer%E2%80%93Douglas%E2%80%93Peucker_algorithm)
 アルゴリズムを適用して、タイムゾーン境界ポリゴンのポイント数を削減します。
 生の protobuf データをメモリ内の約 900 MB からディスク上の約 11 MB に縮小し、
 許容可能な精度損失（境界から約 1 km 以内で誤った結果が出る可能性があります）を伴います。
@@ -100,7 +100,7 @@ FuzzyFinder と Finder を組み合わせたものです：まずタイルプレ
 （[tzf#183](https://github.com/ringsaturn/tzf/issues/183)）。
 
 隣接ポリゴン間の共有エッジを最初に検出し、一度だけ簡略化してから、
-両方のポリゴンに反映します——簡略化によって新しいギャップや重複が生じるのを防ぎます。
+両方のポリゴンに反映します。これにより、簡略化によって新しいギャップや重複が生じるのを防ぎます。
 tzf v1.1.0（2026 年春）で導入。実装詳細：
 [`internal/topology/README.md`](https://github.com/ringsaturn/tzf/blob/v1.1.0/internal/topology/README.md)。
 
@@ -108,7 +108,7 @@ tzf v1.1.0（2026 年春）で導入。実装詳細：
 
 `FuzzyFinder` が使用する事前計算された空間インデックス。地球表面を固定ズームレベルで
 四辺形タイルに分割します（地図タイル形式に着想）。タイルは、1 つのタイムゾーンポリゴンに
-完全に含まれる場合のみインデックスに追加されます——境界タイルは意図的に除外されます。
+完全に含まれる場合のみインデックスに追加されます。境界タイルは意図的に除外されます。
 内部ポイントに対してポリゴンテストなしの O(1) プレフィルタリングを可能にします。
 
 ### YStripes インデックス {#ystripes}
@@ -132,9 +132,9 @@ Go 実装のおおよその数値（Rust も同様）：
 | FullFinder（完全精度 + プレインデックス） | 約 422 MB |
 | FullFinder（完全精度のみ） | 約 413 MB |
 
-Rust で YStripes インデックスを有効にすると、インデックスなしのベースラインから約 30–40 MB 追加されます。
+Rust で YStripes インデックスを有効にすると、インデックスなしのベースラインから約 30 から 40 MB 増加します。
 Rust の完全精度モード（YStripes 有効）は約 560 MB 必要です。
-Python (tzfpy) は内部的に Rust バイナリを使用します；デフォルトモードで約 120 MB を想定してください。
+Python (tzfpy) は内部的に Rust バイナリを使用します。デフォルトモードでは約 120 MB を想定してください。
 
 ## 内部実装
 

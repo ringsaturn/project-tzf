@@ -1,12 +1,12 @@
 ---
 date: '2025-07-21T10:52:43+09:00'
-description: Project tzf の開発史——最初の Go 実装から 2026 年春のアップデートまで。
+description: Project tzf の開発史 - 最初の Go 実装から 2026 年春のアップデートまで。
 draft: false
 lastmod: '2026-04-26T00:00:00+09:00'
 seo:
-  description: Project tzf の開発タイムライン——2022 年の最初の Go リリースから 2025 年の v1.0.0 安定版リリースまで。
+  description: Project tzf の開発タイムライン - 2022 年の最初の Go リリースから 2025 年の v1.0.0 安定版リリースまで。
   noindex: false
-  title: タイムライン——Project tzf
+  title: タイムライン - Project tzf
 summary: tzf エコシステムにおける主要マイルストーンの時系列の歴史。
 title: タイムライン
 toc: true
@@ -65,7 +65,7 @@ tzf-rs の PostgreSQL 拡張である <https://github.com/ringsaturn/pg-tzf> を
 ### 2026 年春
 
 **トポロジー認識簡略化**を tzf v1.1.0 で実装し、長年の課題
-（[tzf#183](https://github.com/ringsaturn/tzf/issues/183)）を解決——独立した
+（[tzf#183](https://github.com/ringsaturn/tzf/issues/183)）を解決しました。独立した
 ポリゴンごとの RDP 簡略化が共有タイムゾーン境界にギャップと重複を生じさせていました。
 新しいアプローチでは、まず共有エッジを検出し、一度だけ簡略化してから、
 簡略化された境界を両方の隣接ポリゴンに反映します。
