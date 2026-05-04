@@ -32,6 +32,11 @@ languages:
 markup:
   # allow raw html
   goldmark:
+    extensions:
+      cjk:
+        enable: true
+        eastAsianLineBreaks: true
+        eastAsianLineBreaksStyle: simple
     renderer:
       unsafe: true
 
