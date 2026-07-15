@@ -2,7 +2,7 @@
 date: "2025-07-19T13:58:16+09:00"
 description: Go および Rust における tzf 実装のパフォーマンスベンチマーク。
 draft: false
-lastmod: "2026-04-26T00:00:00+09:00"
+lastmod: "2026-07-15T00:00:00+09:00"
 seo:
   description: tzf と tzf-rs のパフォーマンスベンチマーク結果 - デフォルト、ファジー、完全精度ファインダー、YStripes とプレインデックスを含む。
   noindex: false
@@ -29,76 +29,76 @@ GitHub Actions ランナーは開発マシンとハードウェアが異なる�
 各ファインダーは一度初期化され、すべてのクエリで再利用されます。これは推奨される本番環境パターンです。
 クエリは世界都市座標の代表サンプルと意図的な境界エッジケースポイントを使用します。
 
-## Go (tzf v1.2.0)
+## Go (tzf v1.2.3)
 
 | Target        | Dataset                            | Scenario                               | Median (ns) | p99 (ns) | Approx throughput (ops/s) | Memory (MiB) |
 | ------------- | ---------------------------------- | -------------------------------------- | ----------: | -------: | ------------------------: | -----------: |
-| DefaultFinder | topology-simplified + preindex     | edge case · GetTimezoneName            |       500.0 |   1250.0 |                   1694.9K |        74.90 |
-| FuzzyFinder   | preindex                           | edge case · GetTimezoneName            |       250.0 |    375.0 |                   3521.1K |         2.40 |
-| Finder        | topology-simplified                | edge case · GetTimezoneName            |       250.0 |    875.0 |                   3022.1K |        72.70 |
-| FullFinder    | full-precision + preindex          | edge case · GetTimezoneName            |       542.0 |   1375.0 |                   1586.3K |       422.90 |
-| Finder        | full-precision                     | edge case · GetTimezoneName            |       292.0 |   1167.0 |                   2678.1K |       420.70 |
-| DefaultFinder | topology-simplified + preindex     | random world cities · GetTimezoneName  |       167.0 |    791.0 |                   3855.1K |        74.90 |
-| FuzzyFinder   | preindex                           | random world cities · GetTimezoneName  |       167.0 |    333.0 |                   4608.3K |         2.40 |
-| Finder        | topology-simplified                | random world cities · GetTimezoneName  |       209.0 |   1250.0 |                   3076.0K |        72.70 |
-| FullFinder    | full-precision + preindex          | random world cities · GetTimezoneName  |       208.0 |    917.0 |                   3527.3K |       422.90 |
-| Finder        | full-precision                     | random world cities · GetTimezoneName  |       250.0 |   1167.0 |                   2953.3K |       420.70 |
-| Finder        | topology-simplified + GridIndex    | random world cities · GetTimezoneName  |       209.0 |   1167.0 |                   3202.0K |        72.70 |
-| Finder        | topology-simplified (no GridIndex) | random world cities · GetTimezoneName  |      1833.0 |   2875.0 |                    612.4K |        67.00 |
-| DefaultFinder | topology-simplified + preindex     | random world cities · GetTimezoneNames |       416.0 |   1375.0 |                   1956.9K |        74.90 |
-| FuzzyFinder   | preindex                           | random world cities · GetTimezoneNames |       208.0 |    334.0 |                   4347.8K |         2.40 |
-| Finder        | topology-simplified                | random world cities · GetTimezoneNames |       417.0 |   1375.0 |                   1931.2K |        72.70 |
-| FullFinder    | full-precision + preindex          | random world cities · GetTimezoneNames |       459.0 |   1750.0 |                   1623.1K |       422.90 |
+| DefaultFinder | topology-simplified + preindex     | edge case · GetTimezoneName            |       625.0 |   2250.0 |                   1083.8K |        31.90 |
+| FuzzyFinder   | preindex                           | edge case · GetTimezoneName            |       250.0 |    542.0 |                   3216.5K |         2.40 |
+| Finder        | topology-simplified                | edge case · GetTimezoneName            |       334.0 |   1667.0 |                   2145.0K |        29.70 |
+| FullFinder    | full-precision + preindex          | edge case · GetTimezoneName            |       709.0 |   2875.0 |                   1111.7K |       155.30 |
+| Finder        | full-precision                     | edge case · GetTimezoneName            |       416.0 |   2709.0 |                   1652.6K |       153.00 |
+| DefaultFinder | topology-simplified + preindex     | random world cities · GetTimezoneName  |       208.0 |   1208.0 |                   3283.0K |        31.90 |
+| FuzzyFinder   | preindex                           | random world cities · GetTimezoneName  |       208.0 |    542.0 |                   3717.5K |         2.40 |
+| Finder        | topology-simplified                | random world cities · GetTimezoneName  |       292.0 |   2208.0 |                   2058.0K |        29.70 |
+| FullFinder    | full-precision + preindex          | random world cities · GetTimezoneName  |       208.0 |   1375.0 |                   3147.6K |       155.30 |
+| Finder        | full-precision                     | random world cities · GetTimezoneName  |       333.0 |   1959.0 |                   1993.6K |       153.00 |
+| Finder        | topology-simplified + GridIndex    | random world cities · GetTimezoneName  |       250.0 |   1667.0 |                   2387.2K |        29.70 |
+| Finder        | topology-simplified (no GridIndex) | random world cities · GetTimezoneName  |      2292.0 |   4375.0 |                    471.7K |        24.00 |
+| DefaultFinder | topology-simplified + preindex     | random world cities · GetTimezoneNames |       625.0 |   3833.0 |                    971.8K |        31.90 |
+| FuzzyFinder   | preindex                           | random world cities · GetTimezoneNames |       209.0 |    583.0 |                   3534.8K |         2.40 |
+| Finder        | topology-simplified                | random world cities · GetTimezoneNames |       583.0 |   2833.0 |                   1277.3K |        29.70 |
+| FullFinder    | full-precision + preindex          | random world cities · GetTimezoneNames |       709.0 |   3292.0 |                   1059.0K |       155.30 |
 
-## Rust (tzf-rs v1.3.3)
+## Rust (tzf-rs v1.3.6)
 
-Topology-Simplified (bundled) / Random Cities:
+Topology-Simplified (bundled) / Random Cities
 
 | Target        | Dataset                        | Scenario      | Median estimate (µs) | Approx throughput (ops/s) | Avg peak RSS (MiB) |
 | ------------- | ------------------------------ | ------------- | -------------------: | ------------------------: | -----------------: |
-| Finder        | topology-simplified            | YStripes only |               0.6457 |                 1,548,635 |             112.30 |
-| Finder        | topology-simplified            | No index      |               4.3948 |                   227,542 |              59.92 |
-| DefaultFinder | topology-simplified + preindex | YStripes only |               0.3800 |                 2,631,787 |             134.48 |
-| DefaultFinder | topology-simplified + preindex | No index      |               4.4922 |                   222,608 |              85.66 |
+| Finder        | topology-simplified            | YStripes only |               0.5698 |                 1,755,033 |              69.72 |
+| Finder        | topology-simplified            | No index      |               4.9164 |                   203,401 |              42.46 |
+| DefaultFinder | topology-simplified + preindex | YStripes only |               0.3040 |                 3,289,365 |              82.10 |
+| DefaultFinder | topology-simplified + preindex | No index      |               5.0438 |                   198,263 |              58.11 |
 
 Topology-Simplified (bundled) / Edge Cities (FuzzyFinder misses)
 
 | Target                   | Dataset                        | Scenario                          | Median estimate (µs) | Approx throughput (ops/s) |
 | ------------------------ | ------------------------------ | --------------------------------- | -------------------: | ------------------------: |
-| FuzzyFinder              | preindex                       | FuzzyFinder miss                  |               0.2200 |                 4,546,074 |
-| DefaultFinder (YStripes) | topology-simplified + preindex | DefaultFinder (YStripes) fallback |               0.7456 |                 1,341,184 |
-| Finder                   | topology-simplified            | YStripes                          |               0.4975 |                 2,010,131 |
-| Finder                   | topology-simplified            | No index                          |               4.3948 |                   227,542 |
-| DefaultFinder            | topology-simplified + preindex | YStripes                          |               0.7154 |                 1,397,858 |
-| DefaultFinder            | topology-simplified + preindex | No index                          |               4.4922 |                   222,608 |
+| FuzzyFinder              | preindex                       | FuzzyFinder miss                  |               0.1564 |                 6,393,044 |
+| DefaultFinder (YStripes) | topology-simplified + preindex | DefaultFinder (YStripes) fallback |               0.6256 |                 1,598,338 |
+| Finder                   | topology-simplified            | YStripes                          |               0.4421 |                 2,261,676 |
+| Finder                   | topology-simplified            | No index                          |               4.9164 |                   203,401 |
+| DefaultFinder            | topology-simplified + preindex | YStripes                          |               0.6069 |                 1,647,718 |
+| DefaultFinder            | topology-simplified + preindex | No index                          |               5.0438 |                   198,263 |
 
-Full-Precision (full):
+Full-Precision (full)
 
 | Target               | Dataset                   | Scenario      | Median estimate (µs) | Approx throughput (ops/s) | Avg peak RSS (MiB) |
 | -------------------- | ------------------------- | ------------- | -------------------: | ------------------------: | -----------------: |
-| Finder (full)        | full-precision            | YStripes only |               1.7158 |                   582,819 |             568.78 |
-| Finder (full)        | full-precision            | No index      |              38.9370 |                    25,683 |             260.95 |
-| DefaultFinder (full) | full-precision + preindex | YStripes only |               0.4984 |                 2,006,421 |             592.25 |
-| DefaultFinder (full) | full-precision + preindex | No index      |               6.6012 |                   151,488 |             287.32 |
+| Finder (full)        | full-precision            | YStripes only |               1.2227 |                   817,862 |             314.59 |
+| Finder (full)        | full-precision            | No index      |              43.0520 |                    23,228 |             157.02 |
+| DefaultFinder (full) | full-precision + preindex | YStripes only |               0.5527 |                 1,809,136 |             323.58 |
+| DefaultFinder (full) | full-precision + preindex | No index      |               7.4823 |                   133,649 |             171.44 |
 
-## Python (tzfpy v1.2.0)
+## Python (tzfpy v1.3.2)
 
 tzfpy は tzf-rs の PyO3 バインディングです。ベンチマークは `pytest-benchmark` を使用し、
 単一の `get_tz()` 呼び出し（ランダム座標、トポロジー簡略化データセット）を測定します。
 Apple M3 Max 搭載 MacBook Pro での結果です。
 
-| インデックスモード                            | 中央値 (µs) | 平均 (µs) | スループット (Kops/s) | メモリ  |
-| --------------------------------------------- | ----------: | --------: | --------------------: | ------- |
-| デフォルト（YStripes 有効）                   |      1.7934 |    1.8321 |                 545.8 | ~120 MB |
-| YStripes なし（`_TZFPY_DISABLE_Y_STRIPES=1`） |      2.5213 |    2.5338 |                 394.7 | 未測定  |
+| インデックスモード                            | 中央値 (µs) | 平均 (µs) | スループット (Kops/s) |   メモリ |
+| --------------------------------------------- | ----------: | --------: | --------------------: | -------: |
+| デフォルト（YStripes 有効）                   |      0.6533 |    0.6711 |                1490.1 | ~70.5 MB |
+| YStripes なし（`_TZFPY_DISABLE_Y_STRIPES=1`） |      1.6410 |    1.6548 |                 604.3 | ~57.5 MB |
 
 呼び出しあたりのオーバーヘッドは生の Rust の数値と同程度です。tzf-rs の数値との差は
 PyO3 経由の Python → Rust FFI コストを反映しています。
 
 ## 主な観察結果
 
-- **YStripes インデックス**は完全精度 Finder に大きな改善をもたらします：37.7 µs（インデックスなし）から 2.1 µs へ、約 18 倍の高速化です。トポロジー簡略化データセットでは効果は小さいものの、依然として顕著です（6.5 µs → 1.2 µs、約 5 倍）。
-- **DefaultFinder**（プレインデックス + ポリゴン）は一般的なワークロードで一貫して最良です：データセットに関係なく、中央値約 1 µs、メモリ約 75 から 126 MB。
-- **FuzzyFinder**（プレインデックスのみ）は約 470 ns で最速ですが、単一のタイムゾーンポリゴン内に完全に収まるタイルのみをカバーします。境界付近や未カバータイルのポイントでは、推測せずに結果なしを返します。ワークロードがタイムゾーン境界から十分離れていることが分かっている場合にのみ単独で使用してください。
-- **Python (tzfpy)** は Rust ベースラインに加えて約 0.5 から 1 µs の PyO3 FFI オーバーヘッドがあります。YStripes 有効時の中央値は約 1.8 µs で、ほとんどのバックエンド API の予算内に収まります。
-- **メモリはデータセットに比例します**：Rust でトポロジー簡略化から完全精度に切り替えると、YStripes 有効時で約 450 MB 増加します。
+- **YStripes はポリゴン検索のレイテンシを大幅に短縮します**。Rust の `Finder` では、完全精度データの中央値が 43.0520 µs から 1.2227 µs へ短縮され、35.2 倍高速になります。トポロジー簡略化データでは 4.9164 µs から 0.5698 µs へ短縮され、8.6 倍高速になります。
+- **DefaultFinder は汎用用途で最も優れた Rust の選択肢です**。中央値はトポロジー簡略化データで 0.3040 µs、完全精度データで 0.5527 µs です。プレインデックスによるメモリ増加は、対応する YStripes 有効の `Finder` と比べて約 9 から 12 MiB です。
+- **FuzzyFinder はフォールバックと組み合わせる高速パスに適しています**。ミスは 0.1564 µs で完了し、`DefaultFinder` は同じ境界都市のワークロードを YStripes フォールバック経由で 0.6256 µs で解決します。単独利用は、クエリがタイムゾーン境界から離れていると分かっている場合に限って適しています。
+- **Python でも YStripes の効果は顕著です**。tzfpy の中央値は 1.6410 µs から 0.6533 µs へ短縮され、スループットは 604.3 Kops/s から 1490.1 Kops/s へ約 2.5 倍向上します。
+- **完全精度データには明確なメモリコストがあります**。YStripes 有効時にトポロジー簡略化データから完全精度データへ切り替えると、Rust のピーク RSS は約 241 から 245 MiB 増加します。Go では、対応する Finder のメモリが約 30 MiB から約 153 から 155 MiB へ増加します。
