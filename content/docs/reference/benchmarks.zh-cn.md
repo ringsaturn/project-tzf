@@ -1,12 +1,12 @@
 ---
-date: "2025-07-19T13:58:16+09:00"
+date: '2025-07-19T13:58:16+09:00'
 description: tzf 各语言实现的性能基准测试，涵盖 Go 和 Rust。
 draft: false
-lastmod: "2026-07-15T00:00:00+09:00"
+lastmod: '2026-07-15T00:00:00+09:00'
 seo:
   description: tzf 和 tzf-rs 的性能基准测试结果，涵盖默认、模糊和完整精度查找器，包含 YStripes 和预索引。
   noindex: false
-  title: 基准测试 - Project tzf
+  title: '基准测试 - Project tzf'
 summary: tzf (Go) 和 tzf-rs (Rust) 基准测试结果，涵盖不同查找器类型、数据集和索引模式。
 title: 基准测试
 toc: true

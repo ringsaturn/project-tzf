@@ -6,7 +6,7 @@ lastmod: '2025-07-21T12:14:46+09:00'
 seo:
   description: Go tzf ライブラリのベストプラクティス。Finder インスタンスの再利用、グローバル変数、本番環境パターンを扱います。
   noindex: false
-  title: Go (tzf) ガイド - Project tzf
+  title: 'Go (tzf) ガイド - Project tzf'
 summary: Go で tzf を使用する際のベストプラクティス。グローバル Finder の再利用と本番環境パターンを含みます。
 title: Go (tzf)
 toc: true

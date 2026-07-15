@@ -6,7 +6,7 @@ lastmod: '2025-07-21T14:19:40+09:00'
 seo:
   description: Rust tzf-rs 库的最佳实践，包括复用 Finder 实例、YStripes 索引、完整精度模式，以及集成 HTTP 和 Redis 服务。
   noindex: false
-  title: Rust (tzf-rs) 指南 - Project tzf
+  title: 'Rust (tzf-rs) 指南 - Project tzf'
 summary: tzf-rs 在 Rust 中的最佳实践，包括 Finder 复用、YStripes 索引、完整精度模式和集成模式。
 title: Rust (tzf-rs)
 toc: true

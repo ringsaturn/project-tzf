@@ -6,7 +6,7 @@ lastmod: '2026-04-29T00:00:00+09:00'
 seo:
   description: tzf 固有の用語リファレンス：Finder クラス、tzf-dist データファイル、ポリゴン簡略化、トポロジー認識処理、タイルインデックス、YStripes、メモリ使用量。
   noindex: false
-  title: 用語集 - Project tzf
+  title: '用語集 - Project tzf'
 summary: tzf の Finder クラス、データファイル、アルゴリズム、パフォーマンスリファレンス。
 title: 用語集
 toc: true

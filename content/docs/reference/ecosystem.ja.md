@@ -6,7 +6,7 @@ lastmod: '2026-04-29T00:00:00+09:00'
 seo:
   description: 5 層の tzf エコシステム：evansiroky/timezone-boundary-builder の GeoJSON から処理、tzf-dist 経由の配布、言語実装、アプリケーションまで。
   noindex: false
-  title: エコシステム - Project tzf
+  title: 'エコシステム - Project tzf'
 summary: GeoJSON 境界データが tzf-dist を通じて Go、Rust、Python、Swift、Ruby、WASM、サービス層に流れる仕組み。
 title: エコシステム
 toc: true

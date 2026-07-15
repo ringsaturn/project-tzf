@@ -5,7 +5,7 @@ draft: false
 lastmod: '2025-07-19T12:19:49+09:00'
 seo:
   description: Go、Rust、Python、Swift、Ruby、WebAssembly で GPS 座標からタイムゾーンを検索する方法。HTTP API 経由でも利用できます。
-  title: はじめる - Project tzf
+  title: 'はじめる - Project tzf'
 summary: 対応言語とサービスのインストール手順と使用例。
 title: はじめる
 toc: true

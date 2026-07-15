@@ -6,7 +6,7 @@ lastmod: '2025-07-21T14:19:40+09:00'
 seo:
   description: Rust tzf-rs ライブラリのベストプラクティス。Finder インスタンスの再利用、YStripes インデックス、完全精度モード、HTTP および Redis サービスとの統合を扱います。
   noindex: false
-  title: Rust (tzf-rs) ガイド - Project tzf
+  title: 'Rust (tzf-rs) ガイド - Project tzf'
 summary: Rust で tzf-rs を使用する際のベストプラクティス。Finder の再利用、YStripes インデックス、完全精度モード、統合パターンを含みます。
 title: Rust (tzf-rs)
 toc: true

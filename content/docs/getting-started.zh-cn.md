@@ -5,7 +5,7 @@ draft: false
 lastmod: '2025-07-19T12:19:49+09:00'
 seo:
   description: 使用 Go、Rust、Python、Swift、Ruby、WebAssembly 安装并运行 GPS 坐标到时区查询，也可通过 HTTP API 调用。
-  title: 快速开始 - Project tzf
+  title: '快速开始 - Project tzf'
 summary: 支持语言和服务的快速安装与使用示例。
 title: 快速开始
 toc: true

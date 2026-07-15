@@ -1,12 +1,12 @@
 ---
-date: "2025-07-21T14:20:56+09:00"
+date: '2025-07-21T14:20:56+09:00'
 description: tzf 的高性能时区查询实现，包括拓扑感知简化、共享边去重、Polyline 编码、瓦片索引、YStripes 和 1°×1° 格子索引。
 draft: false
-lastmod: "2026-05-03T00:00:00+09:00"
+lastmod: '2026-05-03T00:00:00+09:00'
 seo:
   description: tzf 快速时区查询的实现方式：拓扑感知简化、共享边去重、Polyline 编码、瓦片索引、YStripes 索引和 1°×1° 格子索引。
   noindex: false
-  title: 技术白皮书 - Project tzf
+  title: '技术白皮书 - Project tzf'
 summary: tzf 数据管线和空间索引策略的设计理念与实现细节。
 title: 技术白皮书
 toc: true

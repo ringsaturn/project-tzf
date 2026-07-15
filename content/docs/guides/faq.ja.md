@@ -1,12 +1,12 @@
 ---
 date: '2025-07-19T11:07:00+09:00'
-description: Project tzf のよくある質問 - 精度、メモリ、座標順序など。
+description: 'Project tzf のよくある質問 - 精度、メモリ、座標順序など。'
 draft: false
 lastmod: '2025-07-19T11:07:00+09:00'
 seo:
-  description: Project tzf のよくある質問 - 精度、メモリ使用量、座標順序、データ更新について。
+  description: 'Project tzf のよくある質問 - 精度、メモリ使用量、座標順序、データ更新について。'
   noindex: false
-  title: よくある質問 - Project tzf
+  title: 'よくある質問 - Project tzf'
 summary: tzf の設計、制限、使い方に関するよくある質問への回答。
 title: よくある質問
 toc: true

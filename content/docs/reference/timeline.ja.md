@@ -1,12 +1,12 @@
 ---
 date: '2025-07-21T10:52:43+09:00'
-description: Project tzf の開発史 - 最初の Go 実装から 2026 年春のアップデートまで。
+description: 'Project tzf の開発史 - 最初の Go 実装から 2026 年春のアップデートまで。'
 draft: false
 lastmod: '2026-04-26T00:00:00+09:00'
 seo:
-  description: Project tzf の開発タイムライン - 2022 年の最初の Go リリースから 2025 年の v1.0.0 安定版リリースまで。
+  description: 'Project tzf の開発タイムライン - 2022 年の最初の Go リリースから 2025 年の v1.0.0 安定版リリースまで。'
   noindex: false
-  title: タイムライン - Project tzf
+  title: 'タイムライン - Project tzf'
 summary: tzf エコシステムにおける主要マイルストーンの時系列の歴史。
 title: タイムライン
 toc: true

@@ -6,7 +6,7 @@ lastmod: '2025-07-21T12:06:56+09:00'
 seo:
   description: tzfpy 最佳实践，涵盖日期时间转换、使用 Pandas/Polars/NumPy 进行批处理以及 FastAPI 集成。
   noindex: false
-  title: Python (tzfpy) 指南 - Project tzf
+  title: 'Python (tzfpy) 指南 - Project tzf'
 summary: 在日期时间库、数据框（Pandas、Polars、NumPy）和 FastAPI 中使用 tzfpy。
 title: Python (tzfpy)
 toc: true

@@ -5,7 +5,7 @@ draft: false
 lastmod: '2023-09-07T16:06:50+02:00'
 seo:
   description: tzf (Go)、tzf-rs (Rust)、tzfpy (Python) および代替ライブラリのベストプラクティスと高度な使用パターン。
-  title: 言語ガイド - Project tzf
+  title: '言語ガイド - Project tzf'
 sidebar:
   open: true
 summary: ''

@@ -6,7 +6,7 @@ lastmod: '2026-04-29T00:00:00+09:00'
 seo:
   description: tzf 特定术语参考：Finder 类、tzf-dist 数据文件、多边形简化、拓扑感知处理、瓦片索引、YStripes 及内存用量。
   noindex: false
-  title: 术语表 - Project tzf
+  title: '术语表 - Project tzf'
 summary: tzf 的 Finder 类、数据文件、算法及性能参考。
 title: 术语表
 toc: true

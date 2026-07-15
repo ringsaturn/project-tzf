@@ -6,7 +6,7 @@ lastmod: '2025-07-21T12:06:56+09:00'
 seo:
   description: tzfpy のベストプラクティス。日時変換、Pandas/Polars/NumPy を使ったバッチ処理、FastAPI 統合を扱います。
   noindex: false
-  title: Python (tzfpy) ガイド - Project tzf
+  title: 'Python (tzfpy) ガイド - Project tzf'
 summary: tzfpy を日時ライブラリ、データフレーム（Pandas、Polars、NumPy）、FastAPI で使用する方法。
 title: Python (tzfpy)
 toc: true

@@ -1,13 +1,13 @@
 ---
-date: "2025-07-19T13:58:16+09:00"
+date: '2025-07-19T13:58:16+09:00'
 description: Go および Rust における tzf 実装のパフォーマンスベンチマーク。
 draft: false
-lastmod: "2026-07-15T00:00:00+09:00"
+lastmod: '2026-07-15T00:00:00+09:00'
 seo:
-  description: tzf と tzf-rs のパフォーマンスベンチマーク結果 - デフォルト、ファジー、完全精度ファインダー、YStripes とプレインデックスを含む。
+  description: 'tzf と tzf-rs のパフォーマンスベンチマーク結果 - デフォルト、ファジー、完全精度ファインダー、YStripes とプレインデックスを含む。'
   noindex: false
-  title: ベンチマーク - Project tzf
-summary: tzf (Go) と tzf-rs (Rust) のベンチマーク結果 - 異なるファインダータイプ、データセット、インデックスモードをカバー。
+  title: 'ベンチマーク - Project tzf'
+summary: 'tzf (Go) と tzf-rs (Rust) のベンチマーク結果 - 異なるファインダータイプ、データセット、インデックスモードをカバー。'
 title: ベンチマーク
 toc: true
 weight: 4

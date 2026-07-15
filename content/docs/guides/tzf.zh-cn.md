@@ -6,7 +6,7 @@ lastmod: '2025-07-21T12:14:46+09:00'
 seo:
   description: Go tzf 库的最佳实践，包括复用 Finder 实例、全局变量及生产环境模式。
   noindex: false
-  title: Go (tzf) 指南 - Project tzf
+  title: 'Go (tzf) 指南 - Project tzf'
 summary: tzf 在 Go 中的最佳实践，包括全局 Finder 复用及生产环境模式。
 title: Go (tzf)
 toc: true

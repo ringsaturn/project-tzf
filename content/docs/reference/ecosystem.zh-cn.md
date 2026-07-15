@@ -6,7 +6,7 @@ lastmod: '2026-04-29T00:00:00+09:00'
 seo:
   description: 五层 tzf 生态系统：从 evansiroky/timezone-boundary-builder GeoJSON 数据，经过处理与 tzf-dist 分发，到各语言实现和上层应用。
   noindex: false
-  title: 生态系统 - Project tzf
+  title: '生态系统 - Project tzf'
 summary: GeoJSON 边界数据如何通过 tzf-dist 流入 Go、Rust、Python、Swift、Ruby、WASM 和服务层。
 title: 生态系统
 toc: true

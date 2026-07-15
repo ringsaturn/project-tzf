@@ -1,8 +1,8 @@
 ---
-date: "2025-07-19T13:58:16+09:00"
+date: '2025-07-19T13:58:16+09:00'
 description: Performance benchmarks for tzf implementations across Go and Rust.
 draft: false
-lastmod: "2026-07-15T00:00:00+09:00"
+lastmod: '2026-07-15T00:00:00+09:00'
 seo:
   description: Performance benchmark results for tzf and tzf-rs covering default, fuzzy, and full-precision finders with YStripes and preindex.
   noindex: false
