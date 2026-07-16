@@ -2,7 +2,7 @@
 date: '2025-07-19T11:07:00+09:00'
 description: 'Project tzf のよくある質問 - 精度、メモリ、座標順序など。'
 draft: false
-lastmod: '2025-07-19T11:07:00+09:00'
+lastmod: '2026-07-16T09:54:13+09:00'
 seo:
   description: 'Project tzf のよくある質問 - 精度、メモリ使用量、座標順序、データ更新について。'
   noindex: false
@@ -20,10 +20,22 @@ weight: 95
 
 ## tzf は 100% 正確ですか？
 
-デフォルトではいいえ。tzf はデータサイズを削減するためにポリゴン簡略化（[Ramer-Douglas-Peucker](https://en.wikipedia.org/wiki/Ramer%E2%80%93Douglas%E2%80%93Peucker_algorithm)）を適用しており、
-タイムゾーン境界から約 1 km 以内の地点では誤った結果を返す可能性があります。
+デフォルトの Finder は、タイムゾーン境界付近で完全精度データセットと同じ結果を保証しません。epsilon が 0.001 度のトポロジー対応 [Douglas-Peucker 簡略化](https://en.wikipedia.org/wiki/Ramer%E2%80%93Douglas%E2%80%93Peucker_algorithm)を使用し、境界の変位を約 111 m 以内に抑えています。
+
+完全精度の 2026c データセットと比較した測定結果は [BORDER_CHANGE.md](https://github.com/ringsaturn/tzf/blob/main/BORDER_CHANGE.md) に記録されています。
+
+| 指標                                   | 結果                         |
+| -------------------------------------- | ---------------------------- |
+| 認証済みの最大境界変位                 | 111.2 m、許容誤差 1.0 m     |
+| 100 m を超えて変位した境界長の割合     | 0.41%                        |
+| 500 m を超えて変位した境界長の割合     | 0%                           |
+| 誤って割り当てられた総面積             | 16,828 km²、地球面積の約 0.003% |
+| 真の境界から 100 m 以内にある誤割当面積の割合 | 92.8%                 |
+
+完全精度の結果と異なる可能性があるのは、タイムゾーン境界から約 111 m 以内のクエリのみです。影響を受ける帯域の大部分はさらに狭くなっています。
 
 100% 正確な検索には、完全データセットを使用してください：
+
 - **Go**: `tzf.NewFullFinder()`
 - **Rust**: `full` feature を有効にする（[はじめる]({{< relref "getting-started#rust" >}})を参照）
 - **Python/tzfpy**: 完全精度モードは現在サポートされていません

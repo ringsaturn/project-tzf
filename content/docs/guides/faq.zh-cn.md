@@ -2,7 +2,7 @@
 date: '2025-07-19T11:07:00+09:00'
 description: 'Project tzf 常见问题解答 - 准确性、内存、坐标顺序等。'
 draft: false
-lastmod: '2025-07-19T11:07:00+09:00'
+lastmod: '2026-07-16T09:54:13+09:00'
 seo:
   description: 'Project tzf 常见问题解答 - 准确性、内存使用、坐标顺序及数据更新。'
   noindex: false
@@ -20,10 +20,22 @@ weight: 95
 
 ## tzf 是 100% 准确的吗？
 
-默认情况下不是。tzf 使用多边形简化算法（[Ramer-Douglas-Peucker](https://en.wikipedia.org/wiki/Ramer%E2%80%93Douglas%E2%80%93Peucker_algorithm)）来减小数据体积，
-对于距离时区边界约 1 公里以内的点，可能产生不正确的结果。
+默认查询器在时区边界附近无法保证与完整精度数据集一致。它使用 epsilon 为 0.001 度的拓扑感知 [Douglas-Peucker 简化算法](https://en.wikipedia.org/wiki/Ramer%E2%80%93Douglas%E2%80%93Peucker_algorithm)，将边界位移限制在约 111 米内。
+
+与完整精度的 2026c 数据集对比后，测量结果记录在 [BORDER_CHANGE.md](https://github.com/ringsaturn/tzf/blob/main/BORDER_CHANGE.md) 中：
+
+| 指标                              | 结果                         |
+| --------------------------------- | ---------------------------- |
+| 经认证的最大边界位移          | 111.2 米，容差 1.0 米       |
+| 位移超过 100 米的边界长度占比 | 0.41%                        |
+| 位移超过 500 米的边界长度占比 | 0%                           |
+| 误分配区域总面积                  | 16,828 平方公里，约占地球面积的 0.003% |
+| 真实边界 100 米内的误分配面积占比 | 92.8%                 |
+
+只有位于时区边界约 111 米以内的查询才可能与完整精度结果不同，大多数受影响区域的宽度还要更小。
 
 如需 100% 准确的查询，请使用完整数据集：
+
 - **Go**：`tzf.NewFullFinder()`
 - **Rust**：启用 `full` feature（参见[快速开始]({{< relref "getting-started#rust" >}})）
 - **Python/tzfpy**：目前不支持完整精度模式

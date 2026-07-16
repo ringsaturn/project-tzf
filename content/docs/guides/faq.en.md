@@ -2,7 +2,7 @@
 date: '2025-07-19T11:07:00+09:00'
 description: Frequently asked questions about Project tzf — accuracy, memory, coordinate order, and more.
 draft: false
-lastmod: '2025-07-19T11:07:00+09:00'
+lastmod: '2026-07-16T09:54:13+09:00'
 seo:
   description: Frequently asked questions about Project tzf — accuracy, memory usage, coordinate order, and data updates.
   noindex: false
@@ -20,10 +20,22 @@ Note that some systems (e.g. Google Maps URLs, many geographic textbooks) use (l
 
 ## Is tzf 100% accurate?
 
-By default, no. tzf applies polygon simplification ([Ramer–Douglas–Peucker](https://en.wikipedia.org/wiki/Ramer%E2%80%93Douglas%E2%80%93Peucker_algorithm)) to reduce data size,
-which may produce incorrect results for points within roughly 1 km of a timezone boundary.
+The default finder is not guaranteed to match the full-precision dataset near timezone boundaries. It applies topology-aware [Douglas-Peucker simplification](https://en.wikipedia.org/wiki/Ramer%E2%80%93Douglas%E2%80%93Peucker_algorithm) with an epsilon of 0.001 degrees, which limits boundary displacement to roughly 111 m.
+
+Measurements against the full-precision 2026c dataset are documented in [BORDER_CHANGE.md](https://github.com/ringsaturn/tzf/blob/main/BORDER_CHANGE.md):
+
+| Metric                                            | Result                         |
+| ------------------------------------------------- | ------------------------------ |
+| Certified maximum boundary displacement           | 111.2 m, with 1.0 m tolerance  |
+| Boundary length displaced more than 100 m         | 0.41%                          |
+| Boundary length displaced more than 500 m         | 0%                             |
+| Total mis-assigned area                           | 16,828 km², about 0.003% of Earth |
+| Mis-assigned area within 100 m of the true border | 92.8%                          |
+
+Only queries within roughly 111 m of a timezone boundary can differ from the full-precision result, and most of the affected band is much narrower.
 
 For 100% accurate lookups, use the full dataset:
+
 - **Go**: `tzf.NewFullFinder()`
 - **Rust**: enable the `full` feature (see [Getting Started]({{< relref "getting-started#rust" >}}))
 - **Python/tzfpy**: full-precision mode is not currently supported
