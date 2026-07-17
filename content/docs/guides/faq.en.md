@@ -2,7 +2,7 @@
 date: '2025-07-19T11:07:00+09:00'
 description: Frequently asked questions about Project tzf — accuracy, memory, coordinate order, and more.
 draft: false
-lastmod: '2026-07-16T09:54:13+09:00'
+lastmod: '2026-07-17T22:31:39+09:00'
 seo:
   description: Frequently asked questions about Project tzf — accuracy, memory usage, coordinate order, and data updates.
   noindex: false
@@ -42,15 +42,20 @@ For 100% accurate lookups, use the full dataset:
 
 ## How much memory does tzf use?
 
-| Mode (Go)                                     | Memory  |
-| --------------------------------------------- | ------- |
-| DefaultFinder (topology-simplified + preindex) | ~75 MB |
-| Finder (topology-simplified)                   | ~66 MB |
-| FullFinder (full-precision + preindex)         | ~422 MB |
+The following peak resident memory figures were measured on an Apple M3 Max in the [2026-07-14 benchmark snapshot](https://github.com/ringsaturn/tz-benchmark/blob/main/snapshot/2026-07-14-91bb3495bd282773baf61eac79a5f258b54d5656/README.md#memory). Delta excludes the Go, Rust, or Python runtime baseline.
 
-Rust memory is similar; enabling the YStripes index adds roughly 30–40 MB.
-Full-precision mode in Rust (with YStripes) uses ~560 MB.
-Python uses the Rust binary internally, so its footprint matches the Rust default mode.
+| Implementation | Mode                                      | Peak RSS | Delta from baseline |
+| -------------- | ----------------------------------------- | -------: | ------------------: |
+| Go             | `FuzzyFinder` (preindex only)             | 30.3 MiB |            24.7 MiB |
+| Go             | `Finder` (topology-simplified)            | 114.7 MiB |          109.0 MiB |
+| Go             | `DefaultFinder` (simplified + preindex)   | 132.9 MiB |          127.1 MiB |
+| Go             | `FullFinder` (full-precision + preindex)  | 363.7 MiB |          357.9 MiB |
+| Rust           | `FuzzyFinder` (preindex only)             | 23.9 MiB |            18.1 MiB |
+| Rust           | `Finder` (topology-simplified)            | 48.6 MiB |            42.8 MiB |
+| Rust           | `DefaultFinder` (simplified + preindex)   | 77.4 MiB |            71.5 MiB |
+| Python         | tzfpy `DefaultFinder`                     | 92.4 MiB |            69.8 MiB |
+
+Actual usage varies by platform, allocator, and dataset version.
 
 ## Why is initialization slow?
 

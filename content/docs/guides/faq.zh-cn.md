@@ -2,7 +2,7 @@
 date: '2025-07-19T11:07:00+09:00'
 description: 'Project tzf 常见问题解答 - 准确性、内存、坐标顺序等。'
 draft: false
-lastmod: '2026-07-16T09:54:13+09:00'
+lastmod: '2026-07-17T22:31:39+09:00'
 seo:
   description: 'Project tzf 常见问题解答 - 准确性、内存使用、坐标顺序及数据更新。'
   noindex: false
@@ -42,15 +42,20 @@ weight: 95
 
 ## tzf 使用多少内存？
 
-| 模式 (Go)                                     | 内存    |
-| --------------------------------------------- | ------- |
-| DefaultFinder（拓扑简化 + 预索引）             | ~75 MB  |
-| Finder（拓扑简化）                             | ~66 MB  |
-| FullFinder（完整精度 + 预索引）                | ~422 MB |
+以下峰值常驻内存数据来自 Apple M3 Max 上的 [2026-07-14 基准快照](https://github.com/ringsaturn/tz-benchmark/blob/main/snapshot/2026-07-14-91bb3495bd282773baf61eac79a5f258b54d5656/README.md#memory)。增量已排除 Go、Rust 或 Python 运行时的基线内存。
 
-Rust 内存用量相似。启用 YStripes 索引大约增加 30 到 40 MB。
-Rust 完整精度模式（启用 YStripes）约使用 560 MB。
-Python 内部使用 Rust 二进制文件，因此内存占用与 Rust 默认模式一致。
+| 实现   | 模式                              | 峰值 RSS | 相对基线增量 |
+| ------ | --------------------------------- | -------: | -----------: |
+| Go     | `FuzzyFinder`（仅预索引）         | 30.3 MiB |     24.7 MiB |
+| Go     | `Finder`（拓扑简化）              | 114.7 MiB |   109.0 MiB |
+| Go     | `DefaultFinder`（简化 + 预索引）  | 132.9 MiB |   127.1 MiB |
+| Go     | `FullFinder`（完整精度 + 预索引） | 363.7 MiB |   357.9 MiB |
+| Rust   | `FuzzyFinder`（仅预索引）         | 23.9 MiB |     18.1 MiB |
+| Rust   | `Finder`（拓扑简化）              | 48.6 MiB |     42.8 MiB |
+| Rust   | `DefaultFinder`（简化 + 预索引）  | 77.4 MiB |     71.5 MiB |
+| Python | tzfpy `DefaultFinder`             | 92.4 MiB |     69.8 MiB |
+
+实际内存用量会因平台、内存分配器和数据集版本而变化。
 
 ## 为什么初始化较慢？
 

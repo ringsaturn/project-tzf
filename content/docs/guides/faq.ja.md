@@ -2,7 +2,7 @@
 date: '2025-07-19T11:07:00+09:00'
 description: 'Project tzf のよくある質問 - 精度、メモリ、座標順序など。'
 draft: false
-lastmod: '2026-07-16T09:54:13+09:00'
+lastmod: '2026-07-17T22:31:39+09:00'
 seo:
   description: 'Project tzf のよくある質問 - 精度、メモリ使用量、座標順序、データ更新について。'
   noindex: false
@@ -42,15 +42,20 @@ weight: 95
 
 ## tzf はどのくらいメモリを使用しますか？
 
-| モード (Go)                                   | メモリ  |
-| --------------------------------------------- | ------- |
-| DefaultFinder（トポロジー簡略化 + プレインデックス） | ~75 MB |
-| Finder（トポロジー簡略化）                      | ~66 MB |
-| FullFinder（完全精度 + プレインデックス）       | ~422 MB |
+以下のピーク常駐メモリは、Apple M3 Max で測定した [2026-07-14 ベンチマークスナップショット](https://github.com/ringsaturn/tz-benchmark/blob/main/snapshot/2026-07-14-91bb3495bd282773baf61eac79a5f258b54d5656/README.md#memory)の値です。増分は Go、Rust、Python ランタイムのベースラインを除いた値です。
 
-Rust のメモリ使用量も同程度です。YStripes インデックスを有効にすると約 30 から 40 MB 増加します。
-Rust の完全精度モード（YStripes 有効）は約 560 MB を使用します。
-Python は内部的に Rust バイナリを使用するため、メモリ使用量は Rust のデフォルトモードと一致します。
+| 実装   | モード                                  | ピーク RSS | ベースラインからの増分 |
+| ------ | --------------------------------------- | ---------: | ---------------------: |
+| Go     | `FuzzyFinder`（プレインデックスのみ）   |   30.3 MiB |               24.7 MiB |
+| Go     | `Finder`（トポロジー簡略化）            |  114.7 MiB |              109.0 MiB |
+| Go     | `DefaultFinder`（簡略化 + プレインデックス） | 132.9 MiB |          127.1 MiB |
+| Go     | `FullFinder`（完全精度 + プレインデックス） | 363.7 MiB |          357.9 MiB |
+| Rust   | `FuzzyFinder`（プレインデックスのみ）   |   23.9 MiB |               18.1 MiB |
+| Rust   | `Finder`（トポロジー簡略化）            |   48.6 MiB |               42.8 MiB |
+| Rust   | `DefaultFinder`（簡略化 + プレインデックス） | 77.4 MiB |           71.5 MiB |
+| Python | tzfpy `DefaultFinder`                   |   92.4 MiB |               69.8 MiB |
+
+実際のメモリ使用量は、プラットフォーム、アロケータ、データセットのバージョンによって異なります。
 
 ## 初期化が遅いのはなぜですか？
 

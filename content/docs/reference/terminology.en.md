@@ -119,23 +119,6 @@ tested for a given query point. Default since tzf v1.1.0 (Go) and tzf-rs v1.2.0 
 Brings single random-city lookup to ~1 µs on modern hardware.
 Algorithm details: [`POLYGON_INDEXING.md`](https://github.com/tidwall/tg/blob/main/docs/POLYGON_INDEXING.md).
 
-## Performance
-
-### Memory Usage {#memory-usage}
-
-Approximate figures for the Go implementation (Rust is similar):
-
-| Mode | Memory |
-| --- | --- |
-| DefaultFinder (topology-simplified + preindex) | ~75 MB |
-| Finder (topology-simplified) | ~66 MB |
-| FullFinder (full-precision + preindex) | ~422 MB |
-| FullFinder (full-precision only) | ~413 MB |
-
-Rust with YStripes index adds ~30–40 MB above the no-index baseline.
-Full-precision mode in Rust (with YStripes) requires ~560 MB.
-Python (tzfpy) uses the Rust binary internally; expect ~120 MB for the default mode.
-
 ## Internals
 
 ### CGO vs PyO3 {#cgo-pyo3}

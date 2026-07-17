@@ -119,23 +119,6 @@ Josh Baker の [`tidwall/tg`](https://github.com/tidwall/tg) から移植され�
 最新ハードウェアで単一ランダム都市検索を約 1 µs にします。
 アルゴリズム詳細：[`POLYGON_INDEXING.md`](https://github.com/tidwall/tg/blob/main/docs/POLYGON_INDEXING.md)。
 
-## パフォーマンス
-
-### メモリ使用量 {#memory-usage}
-
-Go 実装のおおよその数値（Rust も同様）：
-
-| モード | メモリ |
-| --- | --- |
-| DefaultFinder（トポロジー簡略化 + プレインデックス） | 約 75 MB |
-| Finder（トポロジー簡略化） | 約 66 MB |
-| FullFinder（完全精度 + プレインデックス） | 約 422 MB |
-| FullFinder（完全精度のみ） | 約 413 MB |
-
-Rust で YStripes インデックスを有効にすると、インデックスなしのベースラインから約 30 から 40 MB 増加します。
-Rust の完全精度モード（YStripes 有効）は約 560 MB 必要です。
-Python (tzfpy) は内部的に Rust バイナリを使用します。デフォルトモードでは約 120 MB を想定してください。
-
 ## 内部実装
 
 ### CGO vs PyO3 {#cgo-pyo3}

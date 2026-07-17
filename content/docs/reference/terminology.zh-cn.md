@@ -119,23 +119,6 @@ weight: 3
 在现代硬件上单次随机城市查询约 1 µs。
 算法详情：[`POLYGON_INDEXING.md`](https://github.com/tidwall/tg/blob/main/docs/POLYGON_INDEXING.md)。
 
-## 性能
-
-### 内存用量 {#memory-usage}
-
-Go 实现的近似数值（Rust 类似）：
-
-| 模式 | 内存 |
-| --- | --- |
-| DefaultFinder（拓扑简化 + 预索引） | 约 75 MB |
-| Finder（拓扑简化） | 约 66 MB |
-| FullFinder（完整精度 + 预索引） | 约 422 MB |
-| FullFinder（仅完整精度） | 约 413 MB |
-
-Rust 启用 YStripes 索引后，相比无索引基线约增加 30 到 40 MB。
-Rust 完整精度模式（启用 YStripes）约需 560 MB。
-Python (tzfpy) 内部使用 Rust 二进制文件，默认模式约需 120 MB。
-
 ## 内部实现
 
 ### CGO vs PyO3 {#cgo-pyo3}
