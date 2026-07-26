@@ -2,7 +2,7 @@
 date: '2025-07-19T11:07:00+09:00'
 description: Frequently asked questions about Project tzf — accuracy, memory, coordinate order, and more.
 draft: false
-lastmod: '2026-07-17T22:31:39+09:00'
+lastmod: '2026-07-26T00:00:00+09:00'
 seo:
   description: Frequently asked questions about Project tzf — accuracy, memory usage, coordinate order, and data updates.
   noindex: false
@@ -42,20 +42,25 @@ For 100% accurate lookups, use the full dataset:
 
 ## How much memory does tzf use?
 
-The following peak resident memory figures were measured on an Apple M3 Max in the [2026-07-14 benchmark snapshot](https://github.com/ringsaturn/tz-benchmark/blob/main/snapshot/2026-07-14-91bb3495bd282773baf61eac79a5f258b54d5656/README.md#memory). Delta excludes the Go, Rust, or Python runtime baseline.
+Initialization cost and runtime cost are not the same number. Building a finder decodes the whole `.pb` dataset into an intermediate representation, builds the query structures from it, and then drops the intermediate — but freeing memory does not shrink RSS, because the allocator keeps the pages mapped for reuse. So the steady-state data a finder actually retains is several times smaller than the high-water mark reached while loading.
 
-| Implementation | Mode                                      | Peak RSS | Delta from baseline |
-| -------------- | ----------------------------------------- | -------: | ------------------: |
-| Go             | `FuzzyFinder` (preindex only)             | 30.3 MiB |            24.7 MiB |
-| Go             | `Finder` (topology-simplified)            | 114.7 MiB |          109.0 MiB |
-| Go             | `DefaultFinder` (simplified + preindex)   | 132.9 MiB |          127.1 MiB |
-| Go             | `FullFinder` (full-precision + preindex)  | 363.7 MiB |          357.9 MiB |
-| Rust           | `FuzzyFinder` (preindex only)             | 23.9 MiB |            18.1 MiB |
-| Rust           | `Finder` (topology-simplified)            | 48.6 MiB |            42.8 MiB |
-| Rust           | `DefaultFinder` (simplified + preindex)   | 77.4 MiB |            71.5 MiB |
-| Python         | tzfpy `DefaultFinder`                     | 92.4 MiB |            69.8 MiB |
+The following figures were measured on an Apple M3 Max in the [2026-07-26 benchmark snapshot](https://github.com/ringsaturn/tz-benchmark/blob/main/snapshot/2026-07-26-8d0fed77a8efb102ea3e3848781b5a000bbfb548/README.md#memory).
 
-Actual usage varies by platform, allocator, and dataset version.
+| Implementation | Mode                                      | Init peak | Live      |
+| -------------- | ----------------------------------------- | --------: | --------: |
+| Go             | `FuzzyFinder` (preindex only)             |  30.4 MiB |   2.6 MiB |
+| Go             | `Finder` (topology-simplified)            | 127.8 MiB |  30.0 MiB |
+| Go             | `DefaultFinder` (simplified + preindex)   | 124.3 MiB |  32.3 MiB |
+| Go             | `FullFinder` (full-precision + preindex)  | 359.4 MiB | 155.7 MiB |
+| Rust           | `FuzzyFinder` (preindex only)             |  23.8 MiB |   5.1 MiB |
+| Rust           | `Finder` (topology-simplified)            |  48.0 MiB |  20.7 MiB |
+| Rust           | `DefaultFinder` (simplified + preindex)   |  77.0 MiB |  36.3 MiB |
+| Python         | tzfpy `DefaultFinder`                     |  94.8 MiB |       n/a |
+
+- **Init peak** is the high-water mark (`ru_maxrss`) reached while loading. This is what a container memory limit has to accommodate, or the process is killed at startup even though its steady state would have fit.
+- **Live** is what the finder retains once it is ready to serve queries, from language-native accounting (Go `HeapAlloc` after a forced GC, Rust a counting global allocator). It is `n/a` for Python, whose candidates keep their data outside the Python heap.
+
+Size the container for the init peak, but expect the long-running cost to be the live figure. Actual usage varies by platform, allocator, and dataset version.
 
 ## Why is initialization slow?
 

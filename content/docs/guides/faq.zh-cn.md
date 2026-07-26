@@ -2,7 +2,7 @@
 date: '2025-07-19T11:07:00+09:00'
 description: 'Project tzf 常见问题解答 - 准确性、内存、坐标顺序等。'
 draft: false
-lastmod: '2026-07-17T22:31:39+09:00'
+lastmod: '2026-07-26T00:00:00+09:00'
 seo:
   description: 'Project tzf 常见问题解答 - 准确性、内存使用、坐标顺序及数据更新。'
   noindex: false
@@ -42,20 +42,25 @@ weight: 95
 
 ## tzf 使用多少内存？
 
-以下峰值常驻内存数据来自 Apple M3 Max 上的 [2026-07-14 基准快照](https://github.com/ringsaturn/tz-benchmark/blob/main/snapshot/2026-07-14-91bb3495bd282773baf61eac79a5f258b54d5656/README.md#memory)。增量已排除 Go、Rust 或 Python 运行时的基线内存。
+初始化开销和运行时开销不是同一个数字。构建 finder 时会把整个 `.pb` 数据集解码成中间表示，再据此建立查询结构，然后中间表示即被丢弃——但释放内存并不会让 RSS 缩小，分配器会保留这些页面以便复用。因此 finder 稳定运行时真正持有的数据，比加载过程中的高水位小好几倍。
 
-| 实现   | 模式                              | 峰值 RSS | 相对基线增量 |
-| ------ | --------------------------------- | -------: | -----------: |
-| Go     | `FuzzyFinder`（仅预索引）         | 30.3 MiB |     24.7 MiB |
-| Go     | `Finder`（拓扑简化）              | 114.7 MiB |   109.0 MiB |
-| Go     | `DefaultFinder`（简化 + 预索引）  | 132.9 MiB |   127.1 MiB |
-| Go     | `FullFinder`（完整精度 + 预索引） | 363.7 MiB |   357.9 MiB |
-| Rust   | `FuzzyFinder`（仅预索引）         | 23.9 MiB |     18.1 MiB |
-| Rust   | `Finder`（拓扑简化）              | 48.6 MiB |     42.8 MiB |
-| Rust   | `DefaultFinder`（简化 + 预索引）  | 77.4 MiB |     71.5 MiB |
-| Python | tzfpy `DefaultFinder`             | 92.4 MiB |     69.8 MiB |
+以下数据来自 Apple M3 Max 上的 [2026-07-26 基准快照](https://github.com/ringsaturn/tz-benchmark/blob/main/snapshot/2026-07-26-8d0fed77a8efb102ea3e3848781b5a000bbfb548/README.md#memory)。
 
-实际内存用量会因平台、内存分配器和数据集版本而变化。
+| 实现   | 模式                              | 初始化峰值 | 常驻      |
+| ------ | --------------------------------- | ---------: | --------: |
+| Go     | `FuzzyFinder`（仅预索引）         |   30.4 MiB |   2.6 MiB |
+| Go     | `Finder`（拓扑简化）              |  127.8 MiB |  30.0 MiB |
+| Go     | `DefaultFinder`（简化 + 预索引）  |  124.3 MiB |  32.3 MiB |
+| Go     | `FullFinder`（完整精度 + 预索引） |  359.4 MiB | 155.7 MiB |
+| Rust   | `FuzzyFinder`（仅预索引）         |   23.8 MiB |   5.1 MiB |
+| Rust   | `Finder`（拓扑简化）              |   48.0 MiB |  20.7 MiB |
+| Rust   | `DefaultFinder`（简化 + 预索引）  |   77.0 MiB |  36.3 MiB |
+| Python | tzfpy `DefaultFinder`             |   94.8 MiB |       n/a |
+
+- **初始化峰值**是加载过程中达到的高水位（`ru_maxrss`）。容器内存限制必须能容纳这个值，否则进程会在启动阶段被杀死——即便它稳定运行时的占用完全放得下。
+- **常驻**是 finder 准备好接受查询后实际持有的数据量，来自语言原生的内存统计（Go 为强制 GC 后的 `HeapAlloc`，Rust 为计数型全局分配器）。Python 的数据保存在 Python 堆之外，因此为 `n/a`。
+
+按初始化峰值来规划容器内存，但长期运行的实际成本应以常驻值为准。实际内存用量会因平台、内存分配器和数据集版本而变化。
 
 ## 为什么初始化较慢？
 

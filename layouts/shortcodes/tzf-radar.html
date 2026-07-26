@@ -1,6 +1,9 @@
 {{- /* Radar charts comparing timezone lookup packages (data from
-     https://github.com/ringsaturn/tz-benchmark). Colors follow the site
-     theme via the `dark` class hextra sets on <html>. */ -}}
+     https://github.com/ringsaturn/tz-benchmark, snapshot 2026-07-26). Latency
+     is the random-world-cities benchmark, memory is retained live bytes (RSS
+     after load for Python, which holds its data off the Python heap), and
+     accuracy uses the `cities` wrong rate. Colors follow the site theme via
+     the `dark` class hextra sets on <html>. */ -}}
 <div id="tzf-radar" aria-label="Radar charts comparing timezone lookup packages in Go, Python, and Rust">
   <div class="tzr-grid"></div>
 </div>
@@ -173,25 +176,25 @@
   (() => {
     const grid = document.querySelector("#tzf-radar .tzr-grid");
     const packages = [
-      { language: "Go", name: "tzf Default", tzf: true, latency: 325.4, memory: 133.7, wrong: 0.0006 },
-      { language: "Go", name: "latlong", tzf: false, latency: 111.7, memory: 8.3, wrong: 0.2637 },
-      { language: "Go", name: "timezonemapper", tzf: false, latency: 103.6, memory: 8.0, wrong: 0.5275 },
-      { language: "Go", name: "localtimezone", tzf: false, latency: 24268, memory: 18.8, wrong: 0.0142 },
-      { language: "Go", name: "go-tz", tzf: false, latency: 39971, memory: 109.8, wrong: 0 },
-      { language: "Python", name: "tzfpy Default", tzf: true, latency: 1056.1834, memory: 92.5, wrong: 0.0006 },
-      { language: "Python", name: "timezonefinder", tzf: false, latency: 12751.0674, memory: 112.2, wrong: 0 },
-      { language: "Rust", name: "tzf-rs Default", tzf: true, latency: 243.62, memory: 77.7, wrong: 0.0006 },
-      { language: "Rust", name: "tzf-rs Finder", tzf: true, latency: 7310.36, memory: 48.5, wrong: 0.0006 },
-      { language: "Rust", name: "tzf-rs Fuzzy", tzf: true, latency: 138.92, memory: 24.0, wrong: 0 },
-      { language: "Rust", name: "tz-search", tzf: false, latency: 111.30, memory: 9.2, wrong: 0.5288 },
-      { language: "Rust", name: "rtz OSM", tzf: false, latency: 1550.87, memory: 15.0, wrong: 0.0381 },
-      { language: "Rust", name: "rtz NED", tzf: false, latency: 393.19, memory: 11.8, wrong: 18.5909 }
+      { language: "Go", name: "tzf Default", tzf: true, latency: 321.6, memory: 32.3, wrong: 0.0006 },
+      { language: "Go", name: "latlong", tzf: false, latency: 106.4, memory: 1.1, wrong: 0.2637 },
+      { language: "Go", name: "timezonemapper", tzf: false, latency: 95.08, memory: 1.1, wrong: 0.5275 },
+      { language: "Go", name: "localtimezone", tzf: false, latency: 23561, memory: 2.8, wrong: 0.0142 },
+      { language: "Go", name: "go-tz", tzf: false, latency: 39704, memory: 32.6, wrong: 0 },
+      { language: "Python", name: "tzfpy Default", tzf: true, latency: 980.7423, memory: 94.8, wrong: 0.0006 },
+      { language: "Python", name: "timezonefinder", tzf: false, latency: 18877.9892, memory: 110.3, wrong: 0 },
+      { language: "Rust", name: "tzf-rs Default", tzf: true, latency: 227.87, memory: 36.3, wrong: 0.0006 },
+      { language: "Rust", name: "tzf-rs Finder", tzf: true, latency: 7079.98, memory: 20.7, wrong: 0.0006 },
+      { language: "Rust", name: "tzf-rs Fuzzy", tzf: true, latency: 137.88, memory: 5.1, wrong: 0 },
+      { language: "Rust", name: "tz-search", tzf: false, latency: 114.21, memory: 2.2, wrong: 0.5288 },
+      { language: "Rust", name: "rtz OSM", tzf: false, latency: 1577.66, memory: 4.2, wrong: 0.0381 },
+      { language: "Rust", name: "rtz NED", tzf: false, latency: 386.31, memory: 4.1, wrong: 18.5909 }
     ];
 
     const languages = ["Go", "Python", "Rust"];
     const domains = {
       latency: [80, 10000000],
-      memory: [5, 400],
+      memory: [1, 400],
       wrong: [0.0001, 100]
     };
     const center = { x: 120, y: 122 };
@@ -238,6 +241,9 @@
       return `${(value / 1000000).toFixed(1)} ms`;
     };
     const formatWrong = value => value < 0.01 ? `${value.toFixed(4)}%` : value < 1 ? `${value.toFixed(3)}%` : `${value.toFixed(2)}%`;
+    // Go and Rust report retained live bytes; Python keeps its data outside the
+    // Python heap, so the closest comparable figure is RSS once loaded.
+    const memoryBasis = item => item.language === "Python" ? "MiB RSS" : "MiB live";
 
     const makeSvg = (tag, attributes = {}) => {
       const element = document.createElementNS(ns, tag);
@@ -346,7 +352,7 @@
         controls.querySelectorAll("button").forEach(button => {
           button.setAttribute("aria-pressed", String(button.dataset.package === selected.name));
         });
-        detail.innerHTML = `<strong>${selected.name}</strong><br>${formatLatency(selected.latency)} · ${selected.memory.toFixed(1)} MiB · ${formatWrong(selected.wrong)} wrong`;
+        detail.innerHTML = `<strong>${selected.name}</strong><br>${formatLatency(selected.latency)} · ${selected.memory.toFixed(1)} ${memoryBasis(selected)} · ${formatWrong(selected.wrong)} wrong`;
       };
 
       items.forEach((item, itemIndex) => {
@@ -355,7 +361,7 @@
         button.className = "tzr-btn";
         button.dataset.package = item.name;
         button.setAttribute("aria-pressed", String(itemIndex === 0));
-        button.title = `${formatLatency(item.latency)}, ${item.memory.toFixed(1)} MiB peak, ${formatWrong(item.wrong)} wrong`;
+        button.title = `${formatLatency(item.latency)}, ${item.memory.toFixed(1)} ${memoryBasis(item)}, ${formatWrong(item.wrong)} wrong`;
         button.textContent = item.name;
         button.addEventListener("click", () => updateSelection(item));
         controls.appendChild(button);
