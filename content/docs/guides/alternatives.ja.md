@@ -21,6 +21,14 @@ weight: 90
 
 Stack Overflow の関連質問もあります：[How to get a time zone from a location using latitude and longitude coordinates?](https://stackoverflow.com/questions/16086962/)
 
+## 速度・メモリ・精度の比較
+
+以下のレーダーチャートは、[tz-benchmark](https://github.com/ringsaturn/tz-benchmark) の継続的ベンチマーク結果に基づき、
+Go・Python・Rust の主要なタイムゾーン検索パッケージを検索速度・ピークメモリ・精度（誤判定率）の 3 軸で比較したものです。
+3 軸とも共通の対数スケールを使用しており、外側にあるほど優れています。チャート下のパッケージ名をクリックすると詳細な数値が表示されます。
+
+{{< tzf-radar >}}
+
 ## Go
 
 - <u>**<https://github.com/ringsaturn/tzf>**</u>

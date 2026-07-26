@@ -1,0 +1,369 @@
+{{- /* Radar charts comparing timezone lookup packages (data from
+     https://github.com/ringsaturn/tz-benchmark). Colors follow the site
+     theme via the `dark` class hextra sets on <html>. */ -}}
+<div id="tzf-radar" aria-label="Radar charts comparing timezone lookup packages in Go, Python, and Rust">
+  <div class="tzr-grid"></div>
+</div>
+
+<style>
+  #tzf-radar {
+    --tzr-fg: rgb(26 28 31);
+    --tzr-muted: rgb(26 28 31 / 55%);
+    --tzr-border: rgb(26 28 31 / 12%);
+    --tzr-primary: rgb(51 156 255);
+    --tzr-primary-fg: rgb(255 255 255);
+    --tzr-accent: rgb(229 242 255);
+    --tzr-point-fill: rgb(255 255 255);
+    container-type: inline-size;
+    margin: 1.5rem 0;
+    color: var(--tzr-fg);
+    font-size: 0.875rem;
+    line-height: 1.5;
+  }
+  .dark #tzf-radar {
+    --tzr-fg: rgb(255 255 255);
+    --tzr-muted: rgb(255 255 255 / 55%);
+    --tzr-border: rgb(255 255 255 / 15%);
+    --tzr-primary: rgb(131 195 255);
+    --tzr-primary-fg: rgb(13 13 13);
+    --tzr-accent: rgb(13 39 63);
+    --tzr-point-fill: rgb(17 17 17);
+  }
+  #tzf-radar * {
+    box-sizing: border-box;
+  }
+  #tzf-radar .tzr-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+    align-items: start;
+  }
+  @container (max-width: 680px) {
+    #tzf-radar .tzr-grid {
+      grid-template-columns: 1fr;
+      gap: 24px;
+    }
+    #tzf-radar .tzr-svg {
+      max-width: 300px;
+    }
+  }
+  #tzf-radar .tzr-panel {
+    min-width: 0;
+    text-align: center;
+  }
+  #tzf-radar .tzr-panel h3 {
+    margin: 0 0 2px;
+    font-size: 1rem;
+    font-weight: 500;
+  }
+  #tzf-radar .tzr-muted {
+    color: var(--tzr-muted);
+    font-size: 0.8125rem;
+  }
+  #tzf-radar .tzr-panel > .tzr-muted {
+    margin-bottom: 4px;
+  }
+  #tzf-radar .tzr-svg {
+    width: 100%;
+    max-width: 250px;
+    height: auto;
+    margin: 0 auto;
+    overflow: visible;
+  }
+  #tzf-radar .tzr-gridline {
+    fill: none;
+    stroke: var(--tzr-border);
+    stroke-width: 1;
+  }
+  #tzf-radar .tzr-axis {
+    stroke: var(--tzr-border);
+    stroke-width: 1;
+  }
+  #tzf-radar .tzr-axis-label {
+    fill: var(--tzr-fg);
+    text-anchor: middle;
+    font-size: 13px;
+    font-weight: 500;
+  }
+  #tzf-radar .tzr-scale-label {
+    fill: var(--tzr-muted);
+    text-anchor: start;
+    font-size: 10px;
+  }
+  #tzf-radar .tzr-series {
+    fill: none;
+    stroke: var(--tzr-muted);
+    stroke-width: 1.25;
+    opacity: 0.58;
+    transition: opacity 160ms ease, stroke-width 160ms ease, fill 160ms ease;
+  }
+  #tzf-radar .tzr-series.is-tzf {
+    stroke: var(--tzr-primary);
+    opacity: 0.78;
+  }
+  #tzf-radar .tzr-series.is-selected {
+    fill: color-mix(in srgb, var(--tzr-accent) 55%, transparent);
+    stroke: var(--tzr-fg);
+    stroke-width: 2;
+    opacity: 1;
+  }
+  #tzf-radar .tzr-point {
+    fill: var(--tzr-point-fill);
+    stroke: var(--tzr-muted);
+    stroke-width: 1.25;
+    opacity: 0.65;
+    transition: opacity 160ms ease, stroke-width 160ms ease;
+  }
+  #tzf-radar .tzr-point.is-tzf {
+    stroke: var(--tzr-primary);
+  }
+  #tzf-radar .tzr-point.is-selected {
+    fill: var(--tzr-fg);
+    stroke: var(--tzr-fg);
+    stroke-width: 2;
+    opacity: 1;
+  }
+  #tzf-radar .tzr-packages {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 6px;
+    margin-top: 2px;
+  }
+  #tzf-radar .tzr-btn {
+    margin: 0;
+    padding: 2px 10px;
+    border: 0;
+    border-radius: 9999px;
+    color: var(--tzr-muted);
+    background: transparent;
+    cursor: pointer;
+    font: inherit;
+    font-size: 0.8125rem;
+    line-height: 1.4;
+    white-space: nowrap;
+  }
+  #tzf-radar .tzr-btn:hover {
+    color: var(--tzr-fg);
+    background: color-mix(in srgb, var(--tzr-fg) 8%, transparent);
+  }
+  #tzf-radar .tzr-btn[aria-pressed="true"] {
+    color: var(--tzr-primary-fg);
+    background: var(--tzr-primary);
+  }
+  #tzf-radar .tzr-detail {
+    min-height: 42px;
+    margin-top: 8px;
+    color: var(--tzr-muted);
+    font-size: 0.8125rem;
+  }
+  #tzf-radar .tzr-detail strong {
+    color: var(--tzr-fg);
+    font-weight: 500;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    #tzf-radar .tzr-series,
+    #tzf-radar .tzr-point {
+      transition: none;
+    }
+  }
+</style>
+
+<script>
+  (() => {
+    const grid = document.querySelector("#tzf-radar .tzr-grid");
+    const packages = [
+      { language: "Go", name: "tzf Default", tzf: true, latency: 316.8, memory: 132.9, wrong: 0.0006 },
+      { language: "Go", name: "latlong", tzf: false, latency: 106.9, memory: 8.4, wrong: 0.2637 },
+      { language: "Go", name: "timezonemapper", tzf: false, latency: 95.11, memory: 8.0, wrong: 0.5275 },
+      { language: "Go", name: "localtimezone", tzf: false, latency: 23277, memory: 19.4, wrong: 0.0142 },
+      { language: "Go", name: "go-tz", tzf: false, latency: 39153, memory: 109.8, wrong: 0 },
+      { language: "Python", name: "tzfpy Default", tzf: true, latency: 788.9321, memory: 92.4, wrong: 0.0006 },
+      { language: "Python", name: "timezonefinder", tzf: false, latency: 30834.2275, memory: 111.7, wrong: 0 },
+      { language: "Rust", name: "tzf-rs Default", tzf: true, latency: 217.35, memory: 77.4, wrong: 0.0006 },
+      { language: "Rust", name: "tzf-rs Finder", tzf: true, latency: 6899.06, memory: 48.6, wrong: 0.0006 },
+      { language: "Rust", name: "tzf-rs Fuzzy", tzf: true, latency: 142.53, memory: 23.9, wrong: 0 },
+      { language: "Rust", name: "tz-search", tzf: false, latency: 106.70, memory: 9.0, wrong: 0.5288 },
+      { language: "Rust", name: "rtz OSM", tzf: false, latency: 1506.21, memory: 15.0, wrong: 0.0381 },
+      { language: "Rust", name: "rtz NED", tzf: false, latency: 374.35, memory: 11.7, wrong: 18.5909 }
+    ];
+
+    const languages = ["Go", "Python", "Rust"];
+    const domains = {
+      latency: [80, 10000000],
+      memory: [5, 400],
+      wrong: [0.0001, 100]
+    };
+    const center = { x: 120, y: 122 };
+    const radius = 76;
+    const angles = [-Math.PI / 2, Math.PI / 6, (5 * Math.PI) / 6];
+    const labels = [
+      { text: "Speed", x: 120, y: 18 },
+      { text: "Memory", x: 210, y: 188 },
+      { text: "Accuracy", x: 30, y: 188 }
+    ];
+    const ns = "http://www.w3.org/2000/svg";
+
+    const logBenefit = (value, domain) => {
+      const low = Math.log10(domain[0]);
+      const high = Math.log10(domain[1]);
+      const normalized = (Math.log10(Math.max(domain[0], Math.min(domain[1], value))) - low) / (high - low);
+      return Math.max(0, Math.min(100, 100 * (1 - normalized)));
+    };
+
+    const scores = item => [
+      logBenefit(item.latency, domains.latency),
+      logBenefit(item.memory, domains.memory),
+      logBenefit(item.wrong, domains.wrong)
+    ];
+
+    const point = (score, angle) => {
+      const r = radius * score / 100;
+      return {
+        x: center.x + Math.cos(angle) * r,
+        y: center.y + Math.sin(angle) * r
+      };
+    };
+
+    const polygonPoints = values => values
+      .map((value, index) => {
+        const p = point(value, angles[index]);
+        return `${p.x.toFixed(2)},${p.y.toFixed(2)}`;
+      })
+      .join(" ");
+
+    const formatLatency = value => {
+      if (value < 1000) return `${Math.round(value)} ns`;
+      if (value < 1000000) return `${(value / 1000).toFixed(value < 10000 ? 1 : 0)} µs`;
+      return `${(value / 1000000).toFixed(1)} ms`;
+    };
+    const formatWrong = value => value < 0.01 ? `${value.toFixed(4)}%` : value < 1 ? `${value.toFixed(3)}%` : `${value.toFixed(2)}%`;
+
+    const makeSvg = (tag, attributes = {}) => {
+      const element = document.createElementNS(ns, tag);
+      Object.entries(attributes).forEach(([key, value]) => element.setAttribute(key, value));
+      return element;
+    };
+
+    languages.forEach(language => {
+      const items = packages.filter(item => item.language === language);
+      const panel = document.createElement("section");
+      panel.className = "tzr-panel";
+
+      const heading = document.createElement("h3");
+      heading.textContent = language;
+      const context = document.createElement("div");
+      context.className = "tzr-muted";
+      context.textContent = `${items.length} packages`;
+
+      const svg = makeSvg("svg", {
+        class: "tzr-svg",
+        viewBox: "0 0 240 212",
+        role: "img",
+        "aria-label": `${language} package trade-off radar chart`
+      });
+      const title = makeSvg("title");
+      title.textContent = `${language} timezone lookup package comparison`;
+      const description = makeSvg("desc");
+      description.textContent = "Three axes score speed, memory efficiency, and accuracy based on wrong result rate from zero to one hundred. Higher values are better.";
+      svg.append(title, description);
+
+      [25, 50, 75, 100].forEach(level => {
+        svg.appendChild(makeSvg("polygon", {
+          class: "tzr-gridline",
+          points: polygonPoints([level, level, level])
+        }));
+      });
+
+      angles.forEach(angle => {
+        const p = point(100, angle);
+        svg.appendChild(makeSvg("line", {
+          class: "tzr-axis",
+          x1: center.x,
+          y1: center.y,
+          x2: p.x,
+          y2: p.y
+        }));
+      });
+
+      labels.forEach(label => {
+        const text = makeSvg("text", {
+          class: "tzr-axis-label",
+          x: label.x,
+          y: label.y
+        });
+        text.textContent = label.text;
+        svg.appendChild(text);
+      });
+
+      [25, 50, 75, 100].forEach(level => {
+        const p = point(level, angles[0]);
+        const text = makeSvg("text", {
+          class: "tzr-scale-label",
+          x: center.x + 4,
+          y: p.y + 4
+        });
+        text.textContent = String(level);
+        svg.appendChild(text);
+      });
+
+      const seriesByName = new Map();
+      items.forEach((item, itemIndex) => {
+        const itemScores = scores(item);
+        const group = makeSvg("g", { "data-package": item.name });
+        group.appendChild(makeSvg("polygon", {
+          class: `tzr-series${item.tzf ? " is-tzf" : ""}${itemIndex === 0 ? " is-selected" : ""}`,
+          points: polygonPoints(itemScores)
+        }));
+        itemScores.forEach((score, index) => {
+          const p = point(score, angles[index]);
+          group.appendChild(makeSvg("circle", {
+            class: `tzr-point${item.tzf ? " is-tzf" : ""}${itemIndex === 0 ? " is-selected" : ""}`,
+            cx: p.x,
+            cy: p.y,
+            r: 3
+          }));
+        });
+        svg.appendChild(group);
+        seriesByName.set(item.name, group);
+      });
+
+      const controls = document.createElement("div");
+      controls.className = "tzr-packages";
+      controls.setAttribute("aria-label", `Select a ${language} package`);
+
+      const detail = document.createElement("div");
+      detail.className = "tzr-detail";
+      detail.setAttribute("aria-live", "polite");
+
+      const updateSelection = selected => {
+        items.forEach(item => {
+          const selectedNow = item.name === selected.name;
+          const group = seriesByName.get(item.name);
+          group.querySelector(".tzr-series").classList.toggle("is-selected", selectedNow);
+          group.querySelectorAll(".tzr-point").forEach(mark => mark.classList.toggle("is-selected", selectedNow));
+        });
+        controls.querySelectorAll("button").forEach(button => {
+          button.setAttribute("aria-pressed", String(button.dataset.package === selected.name));
+        });
+        detail.innerHTML = `<strong>${selected.name}</strong><br>${formatLatency(selected.latency)} · ${selected.memory.toFixed(1)} MiB · ${formatWrong(selected.wrong)} wrong`;
+      };
+
+      items.forEach((item, itemIndex) => {
+        const button = document.createElement("button");
+        button.type = "button";
+        button.className = "tzr-btn";
+        button.dataset.package = item.name;
+        button.setAttribute("aria-pressed", String(itemIndex === 0));
+        button.title = `${formatLatency(item.latency)}, ${item.memory.toFixed(1)} MiB peak, ${formatWrong(item.wrong)} wrong`;
+        button.textContent = item.name;
+        button.addEventListener("click", () => updateSelection(item));
+        controls.appendChild(button);
+      });
+
+      panel.append(heading, context, svg, controls, detail);
+      grid.appendChild(panel);
+      updateSelection(items[0]);
+    });
+  })();
+</script>

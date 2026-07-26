@@ -21,6 +21,14 @@ weight: 90
 
 Stack Overflow 上还有一个相关问题：[How to get a time zone from a location using latitude and longitude coordinates?](https://stackoverflow.com/questions/16086962/)。
 
+## 速度、内存与准确率对比
+
+下面的雷达图基于 [tz-benchmark](https://github.com/ringsaturn/tz-benchmark) 的持续基准测试结果，
+从查询速度、峰值内存和准确率（错误率）三个维度对比 Go、Python、Rust 生态中的主要时区查询库。
+三个维度均使用统一的对数刻度，数值越靠外表现越好；点击图下方的包名可查看具体数据。
+
+{{< tzf-radar >}}
+
 ## Go
 
 - <u>**<https://github.com/ringsaturn/tzf>**</u>

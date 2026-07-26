@@ -21,6 +21,15 @@ See the repos in <u>[Lookup Libraries](https://github.com/evansiroky/timezone-bo
 
 A question on Stack Overflow also: [How to get a time zone from a location using latitude and longitude coordinates?](https://stackoverflow.com/questions/16086962/).
 
+## Speed, memory, and accuracy at a glance
+
+The radar charts below compare popular timezone lookup packages in Go, Python, and Rust
+on lookup speed, peak memory, and accuracy (wrong-result rate),
+based on the continuous benchmark results from [tz-benchmark](https://github.com/ringsaturn/tz-benchmark).
+All three axes share logarithmic scales, so further out is better; click a package name below a chart to see its numbers.
+
+{{< tzf-radar >}}
+
 ## Go
 
 - <u>**<https://github.com/ringsaturn/tzf>**</u>
