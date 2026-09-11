@@ -116,7 +116,6 @@ graph TD
     同时可以渲染由 `GetTZPreindexGeoJSON` 导出的 FUZZY 预索引瓦片
   - [racemap/rust-tz-service](https://github.com/racemap/rust-tz-service)
 
-截至 2026-09-10，tzf（Go）、tzf-rs（Rust）和 tzfpy 读取 v2 的 `.tzb` 产物。
-tzf-wasm 基于 tzf-rs 1.3.x 构建，tzf-swift 读取 v1 的 protobuf 产物。
+截至 2026-09-11，tzf（Go）、tzf-rs（Rust）、tzfpy 和 tzf-wasm 读取 v2 的 `.tzb` 产物；tzf-wasm 2.0.0 基于 tzf-rs 2.0.0 构建。tzf-swift 读取 v1 的 protobuf 产物。
 tzf-rb 由 [HarlemSquirrel](https://github.com/HarlemSquirrel) 独立维护，
 目前基于 v1 系列构建。

@@ -220,7 +220,7 @@ TZF.tz_names(40.74771675713742, -73.99350390136448)
     <meta charset="UTF-8" />
     <title>tzf-wasm 示例</title>
     <script type="module">
-      import init, { WasmFinder } from "https://www.unpkg.com/tzf-wasm@v0.1.4/tzf_wasm.js";
+      import init, { WasmFinder } from "https://www.unpkg.com/tzf-wasm@2.0.0/tzf_wasm.js";
 
       async function loadWasm() {
         await init();

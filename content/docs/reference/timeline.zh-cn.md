@@ -123,4 +123,4 @@ tzf-dist 停止发布 protobuf 产物，改为分发 `lite.tzb`、`lite.tzm` 和
 
 ### 2026-09
 
-tzf（Go）、tzf-rs（Rust）和 tzfpy（Python）发布 v2。tzf-dist 于 2026-09-10 打出第一个 `.tzb`/`.tzm` 工件集的 tag `v0.0.2026-c-tzb1`，tzf v2.0.0 同日发布，tzf-rs 2.0.0 与 tzfpy 2.0.0 于 2026-09-11 发布。Go 模块路径增加 `/v2` 后缀，tzf-rs 到达 2.0.0，tzfpy 绑定 tzf-rs 2.0。v1 系列（tzf v1.2.x、tzf-rs 1.3.x、tzfpy 1.3.x）仍然可用，并冻结在最后一个 protobuf 数据版本上。截至该时间点，tzf-swift 和 tzf-wasm 基于 v1 系列构建，独立维护的 tzf-rb 同样如此。
+tzf（Go）、tzf-rs（Rust）和 tzfpy（Python）发布 v2。tzf-dist 于 2026-09-10 打出第一个 `.tzb`/`.tzm` 工件集的 tag `v0.0.2026-c-tzb1`，tzf v2.0.0 同日发布，tzf-rs 2.0.0 与 tzfpy 2.0.0 于 2026-09-11 发布。Go 模块路径增加 `/v2` 后缀，tzf-rs 到达 2.0.0，tzfpy 绑定 tzf-rs 2.0。v1 系列（tzf v1.2.x、tzf-rs 1.3.x、tzfpy 1.3.x）仍然可用，并冻结在最后一个 protobuf 数据版本上。tzf-wasm 2.0.0 于 2026-09-11 基于 tzf-rs 2.0.0 发布，tzf-web 已使用该版本。截至该时间点，tzf-swift 基于 v1 系列构建，独立维护的 tzf-rb 同样如此。

@@ -102,7 +102,7 @@ Rust 侧也实现过一个 `.tzm` 加载器。它节省约 3ms 打开耗时，�
 
 ## v1 系列的状态
 
-tzf v1.2.x、tzf-rs 1.3.x 和 tzfpy 1.3.x 仍然可用，也可以继续工作。tzf-dist 停止发布 protobuf 产物，因此这些版本冻结在最后一个数据版本上；获取更新后的边界数据需要迁移到 v2。tzf-swift 和 tzf-wasm 基于 v1 系列构建。tzf-rb 是由 [HarlemSquirrel](https://github.com/HarlemSquirrel) 维护的第三方 Ruby 绑定，目前基于 v1 系列构建。
+tzf v1.2.x、tzf-rs 1.3.x 和 tzfpy 1.3.x 仍然可用，也可以继续工作。tzf-dist 停止发布 protobuf 产物，因此这些版本冻结在最后一个数据版本上；获取更新后的边界数据需要迁移到 v2。tzf-wasm 2.0.0 基于 tzf-rs 2.0.0 构建，tzf-web 已使用该版本。tzf-swift 基于 v1 系列构建。tzf-rb 是由 [HarlemSquirrel](https://github.com/HarlemSquirrel) 维护的第三方 Ruby 绑定，目前基于 v1 系列构建。
 
 ## 致谢
 

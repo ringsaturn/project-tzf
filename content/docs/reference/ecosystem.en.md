@@ -117,8 +117,8 @@ graph TD
     which also renders the FUZZY preindex tiles exported by `GetTZPreindexGeoJSON`
   - [racemap/rust-tz-service](https://github.com/racemap/rust-tz-service)
 
-As of 2026-09-10, tzf (Go), tzf-rs (Rust) and tzfpy read the v2 `.tzb` artifacts.
-tzf-wasm builds on tzf-rs 1.3.x, and tzf-swift reads the v1 protobuf artifact
-set. tzf-rb is maintained independently by
+As of 2026-09-11, tzf (Go), tzf-rs (Rust), tzfpy and tzf-wasm read the v2
+`.tzb` artifacts; tzf-wasm 2.0.0 builds on tzf-rs 2.0.0. tzf-swift reads the
+v1 protobuf artifact set. tzf-rb is maintained independently by
 [HarlemSquirrel](https://github.com/HarlemSquirrel) and currently builds on the
 v1 line.

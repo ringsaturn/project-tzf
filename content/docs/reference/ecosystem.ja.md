@@ -117,4 +117,4 @@ graph TD
     `GetTZPreindexGeoJSON` がエクスポートする FUZZY プレインデックスタイルも描画します
   - [racemap/rust-tz-service](https://github.com/racemap/rust-tz-service)
 
-2026-09-10 時点で、tzf (Go)、tzf-rs (Rust)、tzfpy は v2 の `.tzb` 成果物を読み込みます。tzf-wasm は tzf-rs 1.3.x の上に構築されており、tzf-swift は v1 の protobuf 成果物を読み込みます。tzf-rb は [HarlemSquirrel](https://github.com/HarlemSquirrel) が独立して保守しており、現在は v1 系列の上に構築されています。
+2026-09-11 時点で、tzf (Go)、tzf-rs (Rust)、tzfpy、tzf-wasm は v2 の `.tzb` 成果物を読み込みます。tzf-wasm 2.0.0 は tzf-rs 2.0.0 の上に構築されています。tzf-swift は v1 の protobuf 成果物を読み込みます。tzf-rb は [HarlemSquirrel](https://github.com/HarlemSquirrel) が独立して保守しており、現在は v1 系列の上に構築されています。

@@ -123,4 +123,4 @@ Apple M3 Max で `2026c` データセットを対象に、protobuf 経路と比�
 
 ### 2026-09
 
-tzf (Go)、tzf-rs (Rust)、tzfpy (Python) の v2 をリリース。tzf-dist は 2026-09-10 に最初の `.tzb`/`.tzm` アーティファクトセットのタグ `v0.0.2026-c-tzb1` を打ち、同日に tzf v2.0.0 が、2026-09-11 に tzf-rs 2.0.0 と tzfpy 2.0.0 がリリースされました。Go のモジュールパスに `/v2` サフィックスが付き、tzf-rs は 2.0.0 に、tzfpy は tzf-rs 2.0 をバインドします。v1 系列（tzf v1.2.x、tzf-rs 1.3.x、tzfpy 1.3.x）は引き続き利用でき、最後の protobuf データリリースで凍結されます。この時点で tzf-swift と tzf-wasm は v1 系列の上に構築されており、独立して保守されている tzf-rb も同様です。
+tzf (Go)、tzf-rs (Rust)、tzfpy (Python) の v2 をリリース。tzf-dist は 2026-09-10 に最初の `.tzb`/`.tzm` アーティファクトセットのタグ `v0.0.2026-c-tzb1` を打ち、同日に tzf v2.0.0 が、2026-09-11 に tzf-rs 2.0.0 と tzfpy 2.0.0 がリリースされました。Go のモジュールパスに `/v2` サフィックスが付き、tzf-rs は 2.0.0 に、tzfpy は tzf-rs 2.0 をバインドします。v1 系列（tzf v1.2.x、tzf-rs 1.3.x、tzfpy 1.3.x）は引き続き利用でき、最後の protobuf データリリースで凍結されます。tzf-wasm 2.0.0 は 2026-09-11 に tzf-rs 2.0.0 の上でリリースされ、tzf-web はそれを使用しています。この時点で tzf-swift は v1 系列の上に構築されており、独立して保守されている tzf-rb も同様です。

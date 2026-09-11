@@ -148,7 +148,7 @@ v2 releases for tzf (Go), tzf-rs (Rust) and tzfpy (Python). tzf-dist tagged
 the first `.tzb`/`.tzm` artifact set, `v0.0.2026-c-tzb1`, on 2026-09-10; tzf
 v2.0.0 followed the same day, and tzf-rs 2.0.0 and tzfpy 2.0.0 on 2026-09-11.
 The Go module path gains the `/v2` suffix, tzf-rs reaches 2.0.0, and tzfpy
-binds tzf-rs 2.0. The v1 lines (tzf v1.2.x, tzf-rs 1.3.x, tzfpy 1.3.x) remain
-available and frozen at their last protobuf data release. tzf-swift and
-tzf-wasm build on the v1 line at this date, as does the independently
-maintained tzf-rb.
+binds tzf-rs 2.0. tzf-wasm 2.0.0 followed on 2026-09-11 on top of tzf-rs 2.0.0, and tzf-web
+serves it. The v1 lines (tzf v1.2.x, tzf-rs 1.3.x, tzfpy 1.3.x) remain
+available and frozen at their last protobuf data release. tzf-swift builds on
+the v1 line at this date, as does the independently maintained tzf-rb.
