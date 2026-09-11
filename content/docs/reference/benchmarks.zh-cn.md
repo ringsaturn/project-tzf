@@ -1,114 +1,131 @@
 ---
 date: '2025-07-19T13:58:16+09:00'
-description: tzf 各语言实现的性能基准测试，涵盖 Go 和 Rust。
+description: tzf v2 在 Go、Rust 和 Python 中的性能、精度与内存基准测试。
 draft: false
-lastmod: '2026-07-26T00:00:00+09:00'
+lastmod: '2026-09-11T00:00:00+09:00'
 seo:
-  description: tzf 和 tzf-rs 的性能基准测试结果，涵盖默认、模糊和完整精度查找器，包含 YStripes 和预索引。
+  description: tzf v2 的基准测试结果：Go、Rust 和 Python 中默认、嵌入式和完整精度查找器的查询延迟、与完整精度基准的精度对比及内存占用。
   noindex: false
   title: '基准测试 - Project tzf'
-summary: tzf (Go) 和 tzf-rs (Rust) 基准测试结果，涵盖不同查找器类型、数据集和索引模式。
+summary: 来自 2026-09-11 tz-benchmark 快照的 tzf v2 查找器查询延迟、精度和内存数据。
 title: 基准测试
 toc: true
-weight: 4
+weight: 5
 ---
 
-项目有两套独立的基准测试，用途不同：
+项目有两套用途不同的基准测试。
 
-**持续基准测试**：源代码及结果位于 <https://github.com/ringsaturn/tz-benchmark>，
-可视化展示在 <https://ringsaturn.github.io/tz-benchmark/>。
-每次发布时在 GitHub Actions 中自动运行，用于跨包对比。
-由于 GitHub Actions 运行器与开发者机器硬件不同，绝对数值与本地运行有所差异，但包之间的相对趋势可以说明问题。
-仓库中 [`snapshot/`](https://github.com/ringsaturn/tz-benchmark/tree/main/snapshot) 目录下按日期归档的快照则是另一回事：
-那些是在与下表相同的 Apple M3 Max 上本机跑出来的，绝对数值可以与本页直接对比。
+**持续基准测试**：源代码及结果位于 <https://github.com/ringsaturn/tz-benchmark>，可视化展示在 <https://ringsaturn.github.io/tz-benchmark/>。它在每次发布时于 GitHub Actions 中运行，用于跨包对比。运行器硬件与开发机不同，因此绝对数值与本地运行有差异，包之间的相对次序可以对比。持续基准测试自 2026-09-11 起覆盖 tzf v2。
 
-**本地基准测试**：以下表格在搭载 Apple M3 Max 的 MacBook Pro 上测得。
-这些结果更能反映现代硬件上真实场景的延迟。
+**按日期归档的快照**：[`snapshot/`](https://github.com/ringsaturn/tz-benchmark/tree/main/snapshot) 下的目录在 Apple M3 Max 上本机取得。本页全部数据来自 `2026-09-11` 快照，针对已发布的 tzf v2.0.0、tzf-rs 2.0.0 和 tzfpy 2.0.0 测得。
 
 ## 测试方法
 
-每个查找器初始化一次并复用于所有查询，匹配推荐的生产环境模式。
-查询使用全球城市坐标的代表性样本加上特意选取的边界边缘案例点。
+每个查找器初始化一次并复用于所有查询，与文档中的生产环境用法一致。查询采样两个数据集：154,694 个世界城市（`gt_cities.csv`）和 23,408 个靠近边界的点（`gt_edges.csv`），均以完整精度的 `2026c` 数据作为基准。精度测试在 Go 中还运行了 1,000,000 个均匀随机点的数据集。
 
-下面出现了两种不同口径的内存数据，二者不可互换。
-Go 表格给出的是**常驻内存**——查找器准备好接受查询后仍然持有的部分；
-Rust 和 Python 表格给出的是**峰值 RSS**——加载过程中达到的高水位。
-后者要大好几倍，因为构建查找器时会先把整个 `.pb` 数据集解码成中间表示再丢弃，
-而释放内存并不会把页面归还给内核。
-不要把 Go 的数字和 Rust 的数字当作同一种测量来读。
-两种口径在同一批测量中的并排对比，参见
-[tzf 使用多少内存？]({{< relref "../guides/faq#tzf-使用多少内存" >}})。
+内存按候选项在独立的子进程中测量。下文出现四列，它们的口径互不相同：
 
-## Go (tzf v1.2.3)
+| 列 | 含义 |
+| --- | --- |
+| 基线 | 构造候选项之前的 RSS |
+| 初始化峰值 | 加载过程中达到的高水位（`ru_maxrss`）。容器内存限制必须能容纳该值，否则进程会在启动阶段被杀死，即便它稳定运行时的占用完全放得下 |
+| 常驻 | 候选项准备好接受查询后实际持有的数据量，来自语言原生的内存统计：Go 为强制 GC 后的 `HeapAlloc`，Rust 为计数型全局分配器。Python 的数据保存在 Python 堆之外，因此为 `n/a` |
+| 加载后 RSS | 进程准备好接受查询时操作系统报告的值。它更接近初始化峰值而非常驻值，因为释放内存并不会让 RSS 缩小，分配器会保留这些页面以便复用 |
 
-| Target        | Dataset                            | Scenario                               | Median (ns) | p99 (ns) | Approx throughput (ops/s) | 常驻 (MiB) |
-| ------------- | ---------------------------------- | -------------------------------------- | ----------: | -------: | ------------------------: | ---------: |
-| DefaultFinder | topology-simplified + preindex     | edge case · GetTimezoneName            |       625.0 |   2250.0 |                   1083.8K |        31.90 |
-| FuzzyFinder   | preindex                           | edge case · GetTimezoneName            |       250.0 |    542.0 |                   3216.5K |         2.40 |
-| Finder        | topology-simplified                | edge case · GetTimezoneName            |       334.0 |   1667.0 |                   2145.0K |        29.70 |
-| FullFinder    | full-precision + preindex          | edge case · GetTimezoneName            |       709.0 |   2875.0 |                   1111.7K |       155.30 |
-| Finder        | full-precision                     | edge case · GetTimezoneName            |       416.0 |   2709.0 |                   1652.6K |       153.00 |
-| DefaultFinder | topology-simplified + preindex     | random world cities · GetTimezoneName  |       208.0 |   1208.0 |                   3283.0K |        31.90 |
-| FuzzyFinder   | preindex                           | random world cities · GetTimezoneName  |       208.0 |    542.0 |                   3717.5K |         2.40 |
-| Finder        | topology-simplified                | random world cities · GetTimezoneName  |       292.0 |   2208.0 |                   2058.0K |        29.70 |
-| FullFinder    | full-precision + preindex          | random world cities · GetTimezoneName  |       208.0 |   1375.0 |                   3147.6K |       155.30 |
-| Finder        | full-precision                     | random world cities · GetTimezoneName  |       333.0 |   1959.0 |                   1993.6K |       153.00 |
-| Finder        | topology-simplified + GridIndex    | random world cities · GetTimezoneName  |       250.0 |   1667.0 |                   2387.2K |        29.70 |
-| Finder        | topology-simplified (no GridIndex) | random world cities · GetTimezoneName  |      2292.0 |   4375.0 |                    471.7K |        24.00 |
-| DefaultFinder | topology-simplified + preindex     | random world cities · GetTimezoneNames |       625.0 |   3833.0 |                    971.8K |        31.90 |
-| FuzzyFinder   | preindex                           | random world cities · GetTimezoneNames |       209.0 |    583.0 |                   3534.8K |         2.40 |
-| Finder        | topology-simplified                | random world cities · GetTimezoneNames |       583.0 |   2833.0 |                   1277.3K |        29.70 |
-| FullFinder    | full-precision + preindex          | random world cities · GetTimezoneNames |       709.0 |   3292.0 |                   1059.0K |       155.30 |
+每个候选项都满足 `常驻 <= 加载后 RSS <= 初始化峰值`。
 
-## Rust (tzf-rs v1.3.6)
+## 查询延迟
 
-Topology-Simplified (bundled) / Random Cities
+Apple M3 Max，`2026c` 数据集，2026-09-11 快照。
 
-| Target        | Dataset                        | Scenario      | Median estimate (µs) | Approx throughput (ops/s) | 初始化峰值 RSS (MiB) 均值 |
-| ------------- | ------------------------------ | ------------- | -------------------: | ------------------------: | ----------------------: |
-| Finder        | topology-simplified            | YStripes only |               0.5698 |                 1,755,033 |              69.72 |
-| Finder        | topology-simplified            | No index      |               4.9164 |                   203,401 |              42.46 |
-| DefaultFinder | topology-simplified + preindex | YStripes only |               0.3040 |                 3,289,365 |              82.10 |
-| DefaultFinder | topology-simplified + preindex | No index      |               5.0438 |                   198,263 |              58.11 |
+### Go (tzf v2)
 
-Topology-Simplified (bundled) / Edge Cities (FuzzyFinder misses)
+| 基准项 | ns/op | p50 (ns) | p99 (ns) | B/op | allocs/op |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| `NewDefaultFinder`，世界城市 | 357.5 | 208.0 | 1667 | 0 | 0 |
+| `NewDefaultFinder`，边界城市 | 553.6 | 500.0 | 1292 | 0 | 0 |
+| `NewEmbeddedFinder`，世界城市 | 2207 | 583.0 | 21250 | 0 | 0 |
+| `NewEmbeddedFinder`，边界城市 | 10170 | 8959 | 30791 | 0 | 0 |
+| `NewFullFinder`，世界城市 | 394.6 | 208.0 | 2250 | 0 | 0 |
+| `NewFullFinder`，边界城市 | 612.1 | 500.0 | 1708 | 0 | 0 |
 
-| Target                   | Dataset                        | Scenario                          | Median estimate (µs) | Approx throughput (ops/s) |
-| ------------------------ | ------------------------------ | --------------------------------- | -------------------: | ------------------------: |
-| FuzzyFinder              | preindex                       | FuzzyFinder miss                  |               0.1564 |                 6,393,044 |
-| DefaultFinder (YStripes) | topology-simplified + preindex | DefaultFinder (YStripes) fallback |               0.6256 |                 1,598,338 |
-| Finder                   | topology-simplified            | YStripes                          |               0.4421 |                 2,261,676 |
-| Finder                   | topology-simplified            | No index                          |               4.9164 |                   203,401 |
-| DefaultFinder            | topology-simplified + preindex | YStripes                          |               0.6069 |                 1,647,718 |
-| DefaultFinder            | topology-simplified + preindex | No index                          |               5.0438 |                   198,263 |
+三个查找器的查询过程都不分配内存。
 
-Full-Precision (full)
+### Rust (tzf-rs 2.0)
 
-| Target               | Dataset                   | Scenario      | Median estimate (µs) | Approx throughput (ops/s) | 初始化峰值 RSS (MiB) 均值 |
-| -------------------- | ------------------------- | ------------- | -------------------: | ------------------------: | ----------------------: |
-| Finder (full)        | full-precision            | YStripes only |               1.2227 |                   817,862 |             314.59 |
-| Finder (full)        | full-precision            | No index      |              43.0520 |                    23,228 |             157.02 |
-| DefaultFinder (full) | full-precision + preindex | YStripes only |               0.5527 |                 1,809,136 |             323.58 |
-| DefaultFinder (full) | full-precision + preindex | No index      |               7.4823 |                   133,649 |             171.44 |
+| 基准项 | ns/iter | 标准差 (ns) |
+| --- | ---: | ---: |
+| `DefaultFinder`，随机城市 | 228.81 | 86.41 |
+| `DefaultFinder`，随机边界城市 | 519.44 | 108.17 |
+| `EmbeddedFinder`，随机城市 | 1,182.07 | 224.02 |
+| `EmbeddedFinder`，随机边界城市 | 4,779.81 | 327.40 |
 
-## Python (tzfpy v1.3.2)
+### Python (tzfpy 2.0)
 
-tzfpy 是基于 tzf-rs 的 PyO3 绑定。基准测试使用 `pytest-benchmark` 测量
-单次 `get_tz()` 调用（随机坐标，拓扑简化数据集）。
-结果来自搭载 Apple M3 Max 的 MacBook Pro。
+使用 `pytest-benchmark`，每轮调用一次 `get_tz()`。
 
-| 索引模式                                    | 中位数 (µs) | 平均值 (µs) | 吞吐量 (Kops/s) | 峰值 RSS |
-| ------------------------------------------- | ----------: | ----------: | --------------: | -------: |
-| 默认（YStripes 启用）                       |      0.6533 |      0.6711 |          1490.1 | ~70.5 MB |
-| 无 YStripes（`_TZFPY_DISABLE_Y_STRIPES=1`） |      1.6410 |      1.6548 |           604.3 | ~57.5 MB |
+| 基准项 | 中位数 (ns) | 平均 (ns) | OPS (Kops/s) |
+| --- | ---: | ---: | ---: |
+| 随机城市 | 708.0 | 913.7 | 1,094.4 |
+| 随机边界城市 | 1,125.0 | 1,284.0 | 778.8 |
 
-每次调用开销与原始 Rust 数据相当。与 tzf-rs 数据的差异反映了通过 PyO3 的 Python → Rust FFI 开销。
+单次调用的开销与 Rust 的数值相当，差异来自通过 PyO3 从 Python 调用 Rust 的开销。
 
-## 关键结论
+## 精度
 
-- **YStripes 可显著降低多边形查询延迟**。Rust `Finder` 使用完整精度数据时，中位延迟从 43.0520 µs 降至 1.2227 µs，速度提升 35.2 倍。使用拓扑简化数据时，中位延迟从 4.9164 µs 降至 0.5698 µs，速度提升 8.6 倍。
-- **DefaultFinder 是 Rust 通用场景的最佳选择**。拓扑简化数据的中位延迟为 0.3040 µs，完整精度数据为 0.5527 µs。与启用 YStripes 的对应 `Finder` 相比，预索引增加约 9 到 12 MiB 初始化峰值 RSS。
-- **FuzzyFinder 适合作为配有回退机制的快速路径**。查询未命中时耗时 0.1564 µs，`DefaultFinder` 通过 YStripes 回退处理相同的边界城市工作负载时耗时 0.6256 µs。仅当查询坐标确定远离时区边界时，才适合单独使用 FuzzyFinder。
-- **Python 同样能从 YStripes 中显著受益**。tzfpy 的中位延迟从 1.6410 µs 降至 0.6533 µs，吞吐量从 604.3 Kops/s 提升至 1490.1 Kops/s，约为原来的 2.5 倍。
-- **完整精度数据会增加内存开销**。启用 YStripes 时，从拓扑简化数据切换到完整精度数据会使 Rust 初始化峰值 RSS 增加约 241 到 245 MiB。在 Go 中，常驻内存从约 30 MiB 增至约 153 到 155 MiB。这两个数字属于[测试方法](#测试方法)中说明的两种不同口径，因此 Rust 与 Go 的增幅不能直接对比。
-- **初始化峰值不等于 tzf 长期运行的成本**。上面 Rust 的峰值 RSS 大约高估了稳定状态 2 到 3 倍：在同一台机器上测得的 [2026-07-26 快照](https://github.com/ringsaturn/tz-benchmark/blob/main/snapshot/2026-07-26-8d0fed77a8efb102ea3e3848781b5a000bbfb548/README.md#memory)中，拓扑简化数据上的 `DefaultFinder` 峰值 77.0 MiB，常驻仅 36.3 MiB；`Finder` 峰值 48.0 MiB，常驻 20.7 MiB。容器内存按峰值规划，长期运行成本按常驻值估算。
+与完整精度 `2026c` 基准对比的错误率。「偏移量相同」统计的是对应 UTC 偏移量相同的错误结果。
+
+| 数据集 | N | 候选项 | 错误数 | 错误率 % | 偏移量相同 |
+| --- | ---: | --- | ---: | ---: | ---: |
+| cities | 154,694 | Go `NewDefaultFinder`（lite `.tzm`） | 1 | 0.0006 | 1 |
+| cities | 154,694 | Go `NewEmbeddedFinder`（lite `.tzb`） | 1 | 0.0006 | 1 |
+| cities | 154,694 | Go `NewFullFinder`（full `.tzb`） | 0 | 0.0000 | 0 |
+| cities | 154,694 | Rust `DefaultFinder` | 1 | 0.0006 | 1 |
+| cities | 154,694 | Rust `EmbeddedFinder` | 1 | 0.0006 | 1 |
+| cities | 154,694 | tzfpy | 1 | 0.0006 | 1 |
+| edges | 23,408 | Go `NewDefaultFinder`（lite `.tzm`） | 1 | 0.0043 | 1 |
+| edges | 23,408 | Go `NewFullFinder`（full `.tzb`） | 0 | 0.0000 | 0 |
+| edges | 23,408 | Rust `DefaultFinder` | 1 | 0.0043 | 1 |
+| edges | 23,408 | tzfpy | 1 | 0.0043 | 1 |
+| uniform | 1,000,000 | Go `NewDefaultFinder`（lite `.tzm`） | 19 | 0.0019 | 14 |
+| uniform | 1,000,000 | Go `NewFullFinder`（full `.tzb`） | 0 | 0.0000 | 0 |
+
+lite 与完整精度查找器的差异只出现在边界附近。简化的位移上限为 111.2 m，完整的位移数据见[常见问题]({{< relref "../guides/faq#is-tzf-100-accurate" >}})。
+
+## 内存
+
+数值单位为 MiB。
+
+### Go
+
+| 候选项 | 基线 | 初始化峰值 | 常驻 | 加载后 RSS |
+| --- | ---: | ---: | ---: | ---: |
+| Go 运行时基线 | 4.7 | 4.7 | 0.2 | 5.0 |
+| `NewDefaultFinder`（lite `.tzm`） | 5.1 | 43.4 | 13.1 | 43.4 |
+| `NewEmbeddedFinder`（lite `.tzb` 原地查询） | 4.9 | 8.7 | 0.3 | 9.1 |
+| `NewFullFinder`（full `.tzb`） | 5.2 | 315.0 | 147.0 | 315.0 |
+
+### Rust
+
+| 候选项 | 基线 | 初始化峰值 | 常驻 | 加载后 RSS |
+| --- | ---: | ---: | ---: | ---: |
+| Rust 运行时基线 | 5.8 | 5.8 | 0.0 | 5.9 |
+| `DefaultFinder` | 5.8 | 46.8 | 22.8 | 46.8 |
+| `EmbeddedFinder` | 5.8 | 9.8 | 0.0 | 9.8 |
+
+`EmbeddedFinder` 的常驻值为 0.0，因为其数据是 `'static` 的嵌入切片，计数型分配器未记录到堆保留量。
+
+### Python
+
+| 候选项 | 基线 | 初始化峰值 | 常驻 | 加载后 RSS |
+| --- | ---: | ---: | ---: | ---: |
+| Python 解释器基线 | 22.4 | 22.4 | n/a | 22.4 |
+| tzfpy | 22.4 | 62.3 | n/a | 62.2 |
+
+## 观察结果
+
+- 原地机制以查询延迟换取内存。在 Go 中，初始化峰值从 43.4 MiB 降到 8.7 MiB，同时世界城市的中位延迟从 208 ns 升到 583 ns，边界城市的中位延迟从 500 ns 升到 8,959 ns。
+- 完整精度数据集增加的是内存而非延迟。Go 的初始化峰值从 43.4 MiB 升到 315.0 MiB，世界城市的中位延迟保持在 208 ns。
+- 初始化峰值高于稳定状态的开销。Go 默认查找器峰值 43.4 MiB，常驻 13.1 MiB；完整精度查找器峰值 315.0 MiB，常驻 147.0 MiB。容器内存按峰值规划，长期运行成本按常驻值估算。
+- 各语言的运行时基线不同（Go 4.7 MiB、Rust 5.8 MiB、Python 22.4 MiB），跨语言比较总量前需要先减去这部分。
+- lite 数据集在 154,694 个世界城市中与完整精度基准有 1 处不一致，且该结果对应的 UTC 偏移量相同。

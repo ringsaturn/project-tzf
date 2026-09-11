@@ -2,7 +2,7 @@
 date: '2025-07-19T12:19:49+09:00'
 description: Install and use Project tzf in your preferred programming language — Go, Rust, Python, Swift, Ruby, Wasm, and more.
 draft: false
-lastmod: '2025-07-19T12:19:49+09:00'
+lastmod: '2026-09-11T00:00:00+09:00'
 seo:
   description: Install and run timezone lookup from GPS coordinates in Go, Rust, Python, Swift, Ruby, WebAssembly, or via HTTP API.
   title: Getting Started — Project tzf
@@ -30,28 +30,43 @@ Project tzf provides multi-language support for looking up a timezone by longitu
 
 ## Go
 
+tzf v2 is a new major version, so the module path carries the `/v2` suffix:
+
 ```bash
-go get github.com/ringsaturn/tzf
+go get github.com/ringsaturn/tzf/v2
 ```
 
 ```go
-// Use about 150MB memory for init, and 60MB after GC.
 package main
 
 import (
 	"fmt"
 
-	"github.com/ringsaturn/tzf"
+	"github.com/ringsaturn/tzf/v2"
 )
 
 func main() {
+	// Construction is expensive relative to a query; build the finder once.
 	finder, err := tzf.NewDefaultFinder()
 	if err != nil {
 		panic(err)
 	}
+	// Coordinates are in (longitude, latitude) order.
 	fmt.Println(finder.GetTimezoneName(116.6386, 40.0786))
 }
 ```
+
+There are exactly five constructors, all returning the `tzf.F` interface:
+
+| Constructor | Applies to |
+| --- | --- |
+| `NewDefaultFinder()` | General-purpose use: lite memory image, ~12 MB heap + 10 MB read-only data, 298 ns queries |
+| `NewEmbeddedFinder()` | Embedded and memory-constrained targets: ~3 MB total, microsecond queries |
+| `NewFullFinder()` | Results matching the full-precision dataset (~145 MB) |
+| `NewFinderFromTZB(data)` | Caller-supplied `.tzb` bytes, expanded at load |
+| `NewFinderFromTZM(data)` | Caller-supplied `.tzm` bytes, aliased in place |
+
+Figures measured on an Apple M3 Max against the `2026c` dataset.
 
 For 100% accurate results, use `NewFullFinder` (**reuse it when possible** — initialization is expensive):
 
@@ -61,7 +76,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/ringsaturn/tzf"
+	"github.com/ringsaturn/tzf/v2"
 )
 
 func main() {
@@ -73,6 +88,9 @@ func main() {
 }
 ```
 
+See the [Go guide]({{< relref "guides/tzf" >}}) for GeoJSON export, in-place
+queries over your own bytes, and the v1 → v2 migration table.
+
 ## Rust
 
 ```bash
@@ -80,12 +98,10 @@ cargo add tzf-rs
 ```
 
 ```rust
-use lazy_static::lazy_static;
+use std::sync::LazyLock;
 use tzf_rs::DefaultFinder;
 
-lazy_static! {
-    static ref FINDER: DefaultFinder = DefaultFinder::new();
-}
+static FINDER: LazyLock<DefaultFinder> = LazyLock::new(DefaultFinder::new);
 
 fn main() {
     // Coordinates are in (longitude, latitude) order.
@@ -94,16 +110,22 @@ fn main() {
 }
 ```
 
-<details>
-<summary>Full-precision support (v1.3.0+)</summary>
+tzf-rs 2.0 ships two finders: `DefaultFinder` (the default, ~47 MiB peak RSS,
+229 ns per random-city lookup) and `EmbeddedFinder`, which queries the embedded
+file in place at ~10 MiB and microsecond latency. Both are measured in the
+[tz-benchmark](https://github.com/ringsaturn/tz-benchmark) 2026-09-11 snapshot on
+an Apple M3 Max against the `2026c` dataset.
 
-Since v1.3.0, full-precision data is available via an optional Cargo feature.
-Because the full dataset (~17 MB) exceeds crates.io size limits, it must be
-referenced via a git dependency:
+<details>
+<summary>Full-precision support</summary>
+
+Full-precision data is available via an optional Cargo feature. Because the full
+dataset (~14 MB) exceeds crates.io size limits, it must be referenced via a git
+dependency, and it is mutually exclusive with the bundled lite dataset:
 
 ```toml
 [dependencies]
-tzf-rs = { git = "https://github.com/ringsaturn/tzf-rs", tag = "v{X}.{Y}.{Z}", features = ["full"], default-features = false }
+tzf-rs = { git = "https://github.com/ringsaturn/tzf-rs", rev = "v{X}.{Y}.{Z}", features = ["full"], default-features = false }
 ```
 
 ```rust
@@ -142,9 +164,15 @@ conda install -c conda-forge tzfpy
 ['Asia/Shanghai', 'Asia/Urumqi']
 ```
 
-Python does not support full-precision mode.
+tzfpy 2.0 requires Python 3.10 or newer and binds tzf-rs 2.0. It also exposes
+`timezonenames()`, `data_version()`, `get_tz_polygon_geojson(name)`, and
+`get_tz_index_geojson(name)`. Full-precision mode is not available in Python.
 
 ## Swift
+
+The Swift, Ruby and browser Wasm bindings build on the v1 line as of 2026-09-10.
+tzf-rb is maintained independently by
+[HarlemSquirrel](https://github.com/HarlemSquirrel).
 
 Add the package to your `Package.swift`:
 

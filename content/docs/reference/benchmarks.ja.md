@@ -1,116 +1,131 @@
 ---
 date: '2025-07-19T13:58:16+09:00'
-description: Go および Rust における tzf 実装のパフォーマンスベンチマーク。
+description: Go、Rust、Python における tzf v2 実装のパフォーマンス、精度、メモリのベンチマーク。
 draft: false
-lastmod: '2026-07-26T00:00:00+09:00'
+lastmod: '2026-09-11T00:00:00+09:00'
 seo:
-  description: 'tzf と tzf-rs のパフォーマンスベンチマーク結果 - デフォルト、ファジー、完全精度ファインダー、YStripes とプレインデックスを含む。'
+  description: tzf v2 のベンチマーク結果。Go、Rust、Python のデフォルト、埋め込み、完全精度の各 Finder について、クエリレイテンシ、完全精度データに対する精度、メモリを扱います。
   noindex: false
   title: 'ベンチマーク - Project tzf'
-summary: 'tzf (Go) と tzf-rs (Rust) のベンチマーク結果 - 異なるファインダータイプ、データセット、インデックスモードをカバー。'
+summary: 2026-09-11 の tz-benchmark スナップショットによる、tzf v2 各 Finder のクエリレイテンシ、精度、メモリ。
 title: ベンチマーク
 toc: true
-weight: 4
+weight: 5
 ---
 
-プロジェクトには目的の異なる 2 つの独立したベンチマークセットアップがあります：
+目的の異なる 2 つのベンチマークセットアップがあります。
 
-**継続的ベンチマーク**：ソースと結果は <https://github.com/ringsaturn/tz-benchmark>、
-可視化は <https://ringsaturn.github.io/tz-benchmark/> で確認できます。
-各リリース時に GitHub Actions で自動実行され、パッケージ間の比較を行います。
-GitHub Actions ランナーは開発マシンとハードウェアが異なるため、
-絶対値はローカル実行と異なりますが、パッケージ間の相対的な傾向が重要です。
-リポジトリの [`snapshot/`](https://github.com/ringsaturn/tz-benchmark/tree/main/snapshot) にある日付付きスナップショットは別物です。
-こちらは以下の表と同じ Apple M3 Max 上でローカルに取得されているため、絶対値をこのページと直接比較できます。
+**継続的ベンチマーク**：ソースと結果は <https://github.com/ringsaturn/tz-benchmark>、可視化は <https://ringsaturn.github.io/tz-benchmark/> にあります。各リリース時に GitHub Actions で実行され、パッケージ間の比較を行います。ランナーのハードウェアは開発マシンと異なるため、絶対値はローカル実行と異なりますが、パッケージ間の相対的な順序は比較できます。継続的ベンチマークは 2026-09-11 以降 tzf v2 を対象にしています。
 
-**ローカルベンチマーク**：以下の表は Apple M3 Max 搭載 MacBook Pro で測定されました。
-これらは最新ハードウェアにおける実際のレイテンシをより代表するものです。
+**日付付きスナップショット**：[`snapshot/`](https://github.com/ringsaturn/tz-benchmark/tree/main/snapshot) 以下のディレクトリは Apple M3 Max 上でローカルに取得されたものです。このページの内容はすべて `2026-09-11` のスナップショットによるもので、公開された tzf v2.0.0、tzf-rs 2.0.0、tzfpy 2.0.0 を対象に測定されています。
 
-## 方法論
+## 測定方法
 
-各ファインダーは一度初期化され、すべてのクエリで再利用されます。これは推奨される本番環境パターンです。
-クエリは世界都市座標の代表サンプルと意図的な境界エッジケースポイントを使用します。
+各 Finder は一度初期化され、すべてのクエリで再利用されます。これはドキュメントに記載された本番環境のパターンと一致します。クエリは 2 つのデータセットをサンプルします。154,694 件の世界都市（`gt_cities.csv`）と、境界に隣接する 23,408 件の地点（`gt_edges.csv`）で、いずれも完全精度の `2026c` 正解データと照合します。精度検証では、Go において 1,000,000 点の一様乱数データセットも実行します。
 
-以下には 2 種類の異なるメモリ指標が登場し、両者は互換ではありません。
-Go の表が示すのは**常駐メモリ**（ファインダーがクエリを処理できる状態になった後も保持している分）、
-Rust と Python の表が示すのは**ピーク RSS**（ロード中に到達する高水位）です。
-後者が数倍大きいのは、ファインダーの構築時に `.pb` データセット全体を中間表現へデコードしてから破棄するためであり、
-またメモリを解放してもページはカーネルに返却されないためです。
-Go の数値と Rust の数値を同じ測定として読まないでください。
-同一の測定における両指標の並列比較は
-[tzf はどのくらいメモリを使用しますか？]({{< relref "../guides/faq#tzf-はどのくらいメモリを使用しますか" >}})を参照してください。
+メモリは候補ごとに隔離された子プロセスで測定します。以下では 4 つの列が登場し、これらは互換ではありません。
 
-## Go (tzf v1.2.3)
+| 列 | 意味 |
+| --- | --- |
+| ベースライン | 候補を構築する前の RSS |
+| 初期化ピーク | ロード中に到達する高水位（`ru_maxrss`）。コンテナのメモリ上限はこの値を収容できる必要があります。そうでなければ、定常状態なら収まるはずのプロセスが起動時に kill されます |
+| 常駐 | 候補がクエリを処理できる状態になった後に保持しているデータ量。言語ネイティブの計測（Go は強制 GC 後の `HeapAlloc`、Rust はカウント機能付きグローバルアロケータ）によります。差分ではなく絶対値です。Python は Python ヒープの外にデータを保持するため `n/a` です |
+| ロード後 RSS | クエリを処理できる状態のプロセスについて OS が報告する値。`常駐` より `初期化ピーク` に近くなります。メモリを解放しても RSS は縮まず、アロケータがページをカーネルに返さず再利用のために保持し続けるためです |
 
-| Target        | Dataset                            | Scenario                               | Median (ns) | p99 (ns) | Approx throughput (ops/s) | 常駐 (MiB) |
-| ------------- | ---------------------------------- | -------------------------------------- | ----------: | -------: | ------------------------: | ---------: |
-| DefaultFinder | topology-simplified + preindex     | edge case · GetTimezoneName            |       625.0 |   2250.0 |                   1083.8K |        31.90 |
-| FuzzyFinder   | preindex                           | edge case · GetTimezoneName            |       250.0 |    542.0 |                   3216.5K |         2.40 |
-| Finder        | topology-simplified                | edge case · GetTimezoneName            |       334.0 |   1667.0 |                   2145.0K |        29.70 |
-| FullFinder    | full-precision + preindex          | edge case · GetTimezoneName            |       709.0 |   2875.0 |                   1111.7K |       155.30 |
-| Finder        | full-precision                     | edge case · GetTimezoneName            |       416.0 |   2709.0 |                   1652.6K |       153.00 |
-| DefaultFinder | topology-simplified + preindex     | random world cities · GetTimezoneName  |       208.0 |   1208.0 |                   3283.0K |        31.90 |
-| FuzzyFinder   | preindex                           | random world cities · GetTimezoneName  |       208.0 |    542.0 |                   3717.5K |         2.40 |
-| Finder        | topology-simplified                | random world cities · GetTimezoneName  |       292.0 |   2208.0 |                   2058.0K |        29.70 |
-| FullFinder    | full-precision + preindex          | random world cities · GetTimezoneName  |       208.0 |   1375.0 |                   3147.6K |       155.30 |
-| Finder        | full-precision                     | random world cities · GetTimezoneName  |       333.0 |   1959.0 |                   1993.6K |       153.00 |
-| Finder        | topology-simplified + GridIndex    | random world cities · GetTimezoneName  |       250.0 |   1667.0 |                   2387.2K |        29.70 |
-| Finder        | topology-simplified (no GridIndex) | random world cities · GetTimezoneName  |      2292.0 |   4375.0 |                    471.7K |        24.00 |
-| DefaultFinder | topology-simplified + preindex     | random world cities · GetTimezoneNames |       625.0 |   3833.0 |                    971.8K |        31.90 |
-| FuzzyFinder   | preindex                           | random world cities · GetTimezoneNames |       209.0 |    583.0 |                   3534.8K |         2.40 |
-| Finder        | topology-simplified                | random world cities · GetTimezoneNames |       583.0 |   2833.0 |                   1277.3K |        29.70 |
-| FullFinder    | full-precision + preindex          | random world cities · GetTimezoneNames |       709.0 |   3292.0 |                   1059.0K |       155.30 |
+すべての候補で `常駐 <= ロード後 RSS <= 初期化ピーク` の関係が成り立ちます。
 
-## Rust (tzf-rs v1.3.6)
+## クエリレイテンシ
 
-Topology-Simplified (bundled) / Random Cities
+Apple M3 Max、`2026c` データセット、2026-09-11 スナップショット。
 
-| Target        | Dataset                        | Scenario      | Median estimate (µs) | Approx throughput (ops/s) | 初期化ピーク RSS (MiB) 平均 |
-| ------------- | ------------------------------ | ------------- | -------------------: | ------------------------: | ----------------------: |
-| Finder        | topology-simplified            | YStripes only |               0.5698 |                 1,755,033 |              69.72 |
-| Finder        | topology-simplified            | No index      |               4.9164 |                   203,401 |              42.46 |
-| DefaultFinder | topology-simplified + preindex | YStripes only |               0.3040 |                 3,289,365 |              82.10 |
-| DefaultFinder | topology-simplified + preindex | No index      |               5.0438 |                   198,263 |              58.11 |
+### Go (tzf v2)
 
-Topology-Simplified (bundled) / Edge Cities (FuzzyFinder misses)
+| ベンチマーク | ns/op | p50 (ns) | p99 (ns) | B/op | allocs/op |
+| --- | ---: | ---: | ---: | ---: | ---: |
+| `NewDefaultFinder`、世界都市 | 357.5 | 208.0 | 1667 | 0 | 0 |
+| `NewDefaultFinder`、境界都市 | 553.6 | 500.0 | 1292 | 0 | 0 |
+| `NewEmbeddedFinder`、世界都市 | 2207 | 583.0 | 21250 | 0 | 0 |
+| `NewEmbeddedFinder`、境界都市 | 10170 | 8959 | 30791 | 0 | 0 |
+| `NewFullFinder`、世界都市 | 394.6 | 208.0 | 2250 | 0 | 0 |
+| `NewFullFinder`、境界都市 | 612.1 | 500.0 | 1708 | 0 | 0 |
 
-| Target                   | Dataset                        | Scenario                          | Median estimate (µs) | Approx throughput (ops/s) |
-| ------------------------ | ------------------------------ | --------------------------------- | -------------------: | ------------------------: |
-| FuzzyFinder              | preindex                       | FuzzyFinder miss                  |               0.1564 |                 6,393,044 |
-| DefaultFinder (YStripes) | topology-simplified + preindex | DefaultFinder (YStripes) fallback |               0.6256 |                 1,598,338 |
-| Finder                   | topology-simplified            | YStripes                          |               0.4421 |                 2,261,676 |
-| Finder                   | topology-simplified            | No index                          |               4.9164 |                   203,401 |
-| DefaultFinder            | topology-simplified + preindex | YStripes                          |               0.6069 |                 1,647,718 |
-| DefaultFinder            | topology-simplified + preindex | No index                          |               5.0438 |                   198,263 |
+3 つの Finder はいずれもアロケーションなしでクエリを処理します。
 
-Full-Precision (full)
+### Rust (tzf-rs 2.0)
 
-| Target               | Dataset                   | Scenario      | Median estimate (µs) | Approx throughput (ops/s) | 初期化ピーク RSS (MiB) 平均 |
-| -------------------- | ------------------------- | ------------- | -------------------: | ------------------------: | ----------------------: |
-| Finder (full)        | full-precision            | YStripes only |               1.2227 |                   817,862 |             314.59 |
-| Finder (full)        | full-precision            | No index      |              43.0520 |                    23,228 |             157.02 |
-| DefaultFinder (full) | full-precision + preindex | YStripes only |               0.5527 |                 1,809,136 |             323.58 |
-| DefaultFinder (full) | full-precision + preindex | No index      |               7.4823 |                   133,649 |             171.44 |
+| ベンチマーク | ns/iter | 標準偏差 (ns) |
+| --- | ---: | ---: |
+| `DefaultFinder`、ランダム都市 | 228.81 | 86.41 |
+| `DefaultFinder`、ランダム境界都市 | 519.44 | 108.17 |
+| `EmbeddedFinder`、ランダム都市 | 1,182.07 | 224.02 |
+| `EmbeddedFinder`、ランダム境界都市 | 4,779.81 | 327.40 |
 
-## Python (tzfpy v1.3.2)
+### Python (tzfpy 2.0)
 
-tzfpy は tzf-rs の PyO3 バインディングです。ベンチマークは `pytest-benchmark` を使用し、
-単一の `get_tz()` 呼び出し（ランダム座標、トポロジー簡略化データセット）を測定します。
-Apple M3 Max 搭載 MacBook Pro での結果です。
+`pytest-benchmark` を使用し、1 ラウンドあたり `get_tz()` を 1 回呼び出します。
 
-| インデックスモード                            | 中央値 (µs) | 平均 (µs) | スループット (Kops/s) | ピーク RSS |
-| --------------------------------------------- | ----------: | --------: | --------------------: | ---------: |
-| デフォルト（YStripes 有効）                   |      0.6533 |    0.6711 |                1490.1 | ~70.5 MB |
-| YStripes なし（`_TZFPY_DISABLE_Y_STRIPES=1`） |      1.6410 |    1.6548 |                 604.3 | ~57.5 MB |
+| ベンチマーク | 中央値 (ns) | 平均 (ns) | OPS (Kops/s) |
+| --- | ---: | ---: | ---: |
+| ランダム都市 | 708.0 | 913.7 | 1,094.4 |
+| ランダム境界都市 | 1,125.0 | 1,284.0 | 778.8 |
 
-呼び出しあたりのオーバーヘッドは生の Rust の数値と同程度です。tzf-rs の数値との差は
-PyO3 経由の Python → Rust FFI コストを反映しています。
+呼び出しあたりのオーバーヘッドは Rust の数値と同程度であり、差分は PyO3 を経由した Python から Rust への呼び出しコストによるものです。
 
-## 主な観察結果
+## 精度
 
-- **YStripes はポリゴン検索のレイテンシを大幅に短縮します**。Rust の `Finder` では、完全精度データの中央値が 43.0520 µs から 1.2227 µs へ短縮され、35.2 倍高速になります。トポロジー簡略化データでは 4.9164 µs から 0.5698 µs へ短縮され、8.6 倍高速になります。
-- **DefaultFinder は汎用用途で最も優れた Rust の選択肢です**。中央値はトポロジー簡略化データで 0.3040 µs、完全精度データで 0.5527 µs です。プレインデックスによる初期化ピーク RSS の増加は、対応する YStripes 有効の `Finder` と比べて約 9 から 12 MiB です。
-- **FuzzyFinder はフォールバックと組み合わせる高速パスに適しています**。ミスは 0.1564 µs で完了し、`DefaultFinder` は同じ境界都市のワークロードを YStripes フォールバック経由で 0.6256 µs で解決します。単独利用は、クエリがタイムゾーン境界から離れていると分かっている場合に限って適しています。
-- **Python でも YStripes の効果は顕著です**。tzfpy の中央値は 1.6410 µs から 0.6533 µs へ短縮され、スループットは 604.3 Kops/s から 1490.1 Kops/s へ約 2.5 倍向上します。
-- **完全精度データには明確なメモリコストがあります**。YStripes 有効時にトポロジー簡略化データから完全精度データへ切り替えると、Rust の初期化ピーク RSS は約 241 から 245 MiB 増加します。Go では、常駐メモリが約 30 MiB から約 153 から 155 MiB へ増加します。これらは[方法論](#方法論)で説明した 2 つの異なる指標であるため、Rust と Go の増加量を直接比較することはできません。
-- **初期化ピークは tzf の運用コストそのものではありません**。上記の Rust のピーク RSS は定常状態を約 2 〜 3 倍過大に見せています。同じマシンで測定した [2026-07-26 スナップショット](https://github.com/ringsaturn/tz-benchmark/blob/main/snapshot/2026-07-26-8d0fed77a8efb102ea3e3848781b5a000bbfb548/README.md#memory)では、トポロジー簡略化データの `DefaultFinder` はピーク 77.0 MiB に対して常駐 36.3 MiB、`Finder` はピーク 48.0 MiB に対して常駐 20.7 MiB です。コンテナのメモリはピークに合わせ、長期運用のコストは常駐値で見積もってください。
+完全精度の `2026c` 正解データに対する誤答率です。「オフセット一致」は、誤答のうち UTC オフセットが同じものの件数です。
+
+| データセット | N | 候補 | 誤答 | 誤答率 % | オフセット一致 |
+| --- | ---: | --- | ---: | ---: | ---: |
+| cities | 154,694 | Go `NewDefaultFinder`（lite `.tzm`） | 1 | 0.0006 | 1 |
+| cities | 154,694 | Go `NewEmbeddedFinder`（lite `.tzb`） | 1 | 0.0006 | 1 |
+| cities | 154,694 | Go `NewFullFinder`（full `.tzb`） | 0 | 0.0000 | 0 |
+| cities | 154,694 | Rust `DefaultFinder` | 1 | 0.0006 | 1 |
+| cities | 154,694 | Rust `EmbeddedFinder` | 1 | 0.0006 | 1 |
+| cities | 154,694 | tzfpy | 1 | 0.0006 | 1 |
+| edges | 23,408 | Go `NewDefaultFinder`（lite `.tzm`） | 1 | 0.0043 | 1 |
+| edges | 23,408 | Go `NewFullFinder`（full `.tzb`） | 0 | 0.0000 | 0 |
+| edges | 23,408 | Rust `DefaultFinder` | 1 | 0.0043 | 1 |
+| edges | 23,408 | tzfpy | 1 | 0.0043 | 1 |
+| uniform | 1,000,000 | Go `NewDefaultFinder`（lite `.tzm`） | 19 | 0.0019 | 14 |
+| uniform | 1,000,000 | Go `NewFullFinder`（full `.tzb`） | 0 | 0.0000 | 0 |
+
+lite と full の Finder が異なる結果を返すのは境界付近のみです。簡略化による変位の上限は 111.2 m です。変位の詳細な表は[よくある質問]({{< relref "../guides/faq#is-tzf-100-accurate" >}})を参照してください。
+
+## メモリ
+
+単位は MiB です。
+
+### Go
+
+| 候補 | ベースライン | 初期化ピーク | 常駐 | ロード後 RSS |
+| --- | ---: | ---: | ---: | ---: |
+| Go ランタイムの下限値 | 4.7 | 4.7 | 0.2 | 5.0 |
+| `NewDefaultFinder`（lite `.tzm`） | 5.1 | 43.4 | 13.1 | 43.4 |
+| `NewEmbeddedFinder`（lite `.tzb` をインプレースで参照） | 4.9 | 8.7 | 0.3 | 9.1 |
+| `NewFullFinder`（full `.tzb`） | 5.2 | 315.0 | 147.0 | 315.0 |
+
+### Rust
+
+| 候補 | ベースライン | 初期化ピーク | 常駐 | ロード後 RSS |
+| --- | ---: | ---: | ---: | ---: |
+| Rust ランタイムの下限値 | 5.8 | 5.8 | 0.0 | 5.9 |
+| `DefaultFinder` | 5.8 | 46.8 | 22.8 | 46.8 |
+| `EmbeddedFinder` | 5.8 | 9.8 | 0.0 | 9.8 |
+
+`EmbeddedFinder` の常駐が 0.0 となるのは、データが `'static` の埋め込みスライスであり、カウント機能付きアロケータがヒープの保持を検出しないためです。
+
+### Python
+
+| 候補 | ベースライン | 初期化ピーク | 常駐 | ロード後 RSS |
+| --- | ---: | ---: | ---: | ---: |
+| Python インタプリタの下限値 | 22.4 | 22.4 | n/a | 22.4 |
+| tzfpy | 22.4 | 62.3 | n/a | 62.2 |
+
+## 観察結果
+
+- インプレース方式はクエリレイテンシとメモリのトレードオフです。Go では常駐メモリの初期化ピークが 43.4 MiB から 8.7 MiB に下がる一方、世界都市の中央値は 208 ns から 583 ns、境界都市の中央値は 500 ns から 8,959 ns に上がります。
+- 完全精度データセットのコストはレイテンシではなくメモリに現れます。Go の初期化ピークは 43.4 MiB から 315.0 MiB に増加しますが、世界都市の中央値は 208 ns のままです。
+- 初期化ピークは定常状態のコストを過大に示します。Go のデフォルト Finder はピーク 43.4 MiB に対して常駐 13.1 MiB、完全精度 Finder はピーク 315.0 MiB に対して常駐 147.0 MiB です。コンテナのメモリはピークに合わせ、長期運用のコストは常駐値で見積もってください。
+- 言語ランタイムの下限値は異なるため（Go 4.7 MiB、Rust 5.8 MiB、Python 22.4 MiB）、言語間で合計値を比較する際はこれらを差し引く必要があります。
+- lite データセットが完全精度の正解データと異なる結果を返すのは 154,694 件の世界都市のうち 1 件で、その結果も UTC オフセットは同じです。

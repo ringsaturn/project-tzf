@@ -1,19 +1,53 @@
 ---
 date: '2025-07-21T12:06:56+09:00'
-description: tzfpy のベストプラクティスと統合パターン。日時変換、バッチ処理、Web API を扱います。
+description: tzfpy 2.0 のベストプラクティスと統合パターン。API の構成、日時変換、バッチ処理、GeoJSON エクスポート、Web API を扱います。
 draft: false
-lastmod: '2025-07-21T12:06:56+09:00'
+lastmod: '2026-09-11T00:00:00+09:00'
 seo:
-  description: tzfpy のベストプラクティス。日時変換、Pandas/Polars/NumPy を使ったバッチ処理、FastAPI 統合を扱います。
+  description: tzfpy 2.0 のベストプラクティス。6 つのモジュール関数、日時変換、Pandas/Polars/NumPy を使ったバッチ処理、GeoJSON エクスポート、FastAPI 統合を扱います。
   noindex: false
   title: 'Python (tzfpy) ガイド - Project tzf'
-summary: tzfpy を日時ライブラリ、データフレーム（Pandas、Polars、NumPy）、FastAPI で使用する方法。
+summary: tzfpy 2.0 を日時ライブラリ、データフレーム（Pandas、Polars、NumPy）、GeoJSON エクスポート、FastAPI で使用する方法。
 title: Python (tzfpy)
 toc: true
-weight: 3
+weight: 4
 ---
 
 tzfpy は IANA タイムゾーン名の文字列を返します。このセクションでは、その名前を一般的な Python ライブラリで使用する方法を紹介します。
+
+## API の構成
+
+tzfpy 2.0 は tzf-rs 2.0 に対する [PyO3](https://pyo3.rs/) バインディングであり、tzf-rs は `.tzb` 埋め込みバイナリ形式を読み込みます。公開されているのは、プロセスグローバルな 1 つの Finder に対する 6 つのモジュールレベル関数です。構築するクラスはありません。
+
+```python
+from tzfpy import (
+    get_tz,                  # (lng, lat) -> str        最初の一致、ファジー優先
+    get_tzs,                 # (lng, lat) -> list[str]  すべての一致、ポリゴンで厳密に判定
+    timezonenames,           # () -> list[str]
+    data_version,            # () -> str、例："2026c"
+    get_tz_polygon_geojson,  # (name) -> str  境界ポリゴンを GeoJSON で返す
+    get_tz_index_geojson,    # (name) -> str  FUZZY プレインデックスタイルを GeoJSON で返す
+)
+```
+
+```python
+>>> get_tz(116.3883, 39.9289)   # (経度，緯度) の順
+'Asia/Shanghai'
+>>> get_tzs(87.4160, 44.0400)
+['Asia/Shanghai', 'Asia/Urumqi']
+```
+
+Finder は初回使用時に遅延構築されます。アプリケーションの起動時に `_ = get_tz(0, 0)` のような呼び出しを行うと、そのコストが最初のリクエストの外に移ります。
+
+Python 3.10 以降が必要です。wheel は 3.10 以降の `abi3` です。
+
+### どちらのクエリを呼ぶか
+
+`get_tz` はファジー優先です。タイルプレインデックスが大部分のクエリを point-in-polygon なしで解決します。`get_tzs` はポリゴンによる厳密な判定を行い、プレインデックスを参照せず、すべての一致を返します。地点が複数のタイムゾーンに属する可能性がある場合や、呼び出し側が単一の一致と切り詰められた結果を区別する必要がある場合に該当します。共有境界上の地点は、接するすべてのポリゴンに属します。
+
+### 対象範囲
+
+完全精度の検索とインプレースの低メモリ Finder は Go と Rust でのみ利用できます。tzfpy は 1 つのデフォルト Finder を通じて lite データセットを公開します。どちらについても [Finder の選択]({{< relref "choosing-a-finder" >}})を参照してください。
 
 ## 日時変換
 
@@ -203,6 +237,40 @@ print(f"NumPy: {end - start:.3f}s")
 NumPy: 0.335s
 ```
 
+## GeoJSON エクスポート
+
+どちらのエクスポート関数もシリアライズ済みの GeoJSON 文字列を返します。`get_tz_polygon_geojson` はタイムゾーンの境界を返します。`get_tz_index_geojson` は、そのタイムゾーンを指す FUZZY プレインデックスタイルのバウンディング矩形を返します。これは `get_tz` が point-in-polygon にフォールバックせずプレインデックスから応答する領域です。
+
+```python
+from tzfpy import get_tz, get_tz_index_geojson, get_tz_polygon_geojson
+
+lng, lat = -74.0060, 40.7128
+tz = get_tz(lng, lat)
+
+with open("tz_nyc_polygon.geojson", "w") as f:
+    f.write(get_tz_polygon_geojson(tz))
+
+with open("tz_nyc_index.geojson", "w") as f:
+    f.write(get_tz_index_geojson(tz))
+```
+
+どちらも未知のタイムゾーン名に対して `ValueError` を送出します。`get_tz_index_geojson` は、そのタイムゾーンを指すプレインデックスタイルが存在しない場合にも `ValueError` を送出します。
+
+## v1 からの移行
+
+4 つのクエリ関数は変更されていません。
+
+| v1 | v2 |
+| --- | --- |
+| `get_tz`、`get_tzs`、`timezonenames`、`data_version` | 変更なし |
+| `_TZFPY_DISABLE_Y_STRIPES=1` | 削除。YStripes インデックスは常に有効です |
+| 内部の `.unwrap()` で例外を送出していた GeoJSON ヘルパー | `get_tz_polygon_geojson` / `get_tz_index_geojson`。一致しない場合は `ValueError` を送出します |
+| — | 追加：プレインデックスのカバー範囲を返す `get_tz_index_geojson` |
+
+内部の変更点は次の通りです。protobuf の削除により wheel は 4.31 MB から 2.76 MB に、Finder の初期化は 68 ms から 15 ms になり、クエリレイテンシは変わりませんでした（v2 への切り替えコミットでメンテナが測定）。[tz-benchmark](https://github.com/ringsaturn/tz-benchmark) の 2026-09-11 スナップショット（Apple M3 Max）では、tzfpy のロード後の常駐セットは 62.2 MiB、インタプリタの下限値は 22.4 MiB、ランダム都市検索の中央値は 708 ns です。
+
+v1 系列（tzfpy 1.3.x）は引き続き利用でき、最後のデータリリースで凍結されます。v2 のセットが公開された時点で tzf-dist は protobuf の成果物の配布を終了するためです。
+
 ## FastAPI を使った Web API
 
 ```bash
@@ -235,7 +303,7 @@ class TimezonenamesResponse(BaseModel):
 
 
 class DataVersionResponse(BaseModel):
-    data_version: str = Field(..., description="データバージョン", examples=["2025b"])
+    data_version: str = Field(..., description="データバージョン", examples=["2026c"])
 
 
 app = FastAPI(title="tzfpy with FastAPI")

@@ -1,19 +1,53 @@
 ---
 date: '2025-07-21T12:06:56+09:00'
-description: tzfpy 最佳实践和集成模式，涵盖日期时间转换、批处理及 Web API。
+description: tzfpy 2.0 的最佳实践和集成模式：API 接口、日期时间转换、批处理、GeoJSON 导出及 Web API。
 draft: false
-lastmod: '2025-07-21T12:06:56+09:00'
+lastmod: '2026-09-11T00:00:00+09:00'
 seo:
-  description: tzfpy 最佳实践，涵盖日期时间转换、使用 Pandas/Polars/NumPy 进行批处理以及 FastAPI 集成。
+  description: tzfpy 2.0 最佳实践：六个模块级函数、日期时间转换、使用 Pandas/Polars/NumPy 进行批处理、GeoJSON 导出以及 FastAPI 集成。
   noindex: false
   title: 'Python (tzfpy) 指南 - Project tzf'
-summary: 在日期时间库、数据框（Pandas、Polars、NumPy）和 FastAPI 中使用 tzfpy。
+summary: 在日期时间库、数据框（Pandas、Polars、NumPy）、GeoJSON 导出和 FastAPI 中使用 tzfpy 2.0。
 title: Python (tzfpy)
 toc: true
-weight: 3
+weight: 4
 ---
 
 tzfpy 返回一个 IANA 时区名称字符串。本节介绍如何在常见的 Python 库中使用该名称。
+
+## API 接口
+
+tzfpy 2.0 是 tzf-rs 2.0 的 [PyO3](https://pyo3.rs/) 绑定，后者读取 `.tzb` 嵌入式二进制格式。公开接口是六个模块级函数，共用一个进程级全局查找器，没有需要构造的类：
+
+```python
+from tzfpy import (
+    get_tz,                  # (lng, lat) -> str        第一个匹配项，预索引优先
+    get_tzs,                 # (lng, lat) -> list[str]  全部匹配项，多边形精确
+    timezonenames,           # () -> list[str]
+    data_version,            # () -> str，例如 "2026c"
+    get_tz_polygon_geojson,  # (name) -> str  以 GeoJSON 表示的边界多边形
+    get_tz_index_geojson,    # (name) -> str  以 GeoJSON 表示的 FUZZY 预索引瓦片
+)
+```
+
+```python
+>>> get_tz(116.3883, 39.9289)   # (经度，纬度) 顺序
+'Asia/Shanghai'
+>>> get_tzs(87.4160, 44.0400)
+['Asia/Shanghai', 'Asia/Urumqi']
+```
+
+查找器在首次使用时惰性构建。在应用启动阶段调用一次 `_ = get_tz(0, 0)`，可以把这部分开销移出首个请求。
+
+需要 Python 3.10 或更高版本；wheel 为 3.10 起的 `abi3`。
+
+### 查询函数的选择
+
+`get_tz` 预索引优先：瓦片预索引可以在不做点在多边形内判定的情况下回答大部分查询。`get_tzs` 走多边形精确路径，不查询预索引，并返回全部匹配项。它适用于点可能属于多个时区的场景，以及调用方需要区分唯一匹配与被截断结果的场景。共享边界上的点属于所有与之相接的多边形。
+
+### 适用范围
+
+完整精度查询和原地低内存查找器只在 Go 和 Rust 中提供。tzfpy 通过单个默认查找器提供 lite 数据集。两者的说明参见[选择查找器]({{< relref "choosing-a-finder" >}})。
 
 ## 日期时间转换
 
@@ -203,6 +237,40 @@ print(f"NumPy: {end - start:.3f}s")
 NumPy: 0.335s
 ```
 
+## GeoJSON 导出
+
+两个导出函数都返回序列化后的 GeoJSON 字符串。`get_tz_polygon_geojson` 返回该时区的边界；`get_tz_index_geojson` 返回命名该时区的 FUZZY 预索引瓦片的包围矩形，即 `get_tz` 直接由预索引作答、无需回退到点在多边形内判定的区域。
+
+```python
+from tzfpy import get_tz, get_tz_index_geojson, get_tz_polygon_geojson
+
+lng, lat = -74.0060, 40.7128
+tz = get_tz(lng, lat)
+
+with open("tz_nyc_polygon.geojson", "w") as f:
+    f.write(get_tz_polygon_geojson(tz))
+
+with open("tz_nyc_index.geojson", "w") as f:
+    f.write(get_tz_index_geojson(tz))
+```
+
+传入未知时区名称时两者都抛出 `ValueError`；当没有预索引瓦片命名该时区时，`get_tz_index_geojson` 同样抛出 `ValueError`。
+
+## 从 v1 迁移
+
+四个查询函数没有变化。
+
+| v1 | v2 |
+| --- | --- |
+| `get_tz`、`get_tzs`、`timezonenames`、`data_version` | 不变 |
+| `_TZFPY_DISABLE_Y_STRIPES=1` | 已移除；YStripes 索引始终启用 |
+| 内部 `.unwrap()` 抛错的 GeoJSON 辅助函数 | `get_tz_polygon_geojson` / `get_tz_index_geojson`，未命中时抛出 `ValueError` |
+| — | 新增：`get_tz_index_geojson`，用于查看预索引覆盖范围 |
+
+底层的变化：移除 protobuf 后，wheel 从 4.31 MB 降到 2.76 MB，查找器初始化从 68 ms 降到 15 ms，查询延迟不变（由维护者在 v2 切换提交上测得）。在 [tz-benchmark](https://github.com/ringsaturn/tz-benchmark) 的 2026-09-11 快照中（Apple M3 Max），tzfpy 加载后的常驻内存为 62.2 MiB，解释器基线为 22.4 MiB，随机城市查询的中位延迟为 708 ns。
+
+v1 系列（tzfpy 1.3.x）仍然可用，并冻结在最后一个数据版本上，因为 v2 产物发布后 tzf-dist 不再发布 protobuf 产物。
+
 ## 使用 FastAPI 构建 Web API
 
 ```bash
@@ -235,7 +303,7 @@ class TimezonenamesResponse(BaseModel):
 
 
 class DataVersionResponse(BaseModel):
-    data_version: str = Field(..., description="数据版本", examples=["2025b"])
+    data_version: str = Field(..., description="数据版本", examples=["2026c"])
 
 
 app = FastAPI(title="tzfpy with FastAPI")

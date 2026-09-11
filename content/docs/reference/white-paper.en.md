@@ -2,7 +2,7 @@
 date: '2025-07-21T14:20:56+09:00'
 description: How tzf achieves high-performance timezone lookup — topology-aware simplification, shared-edge deduplication, Polyline encoding, tile-based indexing, YStripes, and 1°×1° grid index.
 draft: false
-lastmod: '2026-05-03T00:00:00+09:00'
+lastmod: '2026-09-11T00:00:00+09:00'
 seo:
   description: 'How tzf achieves fast timezone lookup: topology-aware simplification, shared-edge deduplication, Polyline encoding, tile-based indexing, YStripes index, and 1°×1° grid index.'
   noindex: false
@@ -32,6 +32,14 @@ The design goals are:
 
 This white paper covers tzf's core optimization techniques in two categories:
 
+The pipeline stage sizes below were measured on the protobuf-era build. v2
+removed protobuf: the pipeline now uses native Go structs whose fields mirror the
+retired schema, serialized with `encoding/gob` for intermediates, and the final
+stage emits the
+[TZF embedded binary format]({{< relref "embedded-binary-format" >}}) instead of
+protobuf artifacts. The stages themselves are unchanged, and rebuilding from raw
+GeoJSON produces a byte-identical `full.tzb`.
+
 **Offline data pipeline** — transforms raw boundary data into compact, pre-indexed
 distribution files:
 
@@ -42,15 +50,16 @@ distribution files:
 **Runtime query optimization** — accelerates lookups at query time; the tile-based
 index and grid index depend on auxiliary data structures embedded by the pipeline:
 
-4. Tile-based indexing (FuzzyFinder pre-index)
+4. Tile-based indexing (the FUZZY tile preindex)
 5. 1°×1° Grid Index
 6. YStripes spatial index
 
 ## Offline data pipeline
 
-The raw timezone boundary data starts at ~96 MB as a Protocol Buffers binary
-(`Timezones` format). Two parallel offline pipelines produce three distribution
-files (file names carry the `combined-with-oceans.` prefix):
+The raw timezone boundary data starts at ~96 MB in the flat `Timezones`
+representation. Two parallel offline pipelines produce the lite and
+full-precision datasets. The intermediate file names below carry the
+`combined-with-oceans.` prefix and the sizes are from the protobuf-era build:
 
 **Full-precision pipeline** — dedup + compress only, no simplification:
 
@@ -76,26 +85,31 @@ Raw .bin                              (96 MB,   Timezones)
 .topology.compress.topo.bin           ( 5.4 MB, CompressedTopoTimezones,−94%)  ← embedded (lite)
 ```
 
-The resulting distribution files are:
+In v2 the deduplicated, simplified geometry and the tile preindex are encoded
+into a single container per dataset, with the preindex stored as the FUZZY
+section rather than a separate file:
 
-| File                                              | Format                    | Size    |
-| ------------------------------------------------- | ------------------------- | ------- |
-| `combined-with-oceans.compress.topo.bin`          | `CompressedTopoTimezones` | ~17 MB  |
-| `combined-with-oceans.topology.compress.topo.bin` | `CompressedTopoTimezones` | ~5.4 MB |
-| `combined-with-oceans.topology.preindex.bin`      | `PreindexTimezones`       | ~2 MB   |
+| File | Profile | Size | Contents |
+| --- | --- | ---: | --- |
+| `lite.tzb` | E | ~4 MB | Topology-simplified geometry, GRID, FUZZY |
+| `lite.tzm` | M | ~10 MB | The same data with geometry in the query-time layout |
+| `full.tzb` | E | ~14 MB | Full-precision geometry, GRID, FUZZY |
 
-The full-precision dataset shrank from ~96 MB (raw protobuf) to ~17 MB — small
-enough that tzf-rs now provides it as an optional Cargo feature rather than
-requiring a manual file download.
+The full-precision dataset shrank from ~96 MB in the raw representation to
+13.77 MB, which is within the size tzf-rs can carry as an optional Cargo feature
+rather than requiring a manual file download.
 
 These files are distributed via [`ringsaturn/tzf-dist`](https://github.com/ringsaturn/tzf-dist).
+The container layout is documented in
+[Embedded Binary Format]({{< relref "embedded-binary-format" >}}).
 
 ### Stage 1 — Topology-aware simplification
 
 #### Background: the per-polygon approach and its limits
 
-The raw GeoJSON polygon data is first converted into a binary encoding using
-Protocol Buffers. The schema is straightforward:
+The raw GeoJSON polygon data is first converted into a binary encoding. The
+schema below is the retired protobuf definition; the v2 pipeline uses native Go
+structs with the same fields:
 
 ```proto
 message Point {
@@ -272,22 +286,22 @@ and returns all timezone names at the first matching tile:
 - If no tile matches (border region, coastline, sparse area) → the preindex returns
   nothing.
 
-`FuzzyFinder` uses this preindex alone. `GetTimezoneNames` returns the full list;
-`GetTimezoneName` returns the first entry. For uncovered areas it returns an error
-rather than guessing — the caller is responsible for handling the empty case.
+In v1 this preindex backed a separate `FuzzyFinder`, which returned no result for
+uncovered areas and left the empty case to the caller. v2 removed that class. The
+preindex is now the fast path inside every finder whose file carries a FUZZY
+section: a covering tile answers `GetTimezoneName` immediately, and an uncovered
+point falls through to polygon lookup within the same finder. `GetTimezoneNames`
+does not consult the preindex in any finder.
 
-`DefaultFinder` handles this automatically: it tries the tile preindex first; if no
-result is returned, it falls through to full polygon lookup via `Finder`. This makes
-it correct for all coordinates while retaining preindex speed for the majority of
-world-city queries.
-
-The tile preindex is built offline as a separate `.topology.preindex.bin` file and
-loaded alongside the lite compressed binary.
+The preindex is built offline and stored as section type 10 of the embedded
+binary file rather than as a separate artifact. On the `2026c` dataset it holds
+87,572 tiles, 156 of which name two timezones, in about 880 KB.
 
 ### 1°×1° Grid Index
 
-Starting from tzf v1.2.0 / tzf-rs v1.3.3, the `CompressedTopoTimezones` binary embeds a 1°×1° grid
-index built automatically at the end of the compress stage. The globe is partitioned
+Starting from tzf v1.2.0 / tzf-rs v1.3.3, the distributed binary embeds a 1°×1° grid
+index built automatically at the end of the compress stage; in v2 it is section
+type 8 of the embedded binary file. The globe is partitioned
 into 360 × 180 = 64,800 cells; each cell stores the sorted list of timezone indices
 whose bounding box intersects it. Only cells that contain at least one timezone are
 stored (~65,000–65,500 worldwide), adding roughly 870 KB to the distribution files.
@@ -310,9 +324,11 @@ YStripes improves on naive ray casting by pre-partitioning each polygon's edges 
 horizontal stripes. For a query point, only edges in the relevant stripe are tested,
 reducing per-polygon work substantially without the overhead of a full spatial tree.
 
-This is enabled by default; disabling it (e.g. in memory-constrained environments)
-is possible via `FinderOptions` in Rust. With YStripes, single random-city lookups
-consistently run below 1 µs on modern hardware with `DefaultFinder`.
+v1 allowed disabling it through `FinderOptions` in Rust; v2 removed that option
+and the index is always built. The `.tzm` loader rebuilds it in parallel at open,
+which costs about 5 ms on the lite dataset with 16 cores and 28 ms at one core.
+Section type 14 of the embedded binary format reserves a serialized form of the
+index, which is not emitted today.
 
 For algorithm details, see the author's explanation in
 [`POLYGON_INDEXING.md`](https://github.com/tidwall/tg/blob/main/docs/POLYGON_INDEXING.md).

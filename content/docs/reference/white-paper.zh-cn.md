@@ -2,7 +2,7 @@
 date: '2025-07-21T14:20:56+09:00'
 description: tzf 的高性能时区查询实现，包括拓扑感知简化、共享边去重、Polyline 编码、瓦片索引、YStripes 和 1°×1° 格子索引。
 draft: false
-lastmod: '2026-05-03T00:00:00+09:00'
+lastmod: '2026-09-11T00:00:00+09:00'
 seo:
   description: tzf 快速时区查询的实现方式：拓扑感知简化、共享边去重、Polyline 编码、瓦片索引、YStripes 索引和 1°×1° 格子索引。
   noindex: false
@@ -32,6 +32,13 @@ tzf 最初面向需要将坐标转换为时区的后端服务，
 
 本白皮书将 tzf 的核心优化技术分为两类：
 
+下文的管线各阶段体积数据在 protobuf 时期的构建上测得。v2 移除了 protobuf：
+管线现在使用字段与已停用 schema 对应的原生 Go 结构体，中间产物用 `encoding/gob`
+序列化，最后一个阶段输出
+[TZF 嵌入式二进制格式]({{< relref "embedded-binary-format" >}})，
+不再输出 protobuf 产物。各阶段本身没有变化，从原始 GeoJSON 重新构建可以得到
+逐字节相同的 `full.tzb`。
+
 **离线数据管线**：将原始边界数据转换为紧凑、带预置索引的分发文件：
 
 1. 拓扑感知简化（第一阶段）
@@ -41,14 +48,15 @@ tzf 最初面向需要将坐标转换为时区的后端服务，
 **运行时查询优化**：在查询时加速检索。瓦片索引和格子索引依赖管线在
 构建期嵌入的辅助数据结构：
 
-4. 瓦片索引（FuzzyFinder 预索引）
+4. 瓦片索引（FUZZY 预索引）
 5. 1°×1° 格子索引
 6. YStripes 空间索引
 
 ## 离线数据管线
 
-原始时区边界数据以 Protocol Buffers 二进制（`Timezones` 格式）存在，约 96 MB。
-两条并行的离线管线产生三个分发文件（文件名均带有 `combined-with-oceans.` 前缀）：
+原始时区边界数据在扁平的 `Timezones` 表示下约 96 MB。两条并行的离线管线分别产生
+lite 和完整精度数据集。下文的中间文件名均带有 `combined-with-oceans.` 前缀，
+体积数据来自 protobuf 时期的构建：
 
 **完整精度管线**：仅去重 + 压缩，不做简化：
 
@@ -73,25 +81,27 @@ tzf 最初面向需要将坐标转换为时区的后端服务，
 .topology.compress.topo.bin            ( 5.4 MB, CompressedTopoTimezones,−94%)  ← 内嵌（精简版）
 ```
 
-最终的分发文件为：
+在 v2 中，去重并简化后的几何数据与瓦片预索引被编码进每个数据集各自的单个容器，
+预索引存储为 FUZZY 区段，不再是独立文件：
 
-| 文件                                              | 格式                      | 大小      |
-| ------------------------------------------------- | ------------------------- | --------- |
-| `combined-with-oceans.compress.topo.bin`          | `CompressedTopoTimezones` | 约 17 MB  |
-| `combined-with-oceans.topology.compress.topo.bin` | `CompressedTopoTimezones` | 约 5.4 MB |
-| `combined-with-oceans.topology.preindex.bin`      | `PreindexTimezones`       | 约 2 MB   |
+| 文件 | Profile | 体积 | 内容 |
+| --- | --- | ---: | --- |
+| `lite.tzb` | E | 约 4 MB | 拓扑简化的几何数据、GRID、FUZZY |
+| `lite.tzm` | M | 约 10 MB | 同一份数据，几何数据按查询时的布局存储 |
+| `full.tzb` | E | 约 14 MB | 完整精度几何数据、GRID、FUZZY |
 
-完整精度数据集从约 96 MB（原始 protobuf）缩减至约 17 MB。该体积足够小，
-tzf-rs 因此可以将其作为可选 Cargo feature 提供，无需用户手动下载文件。
+完整精度数据集从原始表示下的约 96 MB 缩减至 13.77 MB，该体积在 tzf-rs 可以作为
+可选 Cargo feature 携带的范围内，无需用户手动下载文件。
 
 这些文件通过 [`ringsaturn/tzf-dist`](https://github.com/ringsaturn/tzf-dist) 分发。
+容器布局的说明见[嵌入式二进制格式]({{< relref "embedded-binary-format" >}})。
 
 ### 第一阶段 - 拓扑感知简化
 
 #### 背景：逐多边形方案及其局限
 
-原始 GeoJSON 多边形数据首先被转换为使用 Protocol Buffers 的二进制编码。
-其 schema 如下：
+原始 GeoJSON 多边形数据首先被转换为二进制编码。下面的 schema 是已停用的 protobuf
+定义，v2 管线使用字段相同的原生 Go 结构体：
 
 ```proto
 message Point {
@@ -257,21 +267,19 @@ Asia/Shanghai 和 Asia/Urumqi 等共享区域的情况，它们重叠的内部�
 - 如果没有瓦片匹配（边界区域、海岸线、稀疏区域）→ 预索引返回
   空结果。
 
-`FuzzyFinder` 仅使用此预索引。`GetTimezoneNames` 返回完整列表，
-`GetTimezoneName` 返回第一个条目。对于未覆盖区域，返回错误
-而不猜测结果，调用者负责处理空结果情况。
+在 v1 中，该预索引由独立的 `FuzzyFinder` 使用，未覆盖区域返回空结果，
+空结果交由调用方处理。v2 移除了这个类。预索引现在是每个数据文件带有 FUZZY 区段的
+查找器内部的快速路径：覆盖该点的瓦片会立即回答 `GetTimezoneName`，未被覆盖的点
+在同一个查找器内回退到多边形查询。`GetTimezoneNames` 在任何查找器中都不查询预索引。
 
-`DefaultFinder` 会自动处理此问题：先尝试瓦片预索引。如果无结果返回，
-再回退到通过 `Finder` 进行完整多边形查询。这样可以覆盖全部坐标，
-同时让大多数世界城市查询保持预索引速度。
-
-瓦片预索引在离线阶段构建为独立的 `.topology.preindex.bin` 文件，
-与精简压缩二进制一同加载。
+预索引在离线阶段构建，并存储为嵌入式二进制文件的区段类型 10，不再是独立产物。
+在 `2026c` 数据集上，它包含 87,572 个瓦片，其中 156 个命名两个时区，约 880 KB。
 
 ### 1°×1° 格子索引
 
-自 tzf v1.2.0 / tzf-rs v1.3.3 起，`CompressedTopoTimezones` 二进制会在压缩阶段末尾自动
-内嵌一个 1°×1° 格子索引。全球被划分为 360 × 180 = 64,800 个格子，
+自 tzf v1.2.0 / tzf-rs v1.3.3 起，分发的二进制会在压缩阶段末尾自动内嵌一个
+1°×1° 格子索引；在 v2 中它是嵌入式二进制文件的区段类型 8。全球被划分为
+360 × 180 = 64,800 个格子，
 每个格子存储包围盒与其相交的时区下标升序列表。只有含至少一个时区的
 格子才会写入（全球约 65,000 到 65,500 个），分发文件会因此增大约 870 KB。
 
@@ -288,13 +296,13 @@ PIP 测试本身也可跳过。不含格子索引的旧数据文件会透明地�
 测试使用 YStripes 空间索引，该索引移植自 Josh Baker 的
 [`tidwall/tg`](https://github.com/tidwall/tg) 项目。
 
-YStripes 通过预分区每个多边形的边为水平条带来改进朴素的射线投射。
-对于查询点，仅测试相关条带中的边，
-大幅减少每个多边形的工作量，且没有完整空间树的开销。
+YStripes 预先把每个多边形的边划分为水平条带，从而减少射线投射的工作量。
+对于查询点，仅测试相关条带中的边，不需要完整空间树的开销。
 
-默认启用。禁用（例如在内存受限的环境中）
-可通过 Rust 的 `FinderOptions` 实现。使用 YStripes 后，配合 `DefaultFinder`
-在现代硬件上单次随机城市查询持续低于 1 µs。
+v1 允许通过 Rust 的 `FinderOptions` 关闭它；v2 移除了该选项，索引始终构建。
+`.tzm` 加载器在打开时并行重建该索引，在 lite 数据集上 16 核约需 5 ms，
+单核约需 28 ms。嵌入式二进制格式的区段类型 14 为该索引保留了一种序列化形式，
+当前不输出。
 
 算法详情请参见作者在
 [`POLYGON_INDEXING.md`](https://github.com/tidwall/tg/blob/main/docs/POLYGON_INDEXING.md) 中的解释。

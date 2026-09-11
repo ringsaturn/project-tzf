@@ -2,7 +2,7 @@
 date: '2025-07-19T11:25:25+09:00'
 description: Five-layer architecture showing how timezone boundary data flows from source to every language implementation.
 draft: false
-lastmod: '2026-04-29T00:00:00+09:00'
+lastmod: '2026-09-11T00:00:00+09:00'
 seo:
   description: 'The five-layer tzf ecosystem: from evansiroky/timezone-boundary-builder GeoJSON through processing, distribution via tzf-dist, language implementations, and applications.'
   noindex: false
@@ -10,7 +10,7 @@ seo:
 summary: How GeoJSON boundary data flows through tzf-dist into Go, Rust, Python, Swift, Ruby, WASM, and service layers.
 title: Ecosystem
 toc: true
-weight: 2
+weight: 3
 ---
 
 ```mermaid
@@ -28,7 +28,7 @@ graph TD
 
     %% L2 - Data Distribution
     subgraph L2["L2 - Data Distribution"]
-        TZF_DIST[ringsaturn/tzf-dist<br/>Go module + Rust crate<br/>CompressedTopoTimezones format]
+        TZF_DIST[ringsaturn/tzf-dist<br/>Go module + Rust crate<br/>TZF embedded binary format]
     end
 
     %% L3 - Language Implementations
@@ -91,12 +91,19 @@ graph TD
 - **L1 - Core Processing**: Primary data processing — topology-aware polygon simplification,
   shared-edge deduplication, Polyline encoding, and tile pre-index generation
   - [ringsaturn/tzf](https://github.com/ringsaturn/tzf)
-- **L2 - Data Distribution**: Processed binary data in `CompressedTopoTimezones` format,
+- **L2 - Data Distribution**: Processed binary data in the
+  [TZF embedded binary format]({{< relref "embedded-binary-format" >}}),
   distributed as a Go module and Rust crate
   - [ringsaturn/tzf-dist](https://github.com/ringsaturn/tzf-dist)
-  - Files: `combined-with-oceans.compress.topo.bin` (~17 MB, full precision),
-    `combined-with-oceans.topology.compress.topo.bin` (~5.4 MB, lite),
-    `combined-with-oceans.topology.preindex.bin` (~2 MB, tile preindex)
+  - Files: `lite.tzb` (~4 MB, topology-simplified, transport profile),
+    `lite.tzm` (~10 MB, the same data as a memory image),
+    `full.tzb` (~14 MB, full precision) — all three carry the FUZZY tile
+    preindex and the same `data_version`
+  - The crates.io package carries `lite.tzb` only; `full.tzb` is git-only for
+    size, and `full.tzm` is never published — derive it locally with
+    `cmd/tzb2tzm`
+  - The v1 protobuf artifacts (`combined-with-oceans.*.bin`) are no longer
+    published; the `tzf-rel` / `tzf-rel-lite` repositories are superseded
 - **L3 - Language Implementations**: Core timezone lookup implementations consuming tzf-dist data
   - [ringsaturn/tzf-rs](https://github.com/ringsaturn/tzf-rs)
   - [ringsaturn/tzf-swift](https://github.com/ringsaturn/tzf-swift)
@@ -106,5 +113,12 @@ graph TD
   - [ringsaturn/tzf-wasm](https://github.com/ringsaturn/tzf-wasm)
   - [ringsaturn/pg-tzf](https://github.com/ringsaturn/pg-tzf)
 - **L5 - Applications & Services**: End-user applications, web services, and API servers
-  - [ringsaturn/tzf-web](https://github.com/ringsaturn/tzf-web)
+  - [ringsaturn/tzf-web](https://github.com/ringsaturn/tzf-web) — the online demo,
+    which also renders the FUZZY preindex tiles exported by `GetTZPreindexGeoJSON`
   - [racemap/rust-tz-service](https://github.com/racemap/rust-tz-service)
+
+As of 2026-09-10, tzf (Go), tzf-rs (Rust) and tzfpy read the v2 `.tzb` artifacts.
+tzf-wasm builds on tzf-rs 1.3.x, and tzf-swift reads the v1 protobuf artifact
+set. tzf-rb is maintained independently by
+[HarlemSquirrel](https://github.com/HarlemSquirrel) and currently builds on the
+v1 line.

@@ -1,5 +1,5 @@
 {{- /* Radar charts comparing timezone lookup packages (data from
-     https://github.com/ringsaturn/tz-benchmark, snapshot 2026-07-26). Latency
+     https://github.com/ringsaturn/tz-benchmark, snapshot 2026-09-11, local Apple M3 Max run). Latency
      is the random-world-cities benchmark, memory is retained live bytes (RSS
      after load for Python, which holds its data off the Python heap), and
      accuracy uses the `cities` wrong rate. Colors follow the site theme via
@@ -176,19 +176,20 @@
   (() => {
     const grid = document.querySelector("#tzf-radar .tzr-grid");
     const packages = [
-      { language: "Go", name: "tzf Default", tzf: true, latency: 321.6, memory: 32.3, wrong: 0.0006 },
-      { language: "Go", name: "latlong", tzf: false, latency: 106.4, memory: 1.1, wrong: 0.2637 },
-      { language: "Go", name: "timezonemapper", tzf: false, latency: 95.08, memory: 1.1, wrong: 0.5275 },
-      { language: "Go", name: "localtimezone", tzf: false, latency: 23561, memory: 2.8, wrong: 0.0142 },
-      { language: "Go", name: "go-tz", tzf: false, latency: 39704, memory: 32.6, wrong: 0 },
-      { language: "Python", name: "tzfpy Default", tzf: true, latency: 980.7423, memory: 94.8, wrong: 0.0006 },
-      { language: "Python", name: "timezonefinder", tzf: false, latency: 18877.9892, memory: 110.3, wrong: 0 },
-      { language: "Rust", name: "tzf-rs Default", tzf: true, latency: 227.87, memory: 36.3, wrong: 0.0006 },
-      { language: "Rust", name: "tzf-rs Finder", tzf: true, latency: 7079.98, memory: 20.7, wrong: 0.0006 },
-      { language: "Rust", name: "tzf-rs Fuzzy", tzf: true, latency: 137.88, memory: 5.1, wrong: 0 },
-      { language: "Rust", name: "tz-search", tzf: false, latency: 114.21, memory: 2.2, wrong: 0.5288 },
-      { language: "Rust", name: "rtz OSM", tzf: false, latency: 1577.66, memory: 4.2, wrong: 0.0381 },
-      { language: "Rust", name: "rtz NED", tzf: false, latency: 386.31, memory: 4.1, wrong: 18.5909 }
+      { language: "Go", name: "tzf Default", tzf: true, latency: 357.5, memory: 13.1, wrong: 0.0006 },
+      { language: "Go", name: "tzf Embedded", tzf: true, latency: 2207, memory: 0.3, wrong: 0.0006 },
+      { language: "Go", name: "tzf Full", tzf: true, latency: 394.6, memory: 147.0, wrong: 0 },
+      { language: "Go", name: "latlong", tzf: false, latency: 112.3, memory: 1.1, wrong: 0.2637 },
+      { language: "Go", name: "timezonemapper", tzf: false, latency: 108.9, memory: 1.1, wrong: 0.5275 },
+      { language: "Go", name: "localtimezone", tzf: false, latency: 24565, memory: 2.8, wrong: 0.0142 },
+      { language: "Go", name: "go-tz", tzf: false, latency: 50107, memory: 32.6, wrong: 0 },
+      { language: "Python", name: "tzfpy Default", tzf: true, latency: 913.7036, memory: 62.2, wrong: 0.0006 },
+      { language: "Python", name: "timezonefinder", tzf: false, latency: 7158.5244, memory: 107.0, wrong: 0 },
+      { language: "Rust", name: "tzf-rs Default", tzf: true, latency: 228.81, memory: 22.8, wrong: 0.0006 },
+      { language: "Rust", name: "tzf-rs Embedded", tzf: true, latency: 1182.07, memory: 0.0, wrong: 0.0006 },
+      { language: "Rust", name: "tz-search", tzf: false, latency: 108.65, memory: 2.2, wrong: 0.5288 },
+      { language: "Rust", name: "rtz OSM", tzf: false, latency: 1524.37, memory: 4.2, wrong: 0.0381 },
+      { language: "Rust", name: "rtz NED", tzf: false, latency: 434.72, memory: 4.1, wrong: 18.5909 }
     ];
 
     const languages = ["Go", "Python", "Rust"];

@@ -2,7 +2,7 @@
 date: '2025-07-19T11:25:25+09:00'
 description: タイムゾーン境界データがソースから各言語実装に流れるまでの 5 層アーキテクチャ。
 draft: false
-lastmod: '2026-04-29T00:00:00+09:00'
+lastmod: '2026-09-11T00:00:00+09:00'
 seo:
   description: 5 層の tzf エコシステム：evansiroky/timezone-boundary-builder の GeoJSON から処理、tzf-dist 経由の配布、言語実装、アプリケーションまで。
   noindex: false
@@ -10,7 +10,7 @@ seo:
 summary: GeoJSON 境界データが tzf-dist を通じて Go、Rust、Python、Swift、Ruby、WASM、サービス層に流れる仕組み。
 title: エコシステム
 toc: true
-weight: 2
+weight: 3
 ---
 
 ```mermaid
@@ -28,7 +28,7 @@ graph TD
 
     %% L2 - データ配布
     subgraph L2["L2 - データ配布"]
-        TZF_DIST[ringsaturn/tzf-dist<br/>Go モジュール + Rust crate<br/>CompressedTopoTimezones 形式]
+        TZF_DIST[ringsaturn/tzf-dist<br/>Go モジュール + Rust crate<br/>TZF 埋め込みバイナリ形式]
     end
 
     %% L3 - 言語実装
@@ -91,12 +91,19 @@ graph TD
 - **L1 - コア処理**：主要データ処理として、トポロジー認識ポリゴン簡略化、
   共有エッジ重複排除、Polyline エンコーディング、タイルプレインデックス生成
   - [ringsaturn/tzf](https://github.com/ringsaturn/tzf)
-- **L2 - データ配布**：処理済みバイナリデータを `CompressedTopoTimezones` 形式で
+- **L2 - データ配布**：処理済みバイナリデータを
+  [TZF 埋め込みバイナリ形式]({{< relref "embedded-binary-format" >}})で
   Go モジュールおよび Rust crate として配布
   - [ringsaturn/tzf-dist](https://github.com/ringsaturn/tzf-dist)
-  - ファイル：`combined-with-oceans.compress.topo.bin`（約 17 MB、完全精度）、
-    `combined-with-oceans.topology.compress.topo.bin`（約 5.4 MB、ライト版）、
-    `combined-with-oceans.topology.preindex.bin`（約 2 MB、タイルプレインデックス）
+  - ファイル：`lite.tzb`（約 4 MB、トポロジー簡略化、転送用プロファイル）、
+    `lite.tzm`（約 10 MB、同じデータのメモリイメージ）、
+    `full.tzb`（約 14 MB、完全精度）。3 つとも FUZZY タイルプレインデックスと
+    同じ `data_version` を持ちます
+  - crates.io のパッケージには `lite.tzb` のみが含まれます。`full.tzb` はサイズの
+    都合で git 限定であり、`full.tzm` は配布されません。`cmd/tzb2tzm` でローカルに
+    生成します
+  - v1 の protobuf 成果物（`combined-with-oceans.*.bin`）は配布されなくなりました。
+    `tzf-rel` / `tzf-rel-lite` リポジトリは置き換えられています
 - **L3 - 言語実装**：tzf-dist データを消費するコアタイムゾーン検索実装
   - [ringsaturn/tzf-rs](https://github.com/ringsaturn/tzf-rs)
   - [ringsaturn/tzf-swift](https://github.com/ringsaturn/tzf-swift)
@@ -106,5 +113,8 @@ graph TD
   - [ringsaturn/tzf-wasm](https://github.com/ringsaturn/tzf-wasm)
   - [ringsaturn/pg-tzf](https://github.com/ringsaturn/pg-tzf)
 - **L5 - アプリケーションとサービス**：エンドユーザーアプリケーション、Web サービス、API サーバー
-  - [ringsaturn/tzf-web](https://github.com/ringsaturn/tzf-web)
+  - [ringsaturn/tzf-web](https://github.com/ringsaturn/tzf-web)。オンラインデモであり、
+    `GetTZPreindexGeoJSON` がエクスポートする FUZZY プレインデックスタイルも描画します
   - [racemap/rust-tz-service](https://github.com/racemap/rust-tz-service)
+
+2026-09-10 時点で、tzf (Go)、tzf-rs (Rust)、tzfpy は v2 の `.tzb` 成果物を読み込みます。tzf-wasm は tzf-rs 1.3.x の上に構築されており、tzf-swift は v1 の protobuf 成果物を読み込みます。tzf-rb は [HarlemSquirrel](https://github.com/HarlemSquirrel) が独立して保守しており、現在は v1 系列の上に構築されています。

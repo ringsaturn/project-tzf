@@ -2,7 +2,7 @@
 date: '2025-07-19T12:19:49+09:00'
 description: Go、Rust、Python、Swift、Ruby、Wasm などで Project tzf をインストールして実行する方法。
 draft: false
-lastmod: '2025-07-19T12:19:49+09:00'
+lastmod: '2026-09-11T00:00:00+09:00'
 seo:
   description: Go、Rust、Python、Swift、Ruby、WebAssembly で GPS 座標からタイムゾーンを検索する方法。HTTP API 経由でも利用できます。
   title: 'はじめる - Project tzf'
@@ -30,28 +30,43 @@ Project tzf は複数の言語とサービスに対応し、経度・緯度か�
 
 ## Go
 
+tzf v2 は新しいメジャーバージョンであるため、モジュールパスに `/v2` サフィックスが付きます。
+
 ```bash
-go get github.com/ringsaturn/tzf
+go get github.com/ringsaturn/tzf/v2
 ```
 
 ```go
-// 初期化に約 150MB のメモリを使用し、GC 後は約 60MB。
 package main
 
 import (
 	"fmt"
 
-	"github.com/ringsaturn/tzf"
+	"github.com/ringsaturn/tzf/v2"
 )
 
 func main() {
+	// 構築のコストはクエリと比べて大きいため、Finder は一度だけ構築します。
 	finder, err := tzf.NewDefaultFinder()
 	if err != nil {
 		panic(err)
 	}
+	// 座標は (経度，緯度) の順です。
 	fmt.Println(finder.GetTimezoneName(116.6386, 40.0786))
 }
 ```
+
+コンストラクタは 5 つあり、いずれも `tzf.F` インターフェイスを返します。
+
+| コンストラクタ | 対象 |
+| --- | --- |
+| `NewDefaultFinder()` | 汎用用途：lite メモリイメージ、ヒープ約 12 MB + 読み取り専用データ 10 MB、クエリ 298 ns |
+| `NewEmbeddedFinder()` | 組み込みおよびメモリ制約のある環境：合計約 3 MB、マイクロ秒単位のクエリ |
+| `NewFullFinder()` | 完全精度データセットと一致する結果（約 145 MB） |
+| `NewFinderFromTZB(data)` | 呼び出し側が用意した `.tzb` バイト列、ロード時に展開 |
+| `NewFinderFromTZM(data)` | 呼び出し側が用意した `.tzm` バイト列、インプレースで参照 |
+
+数値は Apple M3 Max で `2026c` データセットを対象に測定した値です。
 
 100% 正確な結果が必要な場合は `NewFullFinder` を使用します。初期化コストが高いため、できるだけ再利用してください：
 
@@ -61,7 +76,7 @@ package main
 import (
 	"fmt"
 
-	"github.com/ringsaturn/tzf"
+	"github.com/ringsaturn/tzf/v2"
 )
 
 func main() {
@@ -73,6 +88,8 @@ func main() {
 }
 ```
 
+GeoJSON エクスポート、独自のバイト列に対するインプレースクエリ、v1 から v2 への移行表については [Go ガイド]({{< relref "guides/tzf" >}})を参照してください。
+
 ## Rust
 
 ```bash
@@ -80,12 +97,10 @@ cargo add tzf-rs
 ```
 
 ```rust
-use lazy_static::lazy_static;
+use std::sync::LazyLock;
 use tzf_rs::DefaultFinder;
 
-lazy_static! {
-    static ref FINDER: DefaultFinder = DefaultFinder::new();
-}
+static FINDER: LazyLock<DefaultFinder> = LazyLock::new(DefaultFinder::new);
 
 fn main() {
     // 座標は (経度，緯度) の順です。
@@ -94,16 +109,18 @@ fn main() {
 }
 ```
 
-<details>
-<summary>完全精度サポート (v1.3.0+)</summary>
+tzf-rs 2.0 は 2 つの Finder を提供します。デフォルトの `DefaultFinder`（ピーク RSS 約 47 MiB、ランダム都市検索 229 ns）と、埋め込みファイルをインプレースで参照する `EmbeddedFinder`（約 10 MiB、マイクロ秒単位のレイテンシ）です。いずれも [tz-benchmark](https://github.com/ringsaturn/tz-benchmark) の 2026-09-11 スナップショットにおいて、Apple M3 Max で `2026c` データセットを対象に測定した値です。
 
-v1.3.0 以降、オプションの Cargo feature で完全精度データを利用できます。
-完全データセットは約 17 MB あり、crates.io のサイズ制限を超えるため、
-git 依存関係で参照する必要があります：
+<details>
+<summary>完全精度サポート</summary>
+
+オプションの Cargo feature で完全精度データを利用できます。
+完全データセットは約 14 MB あり、crates.io のサイズ制限を超えるため git 依存関係で参照する必要があり、
+バンドルされた lite データセットとは排他です：
 
 ```toml
 [dependencies]
-tzf-rs = { git = "https://github.com/ringsaturn/tzf-rs", tag = "v{X}.{Y}.{Z}", features = ["full"], default-features = false }
+tzf-rs = { git = "https://github.com/ringsaturn/tzf-rs", rev = "v{X}.{Y}.{Z}", features = ["full"], default-features = false }
 ```
 
 ```rust
@@ -142,9 +159,11 @@ conda install -c conda-forge tzfpy
 ['Asia/Shanghai', 'Asia/Urumqi']
 ```
 
-Python 版は現在、完全精度モードをサポートしていません。
+tzfpy 2.0 は Python 3.10 以降が必要で、tzf-rs 2.0 をバインドします。`timezonenames()`、`data_version()`、`get_tz_polygon_geojson(name)`、`get_tz_index_geojson(name)` も公開しています。Python 版では完全精度モードは利用できません。
 
 ## Swift
+
+Swift、Ruby、ブラウザ向け Wasm のバインディングは、2026-09-10 時点で v1 系列の上に構築されています。tzf-rb は [HarlemSquirrel](https://github.com/HarlemSquirrel) が独立して保守しています。
 
 `Package.swift` にパッケージを追加します：
 

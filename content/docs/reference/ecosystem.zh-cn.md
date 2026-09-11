@@ -2,7 +2,7 @@
 date: '2025-07-19T11:25:25+09:00'
 description: 五层架构展示时区边界数据如何从源头流向各个语言实现。
 draft: false
-lastmod: '2026-04-29T00:00:00+09:00'
+lastmod: '2026-09-11T00:00:00+09:00'
 seo:
   description: 五层 tzf 生态系统：从 evansiroky/timezone-boundary-builder GeoJSON 数据，经过处理与 tzf-dist 分发，到各语言实现和上层应用。
   noindex: false
@@ -10,7 +10,7 @@ seo:
 summary: GeoJSON 边界数据如何通过 tzf-dist 流入 Go、Rust、Python、Swift、Ruby、WASM 和服务层。
 title: 生态系统
 toc: true
-weight: 2
+weight: 3
 ---
 
 ```mermaid
@@ -28,7 +28,7 @@ graph TD
 
     %% L2 - 数据分发
     subgraph L2["L2 - 数据分发"]
-        TZF_DIST[ringsaturn/tzf-dist<br/>Go 模块 + Rust crate<br/>CompressedTopoTimezones 格式]
+        TZF_DIST[ringsaturn/tzf-dist<br/>Go 模块 + Rust crate<br/>TZF 嵌入式二进制格式]
     end
 
     %% L3 - 语言实现
@@ -91,12 +91,18 @@ graph TD
 - **L1 - 核心处理**：主要数据处理，包括拓扑感知多边形简化、
   共享边去重、Polyline 编码和瓦片预索引生成
   - [ringsaturn/tzf](https://github.com/ringsaturn/tzf)
-- **L2 - 数据分发**：处理后的二进制数据，采用 `CompressedTopoTimezones` 格式，
+- **L2 - 数据分发**：处理后的二进制数据，采用
+  [TZF 嵌入式二进制格式]({{< relref "embedded-binary-format" >}})，
   以 Go 模块和 Rust crate 形式分发
   - [ringsaturn/tzf-dist](https://github.com/ringsaturn/tzf-dist)
-  - 文件：`combined-with-oceans.compress.topo.bin`（约 17 MB，完整精度）、
-    `combined-with-oceans.topology.compress.topo.bin`（约 5.4 MB，精简版）、
-    `combined-with-oceans.topology.preindex.bin`（约 2 MB，瓦片预索引）
+  - 文件：`lite.tzb`（约 4 MB，拓扑简化，传输 profile）、
+    `lite.tzm`（约 10 MB，同一份数据的内存镜像）、
+    `full.tzb`（约 14 MB，完整精度）。三者都带有 FUZZY 瓦片预索引，
+    并携带相同的 `data_version`
+  - crates.io 上的包只包含 `lite.tzb`；`full.tzb` 因体积原因仅由 git 提供，
+    `full.tzm` 不做分发，需要时用 `cmd/tzb2tzm` 在本地生成
+  - v1 的 protobuf 产物（`combined-with-oceans.*.bin`）不再发布，
+    `tzf-rel` / `tzf-rel-lite` 仓库已被取代
 - **L3 - 语言实现**：消费 tzf-dist 数据的核心时区查询实现
   - [ringsaturn/tzf-rs](https://github.com/ringsaturn/tzf-rs)
   - [ringsaturn/tzf-swift](https://github.com/ringsaturn/tzf-swift)
@@ -106,5 +112,11 @@ graph TD
   - [ringsaturn/tzf-wasm](https://github.com/ringsaturn/tzf-wasm)
   - [ringsaturn/pg-tzf](https://github.com/ringsaturn/pg-tzf)
 - **L5 - 应用与服务**：终端用户应用、Web 服务和 API 服务器
-  - [ringsaturn/tzf-web](https://github.com/ringsaturn/tzf-web)
+  - [ringsaturn/tzf-web](https://github.com/ringsaturn/tzf-web)，在线演示，
+    同时可以渲染由 `GetTZPreindexGeoJSON` 导出的 FUZZY 预索引瓦片
   - [racemap/rust-tz-service](https://github.com/racemap/rust-tz-service)
+
+截至 2026-09-10，tzf（Go）、tzf-rs（Rust）和 tzfpy 读取 v2 的 `.tzb` 产物。
+tzf-wasm 基于 tzf-rs 1.3.x 构建，tzf-swift 读取 v1 的 protobuf 产物。
+tzf-rb 由 [HarlemSquirrel](https://github.com/HarlemSquirrel) 独立维护，
+目前基于 v1 系列构建。
