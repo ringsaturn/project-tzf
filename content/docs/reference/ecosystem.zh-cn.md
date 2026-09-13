@@ -2,7 +2,7 @@
 date: '2025-07-19T11:25:25+09:00'
 description: 五层架构展示时区边界数据如何从源头流向各个语言实现。
 draft: false
-lastmod: '2026-09-11T00:00:00+09:00'
+lastmod: '2026-09-12T00:00:00+09:00'
 seo:
   description: 五层 tzf 生态系统：从 evansiroky/timezone-boundary-builder GeoJSON 数据，经过处理与 tzf-dist 分发，到各语言实现和上层应用。
   noindex: false
@@ -116,6 +116,6 @@ graph TD
     同时可以渲染由 `GetTZPreindexGeoJSON` 导出的 FUZZY 预索引瓦片
   - [racemap/rust-tz-service](https://github.com/racemap/rust-tz-service)
 
-截至 2026-09-11，tzf（Go）、tzf-rs（Rust）、tzfpy 和 tzf-wasm 读取 v2 的 `.tzb` 产物；tzf-wasm 2.0.0 基于 tzf-rs 2.0.0 构建。tzf-swift 读取 v1 的 protobuf 产物。
+截至 2026-09-12，tzf（Go）、tzf-rs（Rust）、tzfpy、tzf-wasm 和 tzf-swift 读取 v2 的 `.tzb` 产物；tzf-wasm 2.0.0 基于 tzf-rs 2.0.0 构建，tzf-swift 2.0.0 是不依赖 protobuf、直接读取 `lite.tzb` 的移植。
 tzf-rb 由 [HarlemSquirrel](https://github.com/HarlemSquirrel) 独立维护，
 目前基于 v1 系列构建。

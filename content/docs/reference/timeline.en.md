@@ -2,7 +2,7 @@
 date: '2025-07-21T10:52:43+09:00'
 description: Project tzf development history, from the initial Go implementation through the v2 release in 2026.
 draft: false
-lastmod: '2026-09-11T00:00:00+09:00'
+lastmod: '2026-09-12T00:00:00+09:00'
 seo:
   description: Development timeline for Project tzf, from the first Go release in 2022 through the protobuf-free v2 release in 2026.
   noindex: false
@@ -149,6 +149,9 @@ the first `.tzb`/`.tzm` artifact set, `v0.0.2026-c-tzb1`, on 2026-09-10; tzf
 v2.0.0 followed the same day, and tzf-rs 2.0.0 and tzfpy 2.0.0 on 2026-09-11.
 The Go module path gains the `/v2` suffix, tzf-rs reaches 2.0.0, and tzfpy
 binds tzf-rs 2.0. tzf-wasm 2.0.0 followed on 2026-09-11 on top of tzf-rs 2.0.0, and tzf-web
-serves it. The v1 lines (tzf v1.2.x, tzf-rs 1.3.x, tzfpy 1.3.x) remain
-available and frozen at their last protobuf data release. tzf-swift builds on
-the v1 line at this date, as does the independently maintained tzf-rb.
+serves it. tzf-swift 2.0.0 followed on 2026-09-12 as a protobuf-free port that
+reads `lite.tzb` directly, with `DefaultFinder` and a low-memory
+`EmbeddedFinder`. The v1 lines (tzf v1.2.x, tzf-rs 1.3.x, tzfpy 1.3.x,
+tzf-swift 1.2.x) remain available and frozen at their last protobuf data
+release. The independently maintained tzf-rb builds on the v1 line at this
+date.

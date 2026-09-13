@@ -164,8 +164,9 @@ only the dependency change.
 tzf v1.2.x, tzf-rs 1.3.x and tzfpy 1.3.x remain available and continue to work.
 tzf-dist stops publishing the protobuf artifact set, so those versions are frozen
 at their last data release; updated boundaries require moving to v2. tzf-wasm
-2.0.0 builds on tzf-rs 2.0.0 and tzf-web serves it. tzf-swift builds on the v1
-line. tzf-rb is a third-party Ruby binding
+2.0.0 builds on tzf-rs 2.0.0 and tzf-web serves it. tzf-swift 2.0.0 is a
+protobuf-free port that reads `lite.tzb` directly and ships `DefaultFinder`
+and `EmbeddedFinder`. tzf-rb is a third-party Ruby binding
 maintained by [HarlemSquirrel](https://github.com/HarlemSquirrel) and currently
 builds on the v1 line.
 

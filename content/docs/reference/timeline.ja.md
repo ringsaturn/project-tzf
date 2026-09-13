@@ -2,7 +2,7 @@
 date: '2025-07-21T10:52:43+09:00'
 description: 'Project tzf の開発史 - 最初の Go 実装から 2026 年の v2 リリースまで。'
 draft: false
-lastmod: '2026-09-11T00:00:00+09:00'
+lastmod: '2026-09-12T00:00:00+09:00'
 seo:
   description: 'Project tzf の開発タイムライン - 2022 年の最初の Go リリースから 2026 年の protobuf を使用しない v2 リリースまで。'
   noindex: false
@@ -123,4 +123,4 @@ Apple M3 Max で `2026c` データセットを対象に、protobuf 経路と比�
 
 ### 2026-09
 
-tzf (Go)、tzf-rs (Rust)、tzfpy (Python) の v2 をリリース。tzf-dist は 2026-09-10 に最初の `.tzb`/`.tzm` アーティファクトセットのタグ `v0.0.2026-c-tzb1` を打ち、同日に tzf v2.0.0 が、2026-09-11 に tzf-rs 2.0.0 と tzfpy 2.0.0 がリリースされました。Go のモジュールパスに `/v2` サフィックスが付き、tzf-rs は 2.0.0 に、tzfpy は tzf-rs 2.0 をバインドします。v1 系列（tzf v1.2.x、tzf-rs 1.3.x、tzfpy 1.3.x）は引き続き利用でき、最後の protobuf データリリースで凍結されます。tzf-wasm 2.0.0 は 2026-09-11 に tzf-rs 2.0.0 の上でリリースされ、tzf-web はそれを使用しています。この時点で tzf-swift は v1 系列の上に構築されており、独立して保守されている tzf-rb も同様です。
+tzf (Go)、tzf-rs (Rust)、tzfpy (Python) の v2 をリリース。tzf-dist は 2026-09-10 に最初の `.tzb`/`.tzm` アーティファクトセットのタグ `v0.0.2026-c-tzb1` を打ち、同日に tzf v2.0.0 が、2026-09-11 に tzf-rs 2.0.0 と tzfpy 2.0.0 がリリースされました。Go のモジュールパスに `/v2` サフィックスが付き、tzf-rs は 2.0.0 に、tzfpy は tzf-rs 2.0 をバインドします。tzf-wasm 2.0.0 は 2026-09-11 に tzf-rs 2.0.0 の上でリリースされ、tzf-web はそれを使用しています。tzf-swift 2.0.0 は 2026-09-12 に、protobuf に依存せず `lite.tzb` を直接読み込む移植としてリリースされ、`DefaultFinder` と省メモリの `EmbeddedFinder` を提供します。v1 系列（tzf v1.2.x、tzf-rs 1.3.x、tzfpy 1.3.x、tzf-swift 1.2.x）は引き続き利用でき、最後の protobuf データリリースで凍結されます。この時点で、独立して保守されている tzf-rb は v1 系列の上に構築されています。

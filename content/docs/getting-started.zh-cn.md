@@ -2,7 +2,7 @@
 date: '2025-07-19T12:19:49+09:00'
 description: 使用 Go、Rust、Python、Swift、Ruby、Wasm 等语言安装并运行 Project tzf。
 draft: false
-lastmod: '2026-09-11T00:00:00+09:00'
+lastmod: '2026-09-12T00:00:00+09:00'
 seo:
   description: 使用 Go、Rust、Python、Swift、Ruby、WebAssembly 安装并运行 GPS 坐标到时区查询，也可通过 HTTP API 调用。
   title: '快速开始 - Project tzf'
@@ -161,13 +161,13 @@ tzfpy 2.0 需要 Python 3.10 或更高版本，绑定 tzf-rs 2.0。它还提供 
 
 ## Swift
 
-截至 2026-09-10，Swift、Ruby 和浏览器 Wasm 绑定基于 v1 系列构建。tzf-rb 由 [HarlemSquirrel](https://github.com/HarlemSquirrel) 独立维护。
+tzf-swift 2.0 不再依赖 protobuf：它内置 tzf-dist 的 `lite.tzb`，并提供两个查找器。`DefaultFinder` 在加载时展开多边形（约 16 ms、约 48 MB），`EmbeddedFinder` 原地查询 `.tzb` 字节（约 2 ms、约 10 MB），单次查询延迟更高。两者都可以通过 `init(tzb:)` 接收调用方提供的字节，因此 tzf-dist 的完整精度 `full.tzb` 也能以同样方式加载。
 
 将包添加到你的 `Package.swift`：
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/ringsaturn/tzf-swift.git", from: "{latest_version}")
+    .package(url: "https://github.com/ringsaturn/tzf-swift.git", from: "2.0.0")
 ]
 ```
 
@@ -185,14 +185,20 @@ do {
     print("可能存在的多个时区：", timezones)
 
     print("数据版本：", finder.dataVersion())
+
+    // 低内存替代方案：原地查询 .tzb 字节。
+    let embedded = try EmbeddedFinder()
+    print("Embedded finder：", try embedded.getTimezone(lng: 139.6917, lat: 35.6895))
 } catch {
     print("错误：", error)
 }
 ```
 
+从 v1 迁移：`Finder()` 改为 `DefaultFinder()`；`PreindexFinder` 已移除（预索引成为每个查找器内部的快速路径）；`FinderError.noTimezoneFound` 改为 `TZFError.noTimezoneFound`；`getTimezones` 的结果现在按字典序排序。
+
 ## Ruby
 
-Ruby 版本由 [HarlemSquirrel](https://github.com/HarlemSquirrel) 创建并维护。
+Ruby 版本由 [HarlemSquirrel](https://github.com/HarlemSquirrel) 创建并维护，截至 2026-09-12 基于 v1 系列构建。
 详细用法请参见 [tzf-rb](https://github.com/HarlemSquirrel/tzf-rb)。
 
 ```bash

@@ -102,7 +102,7 @@ Rust 向けにも `.tzm` のローダーを実装しました。オープン時�
 
 ## v1 系列の状況
 
-tzf v1.2.x、tzf-rs 1.3.x、tzfpy 1.3.x は引き続き利用でき、動作します。tzf-dist は protobuf の成果物の配布を終了するため、これらのバージョンは最後のデータリリースで凍結されます。更新された境界データを使用するには v2 への移行が必要です。tzf-wasm 2.0.0 は tzf-rs 2.0.0 の上に構築されており、tzf-web はそれを使用しています。tzf-swift は v1 系列の上に構築されています。tzf-rb は [HarlemSquirrel](https://github.com/HarlemSquirrel) が保守するサードパーティの Ruby バインディングであり、現在は v1 系列の上に構築されています。
+tzf v1.2.x、tzf-rs 1.3.x、tzfpy 1.3.x は引き続き利用でき、動作します。tzf-dist は protobuf の成果物の配布を終了するため、これらのバージョンは最後のデータリリースで凍結されます。更新された境界データを使用するには v2 への移行が必要です。tzf-wasm 2.0.0 は tzf-rs 2.0.0 の上に構築されており、tzf-web はそれを使用しています。tzf-swift 2.0.0 は protobuf に依存せず `lite.tzb` を直接読み込む移植で、`DefaultFinder` と `EmbeddedFinder` を提供します。tzf-rb は [HarlemSquirrel](https://github.com/HarlemSquirrel) が保守するサードパーティの Ruby バインディングであり、現在は v1 系列の上に構築されています。
 
 ## 謝辞
 

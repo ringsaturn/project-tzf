@@ -2,7 +2,7 @@
 date: '2025-07-21T10:52:43+09:00'
 description: 'Project tzf 开发历史 - 从最初的 Go 实现到 2026 年的 v2 发布。'
 draft: false
-lastmod: '2026-09-11T00:00:00+09:00'
+lastmod: '2026-09-12T00:00:00+09:00'
 seo:
   description: 'Project tzf 的开发时间线 - 从 2022 年首个 Go 版本到 2026 年移除 protobuf 的 v2 发布。'
   noindex: false
@@ -123,4 +123,4 @@ tzf-dist 停止发布 protobuf 产物，改为分发 `lite.tzb`、`lite.tzm` 和
 
 ### 2026-09
 
-tzf（Go）、tzf-rs（Rust）和 tzfpy（Python）发布 v2。tzf-dist 于 2026-09-10 打出第一个 `.tzb`/`.tzm` 工件集的 tag `v0.0.2026-c-tzb1`，tzf v2.0.0 同日发布，tzf-rs 2.0.0 与 tzfpy 2.0.0 于 2026-09-11 发布。Go 模块路径增加 `/v2` 后缀，tzf-rs 到达 2.0.0，tzfpy 绑定 tzf-rs 2.0。v1 系列（tzf v1.2.x、tzf-rs 1.3.x、tzfpy 1.3.x）仍然可用，并冻结在最后一个 protobuf 数据版本上。tzf-wasm 2.0.0 于 2026-09-11 基于 tzf-rs 2.0.0 发布，tzf-web 已使用该版本。截至该时间点，tzf-swift 基于 v1 系列构建，独立维护的 tzf-rb 同样如此。
+tzf（Go）、tzf-rs（Rust）和 tzfpy（Python）发布 v2。tzf-dist 于 2026-09-10 打出第一个 `.tzb`/`.tzm` 工件集的 tag `v0.0.2026-c-tzb1`，tzf v2.0.0 同日发布，tzf-rs 2.0.0 与 tzfpy 2.0.0 于 2026-09-11 发布。Go 模块路径增加 `/v2` 后缀，tzf-rs 到达 2.0.0，tzfpy 绑定 tzf-rs 2.0。tzf-wasm 2.0.0 于 2026-09-11 基于 tzf-rs 2.0.0 发布，tzf-web 已使用该版本。tzf-swift 2.0.0 于 2026-09-12 发布，是不依赖 protobuf、直接读取 `lite.tzb` 的移植，提供 `DefaultFinder` 和低内存的 `EmbeddedFinder`。v1 系列（tzf v1.2.x、tzf-rs 1.3.x、tzfpy 1.3.x、tzf-swift 1.2.x）仍然可用，并冻结在最后一个 protobuf 数据版本上。截至该时间点，独立维护的 tzf-rb 仍基于 v1 系列构建。

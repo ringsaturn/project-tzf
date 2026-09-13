@@ -2,7 +2,7 @@
 date: '2025-07-19T11:25:25+09:00'
 description: Five-layer architecture showing how timezone boundary data flows from source to every language implementation.
 draft: false
-lastmod: '2026-09-11T00:00:00+09:00'
+lastmod: '2026-09-12T00:00:00+09:00'
 seo:
   description: 'The five-layer tzf ecosystem: from evansiroky/timezone-boundary-builder GeoJSON through processing, distribution via tzf-dist, language implementations, and applications.'
   noindex: false
@@ -117,8 +117,8 @@ graph TD
     which also renders the FUZZY preindex tiles exported by `GetTZPreindexGeoJSON`
   - [racemap/rust-tz-service](https://github.com/racemap/rust-tz-service)
 
-As of 2026-09-11, tzf (Go), tzf-rs (Rust), tzfpy and tzf-wasm read the v2
-`.tzb` artifacts; tzf-wasm 2.0.0 builds on tzf-rs 2.0.0. tzf-swift reads the
-v1 protobuf artifact set. tzf-rb is maintained independently by
+As of 2026-09-12, tzf (Go), tzf-rs (Rust), tzfpy, tzf-wasm and tzf-swift read
+the v2 `.tzb` artifacts; tzf-wasm 2.0.0 builds on tzf-rs 2.0.0, and tzf-swift
+2.0.0 is a protobuf-free port over `lite.tzb`. tzf-rb is maintained independently by
 [HarlemSquirrel](https://github.com/HarlemSquirrel) and currently builds on the
 v1 line.

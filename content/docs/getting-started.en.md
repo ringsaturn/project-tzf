@@ -2,7 +2,7 @@
 date: '2025-07-19T12:19:49+09:00'
 description: Install and use Project tzf in your preferred programming language — Go, Rust, Python, Swift, Ruby, Wasm, and more.
 draft: false
-lastmod: '2026-09-11T00:00:00+09:00'
+lastmod: '2026-09-12T00:00:00+09:00'
 seo:
   description: Install and run timezone lookup from GPS coordinates in Go, Rust, Python, Swift, Ruby, WebAssembly, or via HTTP API.
   title: Getting Started — Project tzf
@@ -170,15 +170,17 @@ tzfpy 2.0 requires Python 3.10 or newer and binds tzf-rs 2.0. It also exposes
 
 ## Swift
 
-The Swift, Ruby and browser Wasm bindings build on the v1 line as of 2026-09-10.
-tzf-rb is maintained independently by
-[HarlemSquirrel](https://github.com/HarlemSquirrel).
+tzf-swift 2.0 is protobuf-free: it bundles `lite.tzb` from tzf-dist and ships
+two finders. `DefaultFinder` expands the polygons at load (~16 ms, ~48 MB) and
+`EmbeddedFinder` queries the `.tzb` bytes in place (~2 ms, ~10 MB) at a higher
+per-call latency. Both accept caller-owned bytes through `init(tzb:)`, so
+tzf-dist's full-precision `full.tzb` loads the same way.
 
 Add the package to your `Package.swift`:
 
 ```swift
 dependencies: [
-    .package(url: "https://github.com/ringsaturn/tzf-swift.git", from: "{latest_version}")
+    .package(url: "https://github.com/ringsaturn/tzf-swift.git", from: "2.0.0")
 ]
 ```
 
@@ -196,15 +198,25 @@ do {
     print("Multiple possible timezones:", timezones)
 
     print("Data version:", finder.dataVersion())
+
+    // Low-memory alternative: query the .tzb bytes in place.
+    let embedded = try EmbeddedFinder()
+    print("Embedded finder:", try embedded.getTimezone(lng: 139.6917, lat: 35.6895))
 } catch {
     print("Error:", error)
 }
 ```
 
+Migrating from v1: `Finder()` becomes `DefaultFinder()`, `PreindexFinder` is
+removed (the preindex is the fast path inside every finder),
+`FinderError.noTimezoneFound` becomes `TZFError.noTimezoneFound`, and
+`getTimezones` results are now sorted lexicographically.
+
 ## Ruby
 
 Ruby support is created and maintained by
-[HarlemSquirrel](https://github.com/HarlemSquirrel).
+[HarlemSquirrel](https://github.com/HarlemSquirrel), and builds on the v1 line
+as of 2026-09-12.
 See [tzf-rb](https://github.com/HarlemSquirrel/tzf-rb) for detailed documentation.
 
 ```bash
