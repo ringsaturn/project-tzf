@@ -2,7 +2,7 @@
 date: '2025-07-19T11:07:00+09:00'
 description: Frequently asked questions about Project tzf — accuracy, memory, coordinate order, and more.
 draft: false
-lastmod: '2026-09-11T00:00:00+09:00'
+lastmod: '2026-09-14T00:00:00+09:00'
 seo:
   description: Frequently asked questions about Project tzf — accuracy, memory usage, coordinate order, and data updates.
   noindex: false
@@ -38,9 +38,9 @@ For 100% accurate lookups, use the full dataset:
 
 - **Go**: `tzf.NewFullFinder()`
 - **Rust**: enable the git-only `full` feature with `default-features = false` (see [Getting Started]({{< relref "getting-started#rust" >}}))
-- **Python/tzfpy**: full-precision mode is not currently supported
+- **Python/tzfpy**: the experimental `+full` pre-release wheels from tzfpy's own index (`pip install --pre tzfpy --index-url https://ringsaturn.github.io/tzfpy/full/simple/`); the PyPI wheel carries the lite dataset only
 
-In the [tz-benchmark](https://github.com/ringsaturn/tz-benchmark) 2026-09-11
+In the [tz-benchmark](https://github.com/ringsaturn/tz-benchmark) 2026-09-14
 snapshot, the lite finders disagreed with full-precision ground truth on 1 of
 154,694 world cities (0.0006%), and that single disagreement resolves to the
 same UTC offset.
@@ -55,18 +55,19 @@ for reuse. So the steady-state data a finder retains is several times smaller
 than the high-water mark reached while loading.
 
 The figures below are from the
-[2026-09-11 benchmark snapshot](https://github.com/ringsaturn/tz-benchmark/tree/main/snapshot),
+[2026-09-14 benchmark snapshot](https://github.com/ringsaturn/tz-benchmark/tree/main/snapshot),
 measured on an Apple M3 Max against the `2026c` dataset. Each candidate runs in
 an isolated child process.
 
 | Implementation | Finder | Init peak | Live | RSS after load |
 | -------------- | ------ | --------: | ---: | -------------: |
-| Go | `NewDefaultFinder` (lite `.tzm`) | 43.4 MiB | 13.1 MiB | 43.4 MiB |
-| Go | `NewEmbeddedFinder` (lite `.tzb` in place) | 8.7 MiB | 0.3 MiB | 9.1 MiB |
-| Go | `NewFullFinder` (full `.tzb`) | 315.0 MiB | 147.0 MiB | 315.0 MiB |
-| Rust | `DefaultFinder` | 46.8 MiB | 22.8 MiB | 46.8 MiB |
-| Rust | `EmbeddedFinder` | 9.8 MiB | ~0 MiB | 9.8 MiB |
-| Python | tzfpy (default finder) | 62.3 MiB | n/a | 62.2 MiB |
+| Go | `NewDefaultFinder` (lite `.tzm`) | 41.5 MiB | 13.1 MiB | 41.5 MiB |
+| Go | `NewEmbeddedFinder` (lite `.tzb` in place) | 9.2 MiB | 0.3 MiB | 9.6 MiB |
+| Go | `NewFullFinder` (full `.tzb`) | 315.5 MiB | 147.0 MiB | 315.5 MiB |
+| Rust | `DefaultFinder` | 46.6 MiB | 22.8 MiB | 46.5 MiB |
+| Rust | `EmbeddedFinder` | 10.3 MiB | 0.2 MiB | 10.4 MiB |
+| Python | tzfpy (lite, default finder) | 60.3 MiB | n/a | 60.2 MiB |
+| Python | tzfpy `+full` (pre-release, in place) | 38.2 MiB | n/a | 38.2 MiB |
 
 - **Init peak** is the high-water mark (`ru_maxrss`) reached while loading. This
   is what a container memory limit has to accommodate, or the process is killed
@@ -113,7 +114,7 @@ empty-result case to handle.
 | Go constructor | Rust | Data | Resident | Query |
 | --- | --- | --- | --- | --- |
 | `NewDefaultFinder()` | `DefaultFinder::new()` | lite memory image / expanded lite | ~12 MB heap + 10 MB read-only (Go) | ~300 ns |
-| `NewEmbeddedFinder()` | `EmbeddedFinder::new()` | lite file queried in place | ~3 MB (Go) | ~6 µs |
+| `NewEmbeddedFinder()` | `EmbeddedFinder::new()` | lite file queried in place | ~4 MB (Go) | ~1.2 µs on a preindex miss |
 | `NewFullFinder()` | `DefaultFinder::new_full()` | full precision | ~145 MB (Go) | ~300 ns |
 
 The package documentation names `NewDefaultFinder()` / `DefaultFinder::new()` as

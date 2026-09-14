@@ -1,7 +1,7 @@
 ---
 date: '2025-07-19T12:39:57+09:00'
 description: 其他 GPS 坐标转时区库，涵盖 Go、Rust、Python、Ruby、Swift 及数据库。
-lastmod: '2026-09-11T00:00:00+09:00'
+lastmod: '2026-09-14T00:00:00+09:00'
 seo:
   description: 其他 GPS 坐标转时区库，适用于 Go、Rust、Python、Ruby、Swift 及数据库。
   noindex: false
@@ -29,7 +29,7 @@ Stack Overflow 上还有一个相关问题：[How to get a time zone from a loca
 
 {{< tzf-radar >}}
 
-图表数据来自针对已发布的 v2.0.0 测量的 2026-09-11 快照（Apple M3 Max 本地运行），完整表格
+图表数据来自针对 tzf v2.1.1、tzf-rs 2.1.1 和 tzfpy 2.1.0b2 预发布版测量的 2026-09-14 快照（Apple M3 Max 本地运行），完整表格
 请参见[基准测试]({{< relref "../reference/benchmarks" >}})。
 
 ## Go

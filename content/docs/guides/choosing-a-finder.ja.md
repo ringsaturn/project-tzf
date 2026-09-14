@@ -2,7 +2,7 @@
 date: '2026-09-10T00:00:00+09:00'
 description: tzf v2 の各 Finder のメモリ、レイテンシ、ロード時間の実測値と、コンテナ、組み込み環境、CPU クォータ制限下の Pod における配置パターン。
 draft: false
-lastmod: '2026-09-11T00:00:00+09:00'
+lastmod: '2026-09-14T00:00:00+09:00'
 seo:
   description: tzf v2 の配置ガイド。Finder ごとのメモリ・レイテンシ・ロード時間、ファイルシステムなし環境と mmap のパターン、cgroup クォータ下の Pod、tzb2tzm による変換、配布サイズを扱います。
   noindex: false
@@ -20,8 +20,8 @@ tzf v2 のどの Finder も同じデータセットから結果を返します�
 | 状況 | Go | Rust | Python |
 | --- | --- | --- | --- |
 | バックエンドサービス、通常のコンテナ | `NewDefaultFinder()` | `DefaultFinder::new()` | `get_tz()`（モジュール自体が共有のデフォルト Finder） |
-| メモリが数十 MB、またはファイルシステムなし | `NewEmbeddedFinder()` | `EmbeddedFinder::new()` | 利用不可 |
-| 境界から約 111 m 以内で正確な結果が必要 | `NewFullFinder()` | `DefaultFinder::new_full()`（git 限定の `full` feature） | 利用不可 |
+| メモリが数十 MB、またはファイルシステムなし | `NewEmbeddedFinder()` | `EmbeddedFinder::new()` | `full.tzb` をインプレースで参照する `+full` プレリリース wheel（実験的） |
+| 境界から約 111 m 以内で正確な結果が必要 | `NewFullFinder()` | `DefaultFinder::new_full()`（git 限定の `full` feature） | tzfpy 独自のインデックスから配布される `+full` プレリリース wheel（実験的） |
 | ディスクやオブジェクトストレージから読んだ独自のバイト列 | `NewFinderFromTZB` / `NewFinderFromTZM` | `DefaultFinder::from_tzb` / `EmbeddedFinder::from_tzb` | 利用不可 |
 
 ## 配置マトリクス
@@ -31,7 +31,7 @@ Apple M3 Max で `2026c` データセットを対象に測定した値です。�
 | 方式 | Go のコンストラクタ | オープン時間（16 コア / 1 コア） | 常駐 | クエリ |
 | --- | --- | ---: | --- | ---: |
 | lite `.tzm` メモリイメージ | `NewDefaultFinder()` | 7.7 ms / 28 ms | ヒープ約 12 MB + 読み取り専用データ 10 MB | 298 ns |
-| lite `.tzb` をインプレースで参照 | `NewEmbeddedFinder()` | 1.7 ms / 1.7 ms | 約 3 MB | 約 6 µs（プレインデックスヒット時は p50 542 ns） |
+| lite `.tzb` をインプレースで参照 | `NewEmbeddedFinder()` | 2.4 ms / 2.4 ms | 約 4 MB | 約 1.2 µs（プレインデックスヒット時は p50 333 ns） |
 | lite `.tzb` を展開 | `NewFinderFromTZB(lite)` | 19.9 ms / 41 ms | 約 27 MB | 約 290 ns |
 | full `.tzb` を展開 | `NewFullFinder()` | 78.5 ms / 214 ms | 約 145 MB | 約 300 ns |
 | full protobuf（v1、参考） | — | 288 ms / 344 ms | 約 153 MB | 約 290 ns |
@@ -42,11 +42,11 @@ Apple M3 Max で `2026c` データセットを対象に測定した値です。�
 
 - **オープン時間：** 一度だけ発生するコストです。すべての Finder は並行利用が安全なため、プロセスは 1 つの Finder を構築して再利用します。オープン時間は起動レイテンシ、スケールトゥゼロの関数、CLI ツールに影響します。
 - **常駐：** クエリを処理している間にプロセスが保持する量です。`.tzm` メモリイメージでは、このうち約 10 MB がページキャッシュ経由でプロセス間共有可能な読み取り専用マッピングであり、残りがヒープです。
-- **クエリ：** ランダムな世界都市に対する `GetTimezoneName` 1 回分です。インプレース方式がマイクロ秒単位になるのは、point-in-polygon にフォールバックするたびに圧縮ファイルからジオメトリをデコードするためです。
+- **クエリ：** ランダムな世界都市に対する `GetTimezoneName` 1 回分です。インプレース方式が約 1 µs になるのは、point-in-polygon にフォールバックするたびに圧縮ファイルからジオメトリをデコードするためです。
 
 ## ファイルシステムがない環境、メモリが少ない環境
 
-`NewEmbeddedFinder()` は lite `.tzb` をインプレースで読みます。ファイルバイト列に加えて 1 KB 未満のヒープ、合計約 3 MB で、ロード時のデコードはありません。クエリはアロケーションを行いません。該当するケースは、組み込み環境、1.7 ms のオープン時間が 6 µs のテールレイテンシより重視されるスケールトゥゼロの関数、そしてメモリ上限が低いプロセスです。
+`NewEmbeddedFinder()` は lite `.tzb` をインプレースで読みます。ファイルバイト列に加えて約 30 KB のヒープ（オープン時に構築するチャンクのブロックテーブルとプレインデックスのズーム範囲）、合計約 4 MB で、ロード時にジオメトリのデコードはありません。クエリはアロケーションを行いません。該当するケースは、組み込み環境、2.4 ms のオープン時間がレイテンシ予算の大部分を占めるスケールトゥゼロの関数、そしてメモリ上限が低いプロセスです。
 
 バイト列がバイナリに埋め込まれていない場合（ディスク上のファイル、`mmap` した領域、オブジェクトストレージ上のオブジェクトなど）は、ファイル全体をメモリに読み込む代わりに実験的な `x` パッケージを使用します。
 
@@ -62,7 +62,7 @@ if err != nil {
 finder, err := x.NewFinderFromTZBReaderAt(f, info.Size())
 ```
 
-`*os.File` は `io.ReaderAt` を満たし、`mmap` のラッパーも同様です。ファイルはオープン時に一度検証され、その後はクエリが必要とするバイトだけを読みます。`ReaderAt` へのアクセスはアロケーションのないクエリパスを維持するために内部で直列化されるため、スループットはコア数に比例しません。並行スループットがヒープサイズより重要な場合は `.tzm` メモリイメージが該当します。
+`*os.File` は `io.ReaderAt` を満たし、`mmap` のラッパーも同様です。ファイルはオープン時に一度検証され、その後はクエリが必要とするバイトだけを読みます。tzf 2.1 以降、どちらのインプレースバックエンドもクエリパスでロックを保持しません。バイト列ベースのリーダーはスライスから直接デコードし、`ReaderAt` バックエンドはプールされたリーダービュー経由でデコードするため、スループットはいずれもコア数に比例します。
 
 `x` パッケージはモジュールのセマンティックバージョニングの約束の対象外です。マイナーバージョンの更新で API が変更または削除される場合があります。
 
@@ -72,7 +72,7 @@ finder, err := x.NewFinderFromTZBReaderAt(f, info.Size())
 
 Pod の CPU クォータが 1 コア未満で、起動レイテンシが SLO の対象となる場合の選択肢は次の通りです。
 
-- `NewEmbeddedFinder()`。1.7 ms のオープン時間はコア数に依存しません。
+- `NewEmbeddedFinder()`。2.4 ms のオープン時間はコア数に依存しません。
 - `NewDefaultFinder()` を使用し、readiness プローブが ready を返す前に Finder を構築します。
 - プラットフォームが対応している場合は、起動時のみ CPU クォータを引き上げます。
 
@@ -80,7 +80,7 @@ Pod の CPU クォータが 1 コア未満で、起動レイテンシが SLO の
 
 ## ローカルでの `.tzm` 変換
 
-`tzf-dist` は `NewDefaultFinder()` が読み込むため `lite.tzm` を配布しています。`full.tzm` は配布していません。このファイルは 63.6 MB であり、`full.tzb` の 13.77 MB と比較すると大きいためです。M プロファイルは、それを使用するホスト上で生成します。
+`tzf-dist` は `NewDefaultFinder()` が読み込むため `lite.tzm` を配布しています。`full.tzm` は配布していません。このファイルは 63.6 MB であり、`full.tzb` の 15.26 MB と比較すると大きいためです。M プロファイルは、それを使用するホスト上で生成します。
 
 変換は protobuf を使用せずに実行され、M プロファイルをソースからエンコードした場合とバイト単位で同一の出力を生成します。
 
@@ -94,12 +94,12 @@ go run github.com/ringsaturn/tzf/v2/cmd/tzb2tzm@latest -o full.tzm full.tzb
 
 | 配布経路 | 内容 | サイズ |
 | --- | --- | --- |
-| Go モジュール（`tzf-dist`） | `lite.tzb` + `lite.tzm` + `full.tzb` | deflate 後 2.55 + 6.35 + 10.39 MB、合計約 19.3 MB |
+| Go モジュール（`tzf-dist`） | `lite.tzb` + `lite.tzm` + `full.tzb` | deflate 後 2.93 + 8.51 + 12.66 MB、合計約 24.1 MB |
 | Rust crate（crates.io） | `lite.tzb` のみ | 約 4 MB |
-| Rust crate（git、`full` feature） | `full.tzb` | 約 14 MB |
-| Python wheel（`tzfpy`） | 拡張モジュール内の `lite.tzb` | 2.76 MB（v1 は 4.31 MB） |
+| Rust crate（git、`full` feature） | `full.tzb` | 約 15 MB |
+| Python wheel（`tzfpy`） | 拡張モジュール内の `lite.tzb` | PyPI の 2.0.0 は 2.76 MB、2.1.0b2 プレリリースは 3.0 MB（v1 は 4.31 MB） |
 
-Go モジュールのセットは v1 の protobuf 2 ファイル構成（deflate 後約 16 MB）より約 3 MB 大きくなっています。lite データセットの両プロファイルを含むためです。Python の wheel は protobuf のデコードパスが削除されたため小さくなりました。
+Go モジュールのセットは v1 の protobuf 2 ファイル構成（deflate 後約 16 MB）より約 8 MB 大きくなっています。lite データセットの両プロファイルを含み、`v0.0.2026-c-tzb2` 以降は 64 点チャンクを使用するためです。Python の wheel は protobuf のデコードパスが削除されたため v1 より小さくなりました。
 
 ## 複数結果 API を使用する場面
 
@@ -114,6 +114,6 @@ Go モジュールのセットは v1 の protobuf 2 ファイル構成（deflate
 
 ## full データセットとの精度差
 
-lite データセットは epsilon 0.001 度のトポロジー対応 Douglas-Peucker 簡略化を適用しており、境界の変位は約 111 m に抑えられます。2026-09-11 のスナップショットでは、lite の Finder は 154,694 件の世界都市のうち 1 件（0.0006%）で完全精度の正解データと異なる結果を返し、その 1 件も UTC オフセットは同じでした。
+lite データセットは epsilon 0.001 度のトポロジー対応 Douglas-Peucker 簡略化を適用しており、境界の変位は約 111 m に抑えられます。2026-09-14 のスナップショットでは、lite の Finder は 154,694 件の世界都市のうち 1 件（0.0006%）で完全精度の正解データと異なる結果を返し、その 1 件も UTC オフセットは同じでした。
 
 full データセットが該当するのは、クエリが境界から約 111 m 以内に位置する可能性があり、かつ正確な名前が必要な場合です。ジオフェンス、課金、管轄区域の判定などが含まれます。実測された変位の表は[よくある質問]({{< relref "faq#is-tzf-100-accurate" >}})を参照してください。

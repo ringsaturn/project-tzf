@@ -2,7 +2,7 @@
 date: '2025-07-21T10:52:43+09:00'
 description: 'Project tzf の開発史 - 最初の Go 実装から 2026 年の v2 リリースまで。'
 draft: false
-lastmod: '2026-09-12T00:00:00+09:00'
+lastmod: '2026-09-14T00:00:00+09:00'
 seo:
   description: 'Project tzf の開発タイムライン - 2022 年の最初の Go リリースから 2026 年の protobuf を使用しない v2 リリースまで。'
   noindex: false
@@ -124,3 +124,7 @@ Apple M3 Max で `2026c` データセットを対象に、protobuf 経路と比�
 ### 2026-09
 
 tzf (Go)、tzf-rs (Rust)、tzfpy (Python) の v2 をリリース。tzf-dist は 2026-09-10 に最初の `.tzb`/`.tzm` アーティファクトセットのタグ `v0.0.2026-c-tzb1` を打ち、同日に tzf v2.0.0 が、2026-09-11 に tzf-rs 2.0.0 と tzfpy 2.0.0 がリリースされました。Go のモジュールパスに `/v2` サフィックスが付き、tzf-rs は 2.0.0 に、tzfpy は tzf-rs 2.0 をバインドします。tzf-wasm 2.0.0 は 2026-09-11 に tzf-rs 2.0.0 の上でリリースされ、tzf-web はそれを使用しています。tzf-swift 2.0.0 は 2026-09-12 に、protobuf に依存せず `lite.tzb` を直接読み込む移植としてリリースされ、`DefaultFinder` と省メモリの `EmbeddedFinder` を提供します。v1 系列（tzf v1.2.x、tzf-rs 1.3.x、tzfpy 1.3.x、tzf-swift 1.2.x）は引き続き利用でき、最後の protobuf データリリースで凍結されます。この時点で、独立して保守されている tzf-rb は v1 系列の上に構築されています。
+
+### 2026-09-14
+
+tzf-dist `v0.0.2026-c-tzb2`：同じ `2026c` 境界データを、`.tzb` アーティファクトでは 256 点ではなく 64 点チャンクで符号化したものです（`topo2embed -chunk 64`。現在はエンコーダのデフォルト）。形式は変わらず、`lite.tzb` は 4.18 MB、`full.tzb` は 15.26 MB です。tzf v2.1.1 と tzf-rs 2.1.1（いずれも同じ内容で 2.1.0 のタグもあります）はこれを要求し、インプレースのクエリ走査を書き直しました。検証はオープン時に移り、地点を含み得ないチャンクブロックとグループはバウンディングボックスと端点でスキップされ、プレインデックスの探索はキーを持つズームレベルのみを対象にします。tzf-rs はさらにオープン時にグループごとの緯度ストライプを構築します。結果は変わりません。2026-09-14 の tz-benchmark スナップショットでは、Go の `NewEmbeddedFinder` の境界都市 p50 は 8,959 ns から 1,000 ns に、Rust の `EmbeddedFinder` の境界都市平均は 4,779.81 ns から 666.11 ns になり、インプレースの Finder は 1 KB 未満ではなく小さなオープン時インデックス（Go で約 30 KB、Rust で常駐 0.2 MiB）を保持するようになりました。tzfpy 2.1.0b2 は tzf-rs 2.1.1 上のプレリリースで、lite の wheel は TestPyPI と GitHub Releases に、実験的な `+full` wheel（tzf-rs の `EmbeddedFinder` で `full.tzb` を参照）は tzfpy 独自のインデックスに公開され、境界都市の中央値は 6,250 ns から 1,167 ns になりました。PyPI は tzfpy 2.0.0 のままで、tzf-wasm と tzf-swift も 2.0.0 のままです。

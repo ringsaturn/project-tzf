@@ -2,7 +2,7 @@
 date: '2025-07-19T11:07:00+09:00'
 description: 'Project tzf 常见问题解答 - 准确性、内存、坐标顺序等。'
 draft: false
-lastmod: '2026-09-11T00:00:00+09:00'
+lastmod: '2026-09-14T00:00:00+09:00'
 seo:
   description: 'Project tzf 常见问题解答 - 准确性、内存使用、坐标顺序及数据更新。'
   noindex: false
@@ -38,24 +38,25 @@ weight: 95
 
 - **Go**：`tzf.NewFullFinder()`
 - **Rust**：在 `default-features = false` 的前提下启用仅 git 提供的 `full` feature（参见[快速开始]({{< relref "getting-started#rust" >}})）
-- **Python/tzfpy**：目前不支持完整精度模式
+- **Python/tzfpy**：使用 tzfpy 自有索引发布的实验性 `+full` 预发布 wheel（`pip install --pre tzfpy --index-url https://ringsaturn.github.io/tzfpy/full/simple/`）；PyPI 上的 wheel 只包含 lite 数据集
 
-在 [tz-benchmark](https://github.com/ringsaturn/tz-benchmark) 的 2026-09-11 快照中，lite 查找器在 154,694 个世界城市上与完整精度基准有 1 处不一致（0.0006%），且该结果对应的 UTC 偏移量相同。
+在 [tz-benchmark](https://github.com/ringsaturn/tz-benchmark) 的 2026-09-14 快照中，lite 查找器在 154,694 个世界城市上与完整精度基准有 1 处不一致（0.0006%），且该结果对应的 UTC 偏移量相同。
 
 ## tzf 使用多少内存？
 
 初始化开销和运行时开销不是同一个数字。构建查找器时分配的内存远多于查找器最终持有的量：文件被解码，据此建立查询结构，中间结果随后成为垃圾；而释放内存并不会让 RSS 缩小，分配器会保留这些页面以便复用。因此查找器稳定运行时持有的数据，比加载过程中的高水位小好几倍。
 
-以下数据来自 [2026-09-11 基准快照](https://github.com/ringsaturn/tz-benchmark/tree/main/snapshot)，在 Apple M3 Max 上针对 `2026c` 数据集测得。每个候选项都在独立的子进程中运行。
+以下数据来自 [2026-09-14 基准快照](https://github.com/ringsaturn/tz-benchmark/tree/main/snapshot)，在 Apple M3 Max 上针对 `2026c` 数据集测得。每个候选项都在独立的子进程中运行。
 
 | 实现   | 查找器 | 初始化峰值 | 常驻 | 加载后 RSS |
 | ------ | ------ | ---------: | ---: | ---------: |
-| Go | `NewDefaultFinder`（lite `.tzm`） | 43.4 MiB | 13.1 MiB | 43.4 MiB |
-| Go | `NewEmbeddedFinder`（lite `.tzb` 原地查询） | 8.7 MiB | 0.3 MiB | 9.1 MiB |
-| Go | `NewFullFinder`（full `.tzb`） | 315.0 MiB | 147.0 MiB | 315.0 MiB |
-| Rust | `DefaultFinder` | 46.8 MiB | 22.8 MiB | 46.8 MiB |
-| Rust | `EmbeddedFinder` | 9.8 MiB | ~0 MiB | 9.8 MiB |
-| Python | tzfpy（默认查找器） | 62.3 MiB | n/a | 62.2 MiB |
+| Go | `NewDefaultFinder`（lite `.tzm`） | 41.5 MiB | 13.1 MiB | 41.5 MiB |
+| Go | `NewEmbeddedFinder`（lite `.tzb` 原地查询） | 9.2 MiB | 0.3 MiB | 9.6 MiB |
+| Go | `NewFullFinder`（full `.tzb`） | 315.5 MiB | 147.0 MiB | 315.5 MiB |
+| Rust | `DefaultFinder` | 46.6 MiB | 22.8 MiB | 46.5 MiB |
+| Rust | `EmbeddedFinder` | 10.3 MiB | 0.2 MiB | 10.4 MiB |
+| Python | tzfpy（lite，默认查找器） | 60.3 MiB | n/a | 60.2 MiB |
+| Python | tzfpy `+full`（预发布版，原地查询） | 38.2 MiB | n/a | 38.2 MiB |
 
 - **初始化峰值：** 加载过程中达到的高水位（`ru_maxrss`）。容器内存限制必须能容纳这个值，否则进程会在启动阶段被杀死，即便它稳定运行时的占用完全放得下。
 - **常驻：** 查找器准备好接受查询后实际持有的数据量，来自语言原生的内存统计（Go 为强制 GC 后的 `HeapAlloc`，Rust 为计数型全局分配器）。Python 的数据保存在 Python 堆之外，因此为 `n/a`。Rust 的 `EmbeddedFinder` 显示约 0，因为其数据是 `'static` 的嵌入切片，不在堆上。
@@ -87,7 +88,7 @@ v2 移除了独立的 `FuzzyFinder`。瓦片预索引现在是每个数据文件
 | Go 构造函数 | Rust | 数据 | 常驻 | 查询 |
 | --- | --- | --- | --- | --- |
 | `NewDefaultFinder()` | `DefaultFinder::new()` | lite 内存镜像 / 展开的 lite | ~12 MB 堆 + 10 MB 只读（Go） | ~300 ns |
-| `NewEmbeddedFinder()` | `EmbeddedFinder::new()` | 原地查询的 lite 文件 | ~3 MB（Go） | ~6 µs |
+| `NewEmbeddedFinder()` | `EmbeddedFinder::new()` | 原地查询的 lite 文件 | ~4 MB（Go） | 预索引未命中时约 1.2 µs |
 | `NewFullFinder()` | `DefaultFinder::new_full()` | 完整精度 | ~145 MB（Go） | ~300 ns |
 
 包文档把 `NewDefaultFinder()` / `DefaultFinder::new()` 列为通用查找器。其余场景的实测数据，包括单核 Pod 和无文件系统的目标，记录在[选择查找器]({{< relref "choosing-a-finder" >}})。

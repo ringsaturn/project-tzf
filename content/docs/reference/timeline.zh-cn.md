@@ -2,7 +2,7 @@
 date: '2025-07-21T10:52:43+09:00'
 description: 'Project tzf 开发历史 - 从最初的 Go 实现到 2026 年的 v2 发布。'
 draft: false
-lastmod: '2026-09-12T00:00:00+09:00'
+lastmod: '2026-09-14T00:00:00+09:00'
 seo:
   description: 'Project tzf 的开发时间线 - 从 2022 年首个 Go 版本到 2026 年移除 protobuf 的 v2 发布。'
   noindex: false
@@ -124,3 +124,7 @@ tzf-dist 停止发布 protobuf 产物，改为分发 `lite.tzb`、`lite.tzm` 和
 ### 2026-09
 
 tzf（Go）、tzf-rs（Rust）和 tzfpy（Python）发布 v2。tzf-dist 于 2026-09-10 打出第一个 `.tzb`/`.tzm` 工件集的 tag `v0.0.2026-c-tzb1`，tzf v2.0.0 同日发布，tzf-rs 2.0.0 与 tzfpy 2.0.0 于 2026-09-11 发布。Go 模块路径增加 `/v2` 后缀，tzf-rs 到达 2.0.0，tzfpy 绑定 tzf-rs 2.0。tzf-wasm 2.0.0 于 2026-09-11 基于 tzf-rs 2.0.0 发布，tzf-web 已使用该版本。tzf-swift 2.0.0 于 2026-09-12 发布，是不依赖 protobuf、直接读取 `lite.tzb` 的移植，提供 `DefaultFinder` 和低内存的 `EmbeddedFinder`。v1 系列（tzf v1.2.x、tzf-rs 1.3.x、tzfpy 1.3.x、tzf-swift 1.2.x）仍然可用，并冻结在最后一个 protobuf 数据版本上。截至该时间点，独立维护的 tzf-rb 仍基于 v1 系列构建。
+
+### 2026-09-14
+
+tzf-dist `v0.0.2026-c-tzb2`：同一份 `2026c` 边界数据，`.tzb` 工件改为按 64 点而非 256 点 chunk 编码（`topo2embed -chunk 64`，现为编码器默认值）。格式不变；`lite.tzb` 为 4.18 MB，`full.tzb` 为 15.26 MB。tzf v2.1.1 与 tzf-rs 2.1.1（两者都另有内容相同的 2.1.0 tag）要求该版本，并重写了原地查询遍历：校验移到打开时，不可能包含查询点的 chunk 块和 group 按包围盒和端点跳过，预索引探测只访问带键的缩放级别；tzf-rs 还在打开时构建每个 group 的纬度条带。结果不变。在 2026-09-14 的 tz-benchmark 快照中，Go `NewEmbeddedFinder` 的边界城市 p50 从 8,959 ns 降到 1,000 ns，Rust `EmbeddedFinder` 的边界城市平均值从 4,779.81 ns 降到 666.11 ns；原地查找器现在保留一个小型的打开时索引（Go 约 30 KB，Rust 常驻 0.2 MiB），而非不足 1 KB。tzfpy 2.1.0b2 是基于 tzf-rs 2.1.1 的预发布版：lite wheel 发布到 TestPyPI 和 GitHub Releases，实验性的 `+full` wheel（tzf-rs `EmbeddedFinder` 原地查询 `full.tzb`）发布到 tzfpy 自有索引；其边界城市中位延迟从 6,250 ns 降到 1,167 ns。PyPI 仍为 tzfpy 2.0.0；tzf-wasm 和 tzf-swift 仍为 2.0.0。

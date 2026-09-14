@@ -11,6 +11,15 @@ tags:
 title: tzf v2
 ---
 
+Update, 2026-09-14: tzf v2.1.1, tzf-rs 2.1.1 and the tzfpy 2.1.0b2 pre-release
+rewrote the in-place query walk and moved the data to 64-point chunks (tzf-dist
+`v0.0.2026-c-tzb2`). The in-place figures in this post describe 2.0.0. On the
+2026-09-14 snapshot the Go `NewEmbeddedFinder` edge-city p50 is 1,000 ns (was
+8,959 ns), the Rust `EmbeddedFinder` edge-city mean is 666 ns (was 4,780 ns),
+and the in-place finders hold a small open-time index (about 30 KB in Go)
+instead of under 1 KB of heap. Current tables are on the
+[Benchmarks]({{< relref "/docs/reference/benchmarks" >}}) page.
+
 The [Spring 2026 update]({{< ref "/blog/2026-spring-news/index.md" >}}) finished
 the data side of tzf: topology-aware simplification, shared-edge deduplication,
 and polyline compression brought the full-precision dataset from about 90 MB to

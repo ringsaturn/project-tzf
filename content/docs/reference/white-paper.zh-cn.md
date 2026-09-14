@@ -2,7 +2,7 @@
 date: '2025-07-21T14:20:56+09:00'
 description: tzf 的高性能时区查询实现，包括拓扑感知简化、共享边去重、Polyline 编码、瓦片索引、YStripes 和 1°×1° 格子索引。
 draft: false
-lastmod: '2026-09-11T00:00:00+09:00'
+lastmod: '2026-09-14T00:00:00+09:00'
 seo:
   description: tzf 快速时区查询的实现方式：拓扑感知简化、共享边去重、Polyline 编码、瓦片索引、YStripes 索引和 1°×1° 格子索引。
   noindex: false
@@ -88,9 +88,9 @@ lite 和完整精度数据集。下文的中间文件名均带有 `combined-with
 | --- | --- | ---: | --- |
 | `lite.tzb` | E | 约 4 MB | 拓扑简化的几何数据、GRID、FUZZY |
 | `lite.tzm` | M | 约 10 MB | 同一份数据，几何数据按查询时的布局存储 |
-| `full.tzb` | E | 约 14 MB | 完整精度几何数据、GRID、FUZZY |
+| `full.tzb` | E | 约 15 MB | 完整精度几何数据、GRID、FUZZY |
 
-完整精度数据集从原始表示下的约 96 MB 缩减至 13.77 MB，该体积在 tzf-rs 可以作为
+完整精度数据集从原始表示下的约 96 MB 缩减至 13.77 MB（256 点 chunk；`v0.0.2026-c-tzb2` 起的 64 点 chunk 为 15.26 MB），该体积在 tzf-rs 可以作为
 可选 Cargo feature 携带的范围内，无需用户手动下载文件。
 
 这些文件通过 [`ringsaturn/tzf-dist`](https://github.com/ringsaturn/tzf-dist) 分发。

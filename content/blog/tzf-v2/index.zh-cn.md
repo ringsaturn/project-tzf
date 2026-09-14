@@ -11,6 +11,8 @@ tags:
 title: tzf v2
 ---
 
+2026-09-14 更新：tzf v2.1.1、tzf-rs 2.1.1 和 tzfpy 2.1.0b2 预发布版重写了原地查询遍历，并把数据切换到 64 点 chunk（tzf-dist `v0.0.2026-c-tzb2`）。本文中原地机制的数值对应 2.0.0。在 2026-09-14 的快照中，Go `NewEmbeddedFinder` 的边界城市 p50 为 1,000 ns（此前 8,959 ns），Rust `EmbeddedFinder` 的边界城市平均值为 666 ns（此前 4,780 ns），原地查找器保留的是一个小型打开时索引（Go 约 30 KB），而非不足 1 KB 的堆。最新表格见[基准测试]({{< relref "/docs/reference/benchmarks" >}})页面。
+
 [2026 春季更新]({{< ref "/blog/2026-spring-news/index.md" >}})完成了 tzf 数据侧的工作：拓扑感知简化、共享边去重和 polyline 压缩把完整精度数据集从约 90MB 降到约 17MB。这次更新没有改变的是数据进入内存的方式。各语言实现在启动时仍然要把一条 protobuf 消息解析成对象图，再据此建立查询结构，然后丢弃该对象图。
 
 v2 从运行时和管线中同时移除了 protobuf。边界数据改为以查找器可直接读取的容器分发。

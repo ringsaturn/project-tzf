@@ -2,7 +2,7 @@
 date: '2025-07-21T12:14:46+09:00'
 description: Best practices and advanced usage patterns for the Go implementation of tzf (v2).
 draft: false
-lastmod: '2026-09-11T00:00:00+09:00'
+lastmod: '2026-09-14T00:00:00+09:00'
 seo:
   description: Best practices for the Go tzf v2 library — the five constructors, finder reuse, GeoJSON export, in-place queries, and migrating from v1.
   noindex: false
@@ -39,12 +39,16 @@ exports no finder types and no options.
 | Constructor | Data | Resident | Query |
 | --- | --- | --- | --- |
 | `NewDefaultFinder()` | lite `.tzm` memory image, polygons aliased in place | ~12 MB heap + ~10 MB read-only data | 298 ns |
-| `NewEmbeddedFinder()` | lite `.tzb`, queried in place | ~3 MB (the file bytes plus <1 KB of heap) | p50 542 ns on a preindex hit, ~6 µs on a miss |
+| `NewEmbeddedFinder()` | lite `.tzb`, queried in place | ~4 MB (the file bytes plus ~30 KB of heap) | p50 333 ns on a preindex hit, ~1.2 µs on a miss |
 | `NewFullFinder()` | full `.tzb`, expanded at load | ~145 MB | ~300 ns |
 | `NewFinderFromTZB(data)` | your own `.tzb` bytes, always expanded | depends on the file (lite: ~27 MB) | ~290 ns |
 | `NewFinderFromTZM(data)` | your own `.tzm` bytes, always aliased in place | as `NewDefaultFinder`, for the same file | ~300 ns |
 
-Measured on an Apple M3 Max against the `2026c` dataset.
+Measured on an Apple M3 Max against the `2026c` dataset. The `NewEmbeddedFinder`
+row is tzf v2.1.1 on tzf-dist `v0.0.2026-c-tzb2`: the rewritten in-place query
+walk and the 64-point chunks took its preindex-miss p50 from about 6 µs in
+v2.0.0 to 1.2 µs, and the finder now retains a chunk block table and the preindex
+zoom ranges built at open.
 
 The package documentation names `NewDefaultFinder()` as the general-purpose
 finder. [Choosing a Finder]({{< relref "choosing-a-finder" >}}) covers the
@@ -171,7 +175,7 @@ go run github.com/ringsaturn/tzf/v2/cmd/tzb2tzm@latest lite.tzb
 
 `x.NewFinderFromTZBReaderAt` queries a `.tzb` through an `io.ReaderAt` — a file,
 an `mmap`'d region, an embedded flash adapter, or a `bytes.Reader` over bytes
-you already hold. Queries are allocation-free and the heap cost stays under 1 KB:
+you already hold. Queries are allocation-free and the heap cost stays around 30 KB:
 
 ```go
 import (

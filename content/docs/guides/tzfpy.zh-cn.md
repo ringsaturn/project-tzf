@@ -2,7 +2,7 @@
 date: '2025-07-21T12:06:56+09:00'
 description: tzfpy 2.0 的最佳实践和集成模式：API 接口、日期时间转换、批处理、GeoJSON 导出及 Web API。
 draft: false
-lastmod: '2026-09-11T00:00:00+09:00'
+lastmod: '2026-09-14T00:00:00+09:00'
 seo:
   description: tzfpy 2.0 最佳实践：六个模块级函数、日期时间转换、使用 Pandas/Polars/NumPy 进行批处理、GeoJSON 导出以及 FastAPI 集成。
   noindex: false
@@ -47,7 +47,23 @@ from tzfpy import (
 
 ### 适用范围
 
-完整精度查询和原地低内存查找器只在 Go 和 Rust 中提供。tzfpy 通过单个默认查找器提供 lite 数据集。两者的说明参见[选择查找器]({{< relref "choosing-a-finder" >}})。
+PyPI 上的 wheel 通过单个默认查找器提供 lite 数据集；针对 lite 数据集的原地低内存查找器在 Go 和 Rust 中提供。完整精度查询以实验性的 `+full` wheel 形式发布，只从预发布 tag（目前为 2.1.0b1 和 2.1.0b2）发布到 tzfpy 自有索引和 GitHub Releases，不发布到 PyPI：
+
+```bash
+pip install --pre tzfpy --index-url https://ringsaturn.github.io/tzfpy/full/simple/
+```
+
+`+full` 构建用 tzf-rs 的 `EmbeddedFinder` 原地查询 `full.tzb`，因此占用内存少于 lite wheel，并按未简化的边界数据回答边界附近的点。导入名和 API 相同，`importlib.metadata.version("tzfpy")` 以 `+full` 结尾。在 Apple M3 Max（CPython 3.14）上对 citiespy 全部 154,694 个城市测得的 tzfpy 2.1.0b2 数值如下：
+
+| 指标 | Lite | `+full` |
+| --- | ---: | ---: |
+| wheel 体积（macOS arm64） | 3.0 MB | 11.8 MB |
+| 首次查询后的 RSS 增量 | 39.0 MB | 16.0 MB |
+| 冷启动（import + 首次查询） | 15 ms | 10 ms |
+| `get_tz` 中位数 | 208 ns | 250 ns |
+| `get_tzs` 中位数（多边形扫描） | 375 ns | 791 ns |
+
+两者的说明参见[选择查找器]({{< relref "choosing-a-finder" >}})。
 
 ## 日期时间转换
 
@@ -267,7 +283,7 @@ with open("tz_nyc_index.geojson", "w") as f:
 | 内部 `.unwrap()` 抛错的 GeoJSON 辅助函数 | `get_tz_polygon_geojson` / `get_tz_index_geojson`，未命中时抛出 `ValueError` |
 | — | 新增：`get_tz_index_geojson`，用于查看预索引覆盖范围 |
 
-底层的变化：移除 protobuf 后，wheel 从 4.31 MB 降到 2.76 MB，查找器初始化从 68 ms 降到 15 ms，查询延迟不变（由维护者在 v2 切换提交上测得）。在 [tz-benchmark](https://github.com/ringsaturn/tz-benchmark) 的 2026-09-11 快照中（Apple M3 Max），tzfpy 加载后的常驻内存为 62.2 MiB，解释器基线为 22.4 MiB，随机城市查询的中位延迟为 708 ns。
+底层的变化：移除 protobuf 后，wheel 从 4.31 MB 降到 2.76 MB，查找器初始化从 68 ms 降到 15 ms，查询延迟不变（由维护者在 v2 切换提交上测得）。在 [tz-benchmark](https://github.com/ringsaturn/tz-benchmark) 的 2026-09-14 快照中（Apple M3 Max，tzfpy 2.1.0b2），lite wheel 加载后的常驻内存为 60.2 MiB，解释器基线为 22.4 MiB，随机城市查询的中位延迟为 625 ns；`+full` wheel 为 38.2 MiB 和 667 ns。
 
 v1 系列（tzfpy 1.3.x）仍然可用，并冻结在最后一个数据版本上，因为 v2 产物发布后 tzf-dist 不再发布 protobuf 产物。
 

@@ -2,7 +2,7 @@
 date: '2025-07-21T14:19:40+09:00'
 description: Rust 版 tzf-rs (v2) のベストプラクティスと高度な使用パターン。
 draft: false
-lastmod: '2026-09-11T00:00:00+09:00'
+lastmod: '2026-09-14T00:00:00+09:00'
 seo:
   description: Rust tzf-rs v2 crate のベストプラクティス。DefaultFinder と EmbeddedFinder、cargo feature、GeoJSON エクスポート、v1 からの移行を扱います。
   noindex: false
@@ -25,12 +25,12 @@ tzf-rs 2.0 は protobuf を使用しません。[`ringsaturn/tzf-dist`](https://
 
 | 型 | データ | ピーク RSS | クエリ（ランダム都市 / 境界都市） |
 | --- | --- | ---: | ---: |
-| `DefaultFinder` | lite `.tzb` をポリゴンに展開、FUZZY 高速パス | 約 47 MiB | 229 ns / 519 ns |
-| `EmbeddedFinder` | lite `.tzb` をインプレースで参照 | 約 10 MiB | 1.18 µs / 4.78 µs |
+| `DefaultFinder` | lite `.tzb` をポリゴンに展開、FUZZY 高速パス | 約 47 MiB | 221 ns / 475 ns |
+| `EmbeddedFinder` | lite `.tzb` をインプレースで参照 | 約 10 MiB | 293 ns / 666 ns |
 
-[tz-benchmark](https://github.com/ringsaturn/tz-benchmark) の 2026-09-11 スナップショットにおいて、Apple M3 Max で `2026c` データセットを対象に測定した値です。このハーネスにおける Rust ランタイムの下限値は 5.8 MiB です。
+[tz-benchmark](https://github.com/ringsaturn/tz-benchmark) の 2026-09-14 スナップショットにおいて、Apple M3 Max で `2026c` データセットを対象に、tzf-dist `0.0.2026-c-tzb2` 上の tzf-rs 2.1.1 を測定した値です。このハーネスにおける Rust ランタイムの下限値は 5.8 MiB です。tzf-rs 2.1 は `EmbeddedFinder` のクエリ走査を書き直し（オープン時の検証、チャンクブロックと端点パリティによるスキップ、グループごとの緯度ストライプ、キーを持つズームレベルに限定したプレインデックス探索）、64 点チャンクのデータに移行しました。結果は変わらず、境界都市の値は 2.0.0 では 4.78 µs でした。
 
-`DefaultFinder::new()` のオープン時間は約 13 ms、`EmbeddedFinder::new()` は約 2 ms です。カウント機能付きアロケータは `EmbeddedFinder` のヒープ保持量を 0 と報告します。データが `&'static` の埋め込みスライスであり、それに加えて約 1 KB の状態を持つためです。`EmbeddedFinder` が該当するのは、マイクロ秒単位の検索を許容できるメモリ制約のある環境です。その他のケースについては [Finder の選択]({{< relref "choosing-a-finder" >}})を参照してください。
+`DefaultFinder::new()` のオープン時間は約 13 ms、`EmbeddedFinder::new()` は約 2 ms です。カウント機能付きアロケータは `EmbeddedFinder` のヒープ保持量を 0.2 MiB と報告します。データは `&'static` の埋め込みスライスで、それに加えてオープン時に構築するチャンクのスキップブロックと緯度ストライプのインデックス（lite で約 100 KB）を保持するためです。`EmbeddedFinder` が該当するのはメモリ制約のある環境で、境界都市の検索時間は `DefaultFinder` の約 1.4 倍です。その他のケースについては [Finder の選択]({{< relref "choosing-a-finder" >}})を参照してください。
 
 ## Finder の再利用
 

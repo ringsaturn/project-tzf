@@ -2,7 +2,7 @@
 date: '2025-07-19T11:07:00+09:00'
 description: 'Project tzf のよくある質問 - 精度、メモリ、座標順序など。'
 draft: false
-lastmod: '2026-09-11T00:00:00+09:00'
+lastmod: '2026-09-14T00:00:00+09:00'
 seo:
   description: 'Project tzf のよくある質問 - 精度、メモリ使用量、座標順序、データ更新について。'
   noindex: false
@@ -38,24 +38,25 @@ weight: 95
 
 - **Go**: `tzf.NewFullFinder()`
 - **Rust**: `default-features = false` を指定して git 限定の `full` feature を有効にする（[はじめる]({{< relref "getting-started#rust" >}})を参照）
-- **Python/tzfpy**: 完全精度モードは現在サポートされていません
+- **Python/tzfpy**: tzfpy 独自のインデックスから配布される実験的な `+full` プレリリース wheel（`pip install --pre tzfpy --index-url https://ringsaturn.github.io/tzfpy/full/simple/`）。PyPI の wheel は lite データセットのみです
 
-[tz-benchmark](https://github.com/ringsaturn/tz-benchmark) の 2026-09-11 スナップショットでは、lite の Finder は 154,694 件の世界都市のうち 1 件（0.0006%）で完全精度の正解データと異なる結果を返し、その 1 件も UTC オフセットは同じでした。
+[tz-benchmark](https://github.com/ringsaturn/tz-benchmark) の 2026-09-14 スナップショットでは、lite の Finder は 154,694 件の世界都市のうち 1 件（0.0006%）で完全精度の正解データと異なる結果を返し、その 1 件も UTC オフセットは同じでした。
 
 ## tzf はどのくらいメモリを使用しますか？
 
 初期化コストと実行時コストは同じ数値ではありません。Finder の構築では、最終的に保持する量よりはるかに多くのメモリを確保します。ファイルをデコードし、そこからクエリ構造を構築し、中間表現はその後不要になります。しかしメモリを解放しても RSS は縮みません。アロケータが再利用のためにページを保持し続けるからです。そのため、Finder が定常状態で保持しているデータは、ロード中の高水位より数倍小さくなります。
 
-以下の数値は [2026-09-11 のベンチマークスナップショット](https://github.com/ringsaturn/tz-benchmark/tree/main/snapshot)のもので、Apple M3 Max で `2026c` データセットを対象に測定されています。各候補は隔離された子プロセスで実行されます。
+以下の数値は [2026-09-14 のベンチマークスナップショット](https://github.com/ringsaturn/tz-benchmark/tree/main/snapshot)のもので、Apple M3 Max で `2026c` データセットを対象に測定されています。各候補は隔離された子プロセスで実行されます。
 
 | 実装 | Finder | 初期化ピーク | 常駐 | ロード後 RSS |
 | ------ | ------ | -----------: | ---: | -----------: |
-| Go | `NewDefaultFinder`（lite `.tzm`） | 43.4 MiB | 13.1 MiB | 43.4 MiB |
-| Go | `NewEmbeddedFinder`（lite `.tzb` をインプレースで参照） | 8.7 MiB | 0.3 MiB | 9.1 MiB |
-| Go | `NewFullFinder`（full `.tzb`） | 315.0 MiB | 147.0 MiB | 315.0 MiB |
-| Rust | `DefaultFinder` | 46.8 MiB | 22.8 MiB | 46.8 MiB |
-| Rust | `EmbeddedFinder` | 9.8 MiB | 約 0 MiB | 9.8 MiB |
-| Python | tzfpy（デフォルト Finder） | 62.3 MiB | n/a | 62.2 MiB |
+| Go | `NewDefaultFinder`（lite `.tzm`） | 41.5 MiB | 13.1 MiB | 41.5 MiB |
+| Go | `NewEmbeddedFinder`（lite `.tzb` をインプレースで参照） | 9.2 MiB | 0.3 MiB | 9.6 MiB |
+| Go | `NewFullFinder`（full `.tzb`） | 315.5 MiB | 147.0 MiB | 315.5 MiB |
+| Rust | `DefaultFinder` | 46.6 MiB | 22.8 MiB | 46.5 MiB |
+| Rust | `EmbeddedFinder` | 10.3 MiB | 0.2 MiB | 10.4 MiB |
+| Python | tzfpy（lite、デフォルト Finder） | 60.3 MiB | n/a | 60.2 MiB |
+| Python | tzfpy `+full`（プレリリース、インプレース） | 38.2 MiB | n/a | 38.2 MiB |
 
 - **初期化ピーク**は、ロード中に到達する高水位（`ru_maxrss`）です。コンテナのメモリ上限はこの値を収容できる必要があります。そうでなければ、定常状態なら収まるはずのプロセスが起動時に kill されます。
 - **常駐**は、Finder がクエリを処理できる状態になった後に保持しているデータ量で、言語ネイティブの計測（Go は強制 GC 後の `HeapAlloc`、Rust はカウント機能付きグローバルアロケータ）によるものです。Python は Python ヒープの外にデータを保持するため `n/a` です。Rust の `EmbeddedFinder` が約 0 となるのは、データがヒープではなく `'static` の埋め込みスライスであるためです。
@@ -84,7 +85,7 @@ v2 では単独の `FuzzyFinder` を削除しました。タイルプレイン�
 | Go のコンストラクタ | Rust | データ | 常駐 | クエリ |
 | --- | --- | --- | --- | --- |
 | `NewDefaultFinder()` | `DefaultFinder::new()` | lite メモリイメージ / lite を展開 | ヒープ約 12 MB + 読み取り専用 10 MB（Go） | 約 300 ns |
-| `NewEmbeddedFinder()` | `EmbeddedFinder::new()` | lite ファイルをインプレースで参照 | 約 3 MB（Go） | 約 6 µs |
+| `NewEmbeddedFinder()` | `EmbeddedFinder::new()` | lite ファイルをインプレースで参照 | 約 4 MB（Go） | プレインデックスミス時約 1.2 µs |
 | `NewFullFinder()` | `DefaultFinder::new_full()` | 完全精度 | 約 145 MB（Go） | 約 300 ns |
 
 パッケージのドキュメントでは `NewDefaultFinder()` / `DefaultFinder::new()` を汎用の Finder として位置づけています。シングルコアの Pod やファイルシステムのない環境を含むその他のケースの実測値は [Finder の選択]({{< relref "choosing-a-finder" >}})に記載しています。

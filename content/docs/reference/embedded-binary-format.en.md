@@ -2,7 +2,7 @@
 date: '2026-09-10T00:00:00+09:00'
 description: 'Reference for the TZF embedded binary format: file layout, profiles, section types, and lookup semantics for .tzb and .tzm files.'
 draft: false
-lastmod: '2026-09-11T00:00:00+09:00'
+lastmod: '2026-09-14T00:00:00+09:00'
 seo:
   description: The TZF embedded binary format — header, section table, CRC footer, E and M profiles, section types 1 to 14, and the rules for reproducing tzf lookup results.
   noindex: false
@@ -345,6 +345,14 @@ A chunk bounding box covers the segments between consecutive points inside the
 chunk, plus the segment from its last point to the next chunk's first point when
 a next chunk exists in the same group. A reader can therefore skip a chunk
 without decoding it.
+
+The encoder's target chunk size is recorded in the header's `chunk_target` field
+and does not affect decoding. The artifacts published up to tzf-dist
+`v0.0.2026-c-tzb1` used 256-point chunks; `v0.0.2026-c-tzb2` (2026-09-14) and
+the `topo2embed` default since tzf v2.1.0 use 64, which shortens the byte range
+a reader decodes around a query at the cost of about 5% (lite) to 11% (full) in
+file size. The format itself is unchanged, and either reader opens either data
+release.
 
 A decoder consumes exactly `point_count` points within the chunk byte range. The
 cursor must equal the range end after the final latitude varint; crossing the

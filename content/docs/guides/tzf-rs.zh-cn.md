@@ -2,7 +2,7 @@
 date: '2025-07-21T14:19:40+09:00'
 description: Rust 版 tzf（v2）的最佳实践和高级用法模式。
 draft: false
-lastmod: '2026-09-11T00:00:00+09:00'
+lastmod: '2026-09-14T00:00:00+09:00'
 seo:
   description: Rust tzf-rs v2 crate 的最佳实践：DefaultFinder 与 EmbeddedFinder、cargo feature、GeoJSON 导出，以及从 v1 迁移。
   noindex: false
@@ -25,12 +25,12 @@ tzf-rs 2.0 不再使用 protobuf。它读取由 [`ringsaturn/tzf-dist`](https://
 
 | 类型 | 数据 | 峰值 RSS | 查询（随机城市 / 边界城市） |
 | --- | --- | ---: | ---: |
-| `DefaultFinder` | lite `.tzb` 展开为多边形，带 FUZZY 快速路径 | ~47 MiB | 229 ns / 519 ns |
-| `EmbeddedFinder` | lite `.tzb` 原地查询 | ~10 MiB | 1.18 µs / 4.78 µs |
+| `DefaultFinder` | lite `.tzb` 展开为多边形，带 FUZZY 快速路径 | ~47 MiB | 221 ns / 475 ns |
+| `EmbeddedFinder` | lite `.tzb` 原地查询 | ~10 MiB | 293 ns / 666 ns |
 
-数据来自 [tz-benchmark](https://github.com/ringsaturn/tz-benchmark) 的 2026-09-11 快照，在 Apple M3 Max 上针对 `2026c` 数据集测得；该测试环境中 Rust 运行时的基线为 5.8 MiB。
+数据来自 [tz-benchmark](https://github.com/ringsaturn/tz-benchmark) 的 2026-09-14 快照，在 Apple M3 Max 上针对 `2026c` 数据集测得，对象为 tzf-dist `0.0.2026-c-tzb2` 上的 tzf-rs 2.1.1；该测试环境中 Rust 运行时的基线为 5.8 MiB。tzf-rs 2.1 重写了 `EmbeddedFinder` 的查询遍历（打开时校验、按 chunk 块和端点奇偶跳过、每个 group 的纬度条带、只探测带键的预索引缩放级别），并切换到 64 点 chunk 的数据；结果不变，边界城市一项在 2.0.0 上为 4.78 µs。
 
-`DefaultFinder::new()` 约需 13 ms 打开，`EmbeddedFinder::new()` 约需 2 ms。计数型分配器对 `EmbeddedFinder` 未记录到堆保留量：其数据是 `&'static` 的嵌入切片，另加约 1 KB 的状态。`EmbeddedFinder` 适用于可以接受微秒级查询的内存受限目标。其余场景参见[选择查找器]({{< relref "choosing-a-finder" >}})。
+`DefaultFinder::new()` 约需 13 ms 打开，`EmbeddedFinder::new()` 约需 2 ms。计数型分配器记录到 `EmbeddedFinder` 保留 0.2 MiB 堆内存：其数据是 `&'static` 的嵌入切片，另加打开时构建的 chunk 跳过块和纬度条带索引（lite 上约 100 KB）。`EmbeddedFinder` 适用于内存受限目标，其边界城市查询耗时约为 `DefaultFinder` 的 1.4 倍。其余场景参见[选择查找器]({{< relref "choosing-a-finder" >}})。
 
 ## 复用查找器
 

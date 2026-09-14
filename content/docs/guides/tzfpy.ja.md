@@ -2,7 +2,7 @@
 date: '2025-07-21T12:06:56+09:00'
 description: tzfpy 2.0 のベストプラクティスと統合パターン。API の構成、日時変換、バッチ処理、GeoJSON エクスポート、Web API を扱います。
 draft: false
-lastmod: '2026-09-11T00:00:00+09:00'
+lastmod: '2026-09-14T00:00:00+09:00'
 seo:
   description: tzfpy 2.0 のベストプラクティス。6 つのモジュール関数、日時変換、Pandas/Polars/NumPy を使ったバッチ処理、GeoJSON エクスポート、FastAPI 統合を扱います。
   noindex: false
@@ -47,7 +47,23 @@ Python 3.10 以降が必要です。wheel は 3.10 以降の `abi3` です。
 
 ### 対象範囲
 
-完全精度の検索とインプレースの低メモリ Finder は Go と Rust でのみ利用できます。tzfpy は 1 つのデフォルト Finder を通じて lite データセットを公開します。どちらについても [Finder の選択]({{< relref "choosing-a-finder" >}})を参照してください。
+PyPI の wheel は 1 つのデフォルト Finder を通じて lite データセットを公開します。lite データセットに対するインプレースの低メモリ Finder は Go と Rust で利用できます。完全精度の検索は実験的な `+full` wheel として提供され、プレリリースタグ（これまでに 2.1.0b1 と 2.1.0b2）から tzfpy 独自のインデックスと GitHub Releases にのみ公開されます。PyPI には公開されません。
+
+```bash
+pip install --pre tzfpy --index-url https://ringsaturn.github.io/tzfpy/full/simple/
+```
+
+`+full` ビルドは tzf-rs の `EmbeddedFinder` で `full.tzb` を参照するため、lite wheel より保持するメモリが少なく、境界付近の地点には簡略化前の境界データで回答します。インポート名と API は同じで、`importlib.metadata.version("tzfpy")` の末尾が `+full` になります。Apple M3 Max（CPython 3.14）で citiespy の全 154,694 都市を対象に、tzfpy 2.1.0b2 を測定した値は次の通りです。
+
+| 指標 | Lite | `+full` |
+| --- | ---: | ---: |
+| wheel サイズ（macOS arm64） | 3.0 MB | 11.8 MB |
+| 初回クエリ後の RSS 増分 | 39.0 MB | 16.0 MB |
+| コールドスタート（import + 初回クエリ） | 15 ms | 10 ms |
+| `get_tz` 中央値 | 208 ns | 250 ns |
+| `get_tzs` 中央値（ポリゴン走査） | 375 ns | 791 ns |
+
+どちらについても [Finder の選択]({{< relref "choosing-a-finder" >}})を参照してください。
 
 ## 日時変換
 
@@ -267,7 +283,7 @@ with open("tz_nyc_index.geojson", "w") as f:
 | 内部の `.unwrap()` で例外を送出していた GeoJSON ヘルパー | `get_tz_polygon_geojson` / `get_tz_index_geojson`。一致しない場合は `ValueError` を送出します |
 | — | 追加：プレインデックスのカバー範囲を返す `get_tz_index_geojson` |
 
-内部の変更点は次の通りです。protobuf の削除により wheel は 4.31 MB から 2.76 MB に、Finder の初期化は 68 ms から 15 ms になり、クエリレイテンシは変わりませんでした（v2 への切り替えコミットでメンテナが測定）。[tz-benchmark](https://github.com/ringsaturn/tz-benchmark) の 2026-09-11 スナップショット（Apple M3 Max）では、tzfpy のロード後の常駐セットは 62.2 MiB、インタプリタの下限値は 22.4 MiB、ランダム都市検索の中央値は 708 ns です。
+内部の変更点は次の通りです。protobuf の削除により wheel は 4.31 MB から 2.76 MB に、Finder の初期化は 68 ms から 15 ms になり、クエリレイテンシは変わりませんでした（v2 への切り替えコミットでメンテナが測定）。[tz-benchmark](https://github.com/ringsaturn/tz-benchmark) の 2026-09-14 スナップショット（Apple M3 Max、tzfpy 2.1.0b2）では、lite wheel のロード後の常駐セットは 60.2 MiB、インタプリタの下限値は 22.4 MiB、ランダム都市検索の中央値は 625 ns です。`+full` wheel は 38.2 MiB と 667 ns です。
 
 v1 系列（tzfpy 1.3.x）は引き続き利用でき、最後のデータリリースで凍結されます。v2 のセットが公開された時点で tzf-dist は protobuf の成果物の配布を終了するためです。
 

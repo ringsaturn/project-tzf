@@ -2,7 +2,7 @@
 date: '2025-07-19T12:19:49+09:00'
 description: Go、Rust、Python、Swift、Ruby、Wasm などで Project tzf をインストールして実行する方法。
 draft: false
-lastmod: '2026-09-12T00:00:00+09:00'
+lastmod: '2026-09-14T00:00:00+09:00'
 seo:
   description: Go、Rust、Python、Swift、Ruby、WebAssembly で GPS 座標からタイムゾーンを検索する方法。HTTP API 経由でも利用できます。
   title: 'はじめる - Project tzf'
@@ -61,7 +61,7 @@ func main() {
 | コンストラクタ | 対象 |
 | --- | --- |
 | `NewDefaultFinder()` | 汎用用途：lite メモリイメージ、ヒープ約 12 MB + 読み取り専用データ 10 MB、クエリ 298 ns |
-| `NewEmbeddedFinder()` | 組み込みおよびメモリ制約のある環境：合計約 3 MB、マイクロ秒単位のクエリ |
+| `NewEmbeddedFinder()` | 組み込みおよびメモリ制約のある環境：合計約 4 MB、プレインデックスミス時のクエリ約 1.2 µs |
 | `NewFullFinder()` | 完全精度データセットと一致する結果（約 145 MB） |
 | `NewFinderFromTZB(data)` | 呼び出し側が用意した `.tzb` バイト列、ロード時に展開 |
 | `NewFinderFromTZM(data)` | 呼び出し側が用意した `.tzm` バイト列、インプレースで参照 |
@@ -109,7 +109,7 @@ fn main() {
 }
 ```
 
-tzf-rs 2.0 は 2 つの Finder を提供します。デフォルトの `DefaultFinder`（ピーク RSS 約 47 MiB、ランダム都市検索 229 ns）と、埋め込みファイルをインプレースで参照する `EmbeddedFinder`（約 10 MiB、マイクロ秒単位のレイテンシ）です。いずれも [tz-benchmark](https://github.com/ringsaturn/tz-benchmark) の 2026-09-11 スナップショットにおいて、Apple M3 Max で `2026c` データセットを対象に測定した値です。
+tzf-rs 2.1 は 2 つの Finder を提供します。デフォルトの `DefaultFinder`（ピーク RSS 約 47 MiB、ランダム都市検索 221 ns）と、埋め込みファイルをインプレースで参照する `EmbeddedFinder`（約 10 MiB、ランダム都市検索 293 ns、境界都市 666 ns）です。いずれも [tz-benchmark](https://github.com/ringsaturn/tz-benchmark) の 2026-09-14 スナップショットにおいて、Apple M3 Max で `2026c` データセットを対象に tzf-rs 2.1.1 を測定した値です。
 
 <details>
 <summary>完全精度サポート</summary>
@@ -159,7 +159,7 @@ conda install -c conda-forge tzfpy
 ['Asia/Shanghai', 'Asia/Urumqi']
 ```
 
-tzfpy 2.0 は Python 3.10 以降が必要で、tzf-rs 2.0 をバインドします。`timezonenames()`、`data_version()`、`get_tz_polygon_geojson(name)`、`get_tz_index_geojson(name)` も公開しています。Python 版では完全精度モードは利用できません。
+tzfpy 2.0 は Python 3.10 以降が必要で、tzf-rs 2.0 をバインドします。`timezonenames()`、`data_version()`、`get_tz_polygon_geojson(name)`、`get_tz_index_geojson(name)` も公開しています。完全精度モードは実験的な `+full` プレリリース wheel として tzfpy 独自のインデックスで提供され、PyPI には公開されません。[Python ガイド]({{< relref "guides/tzfpy#scope" >}})を参照してください。
 
 ## Swift
 

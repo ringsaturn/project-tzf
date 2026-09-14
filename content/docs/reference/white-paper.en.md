@@ -2,7 +2,7 @@
 date: '2025-07-21T14:20:56+09:00'
 description: How tzf achieves high-performance timezone lookup — topology-aware simplification, shared-edge deduplication, Polyline encoding, tile-based indexing, YStripes, and 1°×1° grid index.
 draft: false
-lastmod: '2026-09-11T00:00:00+09:00'
+lastmod: '2026-09-14T00:00:00+09:00'
 seo:
   description: 'How tzf achieves fast timezone lookup: topology-aware simplification, shared-edge deduplication, Polyline encoding, tile-based indexing, YStripes index, and 1°×1° grid index.'
   noindex: false
@@ -93,11 +93,12 @@ section rather than a separate file:
 | --- | --- | ---: | --- |
 | `lite.tzb` | E | ~4 MB | Topology-simplified geometry, GRID, FUZZY |
 | `lite.tzm` | M | ~10 MB | The same data with geometry in the query-time layout |
-| `full.tzb` | E | ~14 MB | Full-precision geometry, GRID, FUZZY |
+| `full.tzb` | E | ~15 MB | Full-precision geometry, GRID, FUZZY |
 
 The full-precision dataset shrank from ~96 MB in the raw representation to
-13.77 MB, which is within the size tzf-rs can carry as an optional Cargo feature
-rather than requiring a manual file download.
+13.77 MB at 256-point chunks (15.26 MB at the 64-point chunks shipped since
+`v0.0.2026-c-tzb2`), which is within the size tzf-rs can carry as an optional
+Cargo feature rather than requiring a manual file download.
 
 These files are distributed via [`ringsaturn/tzf-dist`](https://github.com/ringsaturn/tzf-dist).
 The container layout is documented in

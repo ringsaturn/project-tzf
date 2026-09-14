@@ -2,7 +2,7 @@
 date: '2025-07-21T21:09:40+09:00'
 description: tzf 生态系统中项目特定术语和概念的参考。
 draft: false
-lastmod: '2026-09-11T00:00:00+09:00'
+lastmod: '2026-09-14T00:00:00+09:00'
 seo:
   description: tzf 特定术语参考：查找器、.tzb 与 .tzm 文件格式、FUZZY 预索引、E 与 M profile、原地与展开加载、多边形简化、瓦片索引及 YStripes。
   noindex: false
@@ -38,11 +38,11 @@ v2 通过返回接口的构造函数提供查找器。v1 的 `Finder` / `FuzzyFi
 
 ### 默认查找器 {#defaultfinder}
 
-Go 为 `NewDefaultFinder()`，Rust 为 `DefaultFinder::new()`。读取 lite 数据集，以 FUZZY 预索引作为快速路径，其后是多边形几何数据。在 Go 中，多边形存储原地引用 `.tzm` 内存镜像：~12 MB 堆加上 ~10 MB 只读数据，在 Apple M3 Max 上针对 `2026c` 数据集每次查询 298 ns。在 Rust 中，同一构造函数把 `lite.tzb` 展开为多边形，峰值 RSS 约 46 MiB，查询 236 ns。
+Go 为 `NewDefaultFinder()`，Rust 为 `DefaultFinder::new()`。读取 lite 数据集，以 FUZZY 预索引作为快速路径，其后是多边形几何数据。在 Go 中，多边形存储原地引用 `.tzm` 内存镜像：~12 MB 堆加上 ~10 MB 只读数据，在 Apple M3 Max 上针对 `2026c` 数据集每次查询 298 ns。在 Rust 中，同一构造函数把 `lite.tzb` 展开为多边形，峰值 RSS 约 47 MiB，查询 221 ns（2026-09-14 快照）。
 
 ### 嵌入式查找器 {#embeddedfinder}
 
-Go 为 `NewEmbeddedFinder()`，Rust 为 `EmbeddedFinder::new()`。原地查询 lite `.tzb`，除文件字节外堆占用不足 1 KB。预索引未覆盖该点时，查询延迟为微秒级。适用于嵌入式目标、内存受限的进程和无文件系统的部署。
+Go 为 `NewEmbeddedFinder()`，Rust 为 `EmbeddedFinder::new()`。原地查询 lite `.tzb`，除文件字节外只保留打开时构建的小型索引（2.1 起，Go 约 30 KB，Rust 约 100 KB）。预索引未覆盖该点时，边界城市的查询约为 1 µs（2026-09-14 快照中 Go p50 为 1,000 ns，Rust 平均值为 666 ns）。适用于嵌入式目标、内存受限的进程和无文件系统的部署。
 
 ### 完整精度查找器 {#fullfinder}
 
@@ -75,7 +75,7 @@ M profile 的 TZF 嵌入式二进制文件：同一份数据，几何数据以�
 
 ### 原地加载与展开加载 {#in-place-expanded}
 
-**原地：** 查找器按每次查询的需要，从文件字节中读取几何数据。打开时不解码，堆占用极小，预索引未命中时查询为微秒级。对应 Go 的 `NewEmbeddedFinder`、`x.NewFinderFromTZBReaderAt` 和 Rust 的 `EmbeddedFinder`。
+**原地：** 查找器按每次查询的需要，从文件字节中读取几何数据。打开时不解码几何数据，堆上只有打开时构建的小型索引，预索引未命中时查询约 1 µs。对应 Go 的 `NewEmbeddedFinder`、`x.NewFinderFromTZBReaderAt` 和 Rust 的 `EmbeddedFinder`。
 
 **原地引用：** M profile 按查询时的布局存储点，因此环存储直接指向映射的字节，不解码也不复制。源字节必须保持存活且不被修改。对应 Go 的 `NewFinderFromTZM`。
 

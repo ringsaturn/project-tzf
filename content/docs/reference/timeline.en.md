@@ -2,7 +2,7 @@
 date: '2025-07-21T10:52:43+09:00'
 description: Project tzf development history, from the initial Go implementation through the v2 release in 2026.
 draft: false
-lastmod: '2026-09-12T00:00:00+09:00'
+lastmod: '2026-09-14T00:00:00+09:00'
 seo:
   description: Development timeline for Project tzf, from the first Go release in 2022 through the protobuf-free v2 release in 2026.
   noindex: false
@@ -155,3 +155,23 @@ reads `lite.tzb` directly, with `DefaultFinder` and a low-memory
 tzf-swift 1.2.x) remain available and frozen at their last protobuf data
 release. The independently maintained tzf-rb builds on the v1 line at this
 date.
+
+### 2026-09-14
+
+tzf-dist `v0.0.2026-c-tzb2`: the same `2026c` boundaries with the `.tzb`
+artifacts encoded at 64-point chunks instead of 256 (`topo2embed -chunk 64`,
+now the encoder default). The format is unchanged; `lite.tzb` is 4.18 MB and
+`full.tzb` 15.26 MB. tzf v2.1.1 and tzf-rs 2.1.1 (each also tagged 2.1.0 with
+the same content) require it and rewrite the in-place query walk: validation
+moves to open time, chunk blocks and groups that cannot contain the point are
+skipped on their bounding boxes and endpoints, and the preindex probe visits
+only the zoom levels that carry keys; tzf-rs also builds per-group latitude
+stripes at open. Results are unchanged. In the 2026-09-14 tz-benchmark snapshot
+the Go `NewEmbeddedFinder` edge-city p50 went from 8,959 ns to 1,000 ns and the
+Rust `EmbeddedFinder` edge-city mean from 4,779.81 ns to 666.11 ns; the in-place
+finders now hold a small open-time index (about 30 KB in Go, 0.2 MiB live in
+Rust) instead of under 1 KB. tzfpy 2.1.0b2 is a pre-release on tzf-rs 2.1.1:
+lite wheels on TestPyPI and GitHub Releases, and the experimental `+full` wheels
+(tzf-rs `EmbeddedFinder` over `full.tzb`) on tzfpy's own index; its edge-city
+median went from 6,250 ns to 1,167 ns. PyPI stays at tzfpy 2.0.0; tzf-wasm and
+tzf-swift stay at 2.0.0.

@@ -2,7 +2,7 @@
 date: '2025-07-21T12:14:46+09:00'
 description: Go 版 tzf（v2）的最佳实践和高级用法模式。
 draft: false
-lastmod: '2026-09-11T00:00:00+09:00'
+lastmod: '2026-09-14T00:00:00+09:00'
 seo:
   description: Go tzf v2 库的最佳实践：五个构造函数、查找器复用、GeoJSON 导出、原地查询，以及从 v1 迁移。
   noindex: false
@@ -34,12 +34,12 @@ import "github.com/ringsaturn/tzf/v2"
 | 构造函数 | 数据 | 常驻 | 查询 |
 | --- | --- | --- | --- |
 | `NewDefaultFinder()` | lite `.tzm` 内存镜像，多边形原地引用 | ~12 MB 堆 + ~10 MB 只读数据 | 298 ns |
-| `NewEmbeddedFinder()` | lite `.tzb`，原地查询 | ~3 MB（文件字节加上不足 1 KB 的堆） | 预索引命中时 p50 为 542 ns，未命中时约 6 µs |
+| `NewEmbeddedFinder()` | lite `.tzb`，原地查询 | ~4 MB（文件字节加上约 30 KB 的堆） | 预索引命中时 p50 为 333 ns，未命中时约 1.2 µs |
 | `NewFullFinder()` | full `.tzb`，加载时展开 | ~145 MB | ~300 ns |
 | `NewFinderFromTZB(data)` | 自行提供的 `.tzb` 字节，始终展开 | 取决于文件（lite 约 27 MB） | ~290 ns |
 | `NewFinderFromTZM(data)` | 自行提供的 `.tzm` 字节，始终原地引用 | 同一文件下与 `NewDefaultFinder` 相同 | ~300 ns |
 
-在 Apple M3 Max 上针对 `2026c` 数据集测得。
+在 Apple M3 Max 上针对 `2026c` 数据集测得。`NewEmbeddedFinder` 一行是 tzf v2.1.1 在 tzf-dist `v0.0.2026-c-tzb2` 上的数值：重写的原地查询遍历和 64 点 chunk 把预索引未命中时的 p50 从 v2.0.0 的约 6 µs 降到 1.2 µs，查找器现在保留打开时构建的 chunk 块表和预索引缩放级别范围。
 
 包文档把 `NewDefaultFinder()` 列为通用查找器。其余场景，包括无文件系统的目标、cgroup 配额 Pod 和分发体积，参见[选择查找器]({{< relref "choosing-a-finder" >}})。
 
@@ -144,7 +144,7 @@ go run github.com/ringsaturn/tzf/v2/cmd/tzb2tzm@latest lite.tzb
 
 ## 对调用方持有字节的原地查询
 
-`x.NewFinderFromTZBReaderAt` 通过 `io.ReaderAt` 查询 `.tzb`，来源可以是文件、`mmap` 映射区域、嵌入式 flash 适配层，或对已持有字节的 `bytes.Reader`。查询过程不分配内存，堆开销保持在 1 KB 以内：
+`x.NewFinderFromTZBReaderAt` 通过 `io.ReaderAt` 查询 `.tzb`，来源可以是文件、`mmap` 映射区域、嵌入式 flash 适配层，或对已持有字节的 `bytes.Reader`。查询过程不分配内存，堆开销保持在约 30 KB：
 
 ```go
 import (

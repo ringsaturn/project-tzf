@@ -2,7 +2,7 @@
 date: '2025-07-21T14:19:40+09:00'
 description: Best practices and advanced usage patterns for the Rust implementation of tzf (v2).
 draft: false
-lastmod: '2026-09-11T00:00:00+09:00'
+lastmod: '2026-09-14T00:00:00+09:00'
 seo:
   description: Best practices for the Rust tzf-rs v2 crate — DefaultFinder and EmbeddedFinder, cargo features, GeoJSON export, and migrating from v1.
   noindex: false
@@ -29,18 +29,23 @@ for the format itself.
 
 | Type | Data | Peak RSS | Query (random city / edge city) |
 | --- | --- | ---: | ---: |
-| `DefaultFinder` | lite `.tzb` expanded into polygons, FUZZY fast path | ~47 MiB | 229 ns / 519 ns |
-| `EmbeddedFinder` | lite `.tzb` queried in place | ~10 MiB | 1.18 µs / 4.78 µs |
+| `DefaultFinder` | lite `.tzb` expanded into polygons, FUZZY fast path | ~47 MiB | 221 ns / 475 ns |
+| `EmbeddedFinder` | lite `.tzb` queried in place | ~10 MiB | 293 ns / 666 ns |
 
 Measured in the [tz-benchmark](https://github.com/ringsaturn/tz-benchmark)
-2026-09-11 snapshot on an Apple M3 Max against the `2026c` dataset; the Rust
-runtime floor in that harness is 5.8 MiB.
+2026-09-14 snapshot on an Apple M3 Max against the `2026c` dataset, tzf-rs 2.1.1
+on tzf-dist `0.0.2026-c-tzb2`; the Rust runtime floor in that harness is 5.8 MiB.
+tzf-rs 2.1 rewrote the `EmbeddedFinder` query walk (open-time validation, chunk
+block and endpoint-parity skipping, per-group latitude stripes, preindex probes
+limited to the zoom levels that carry keys) and moved to 64-point-chunk data;
+results are unchanged, and the edge-city figure was 4.78 µs on 2.0.0.
 
 `DefaultFinder::new()` opens in about 13 ms, `EmbeddedFinder::new()` in about
-2 ms. The counting allocator reports no heap retention for `EmbeddedFinder`: its
-data is the `&'static` embedded slice, plus roughly 1 KB of state.
-`EmbeddedFinder` applies to memory-constrained targets that can accept
-microsecond lookups. [Choosing a Finder]({{< relref "choosing-a-finder" >}})
+2 ms. The counting allocator reports 0.2 MiB of heap retention for
+`EmbeddedFinder`: its data is the `&'static` embedded slice, plus the open-time
+index of chunk skip blocks and latitude stripes (about 100 KB on lite).
+`EmbeddedFinder` applies to memory-constrained targets; its border-city lookups
+take about 1.4x the `DefaultFinder` time. [Choosing a Finder]({{< relref "choosing-a-finder" >}})
 covers the remaining cases.
 
 ## Finder reuse

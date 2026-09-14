@@ -2,7 +2,7 @@
 date: '2025-07-21T12:06:56+09:00'
 description: Best practices and integration patterns for tzfpy 2.0 — API surface, datetime conversion, batch processing, GeoJSON export, and web APIs.
 draft: false
-lastmod: '2026-09-11T00:00:00+09:00'
+lastmod: '2026-09-14T00:00:00+09:00'
 seo:
   description: tzfpy 2.0 best practices — the six module functions, datetime conversion, batch processing with Pandas/Polars/NumPy, GeoJSON export, and FastAPI integration.
   noindex: false
@@ -54,8 +54,30 @@ truncated list. A point on a shared border belongs to every touching polygon.
 
 ### Scope
 
-Full-precision lookups and the in-place low-memory finder are available in Go and
-Rust only. tzfpy exposes the lite dataset through a single default finder.
+The wheel on PyPI exposes the lite dataset through a single default finder; the
+in-place low-memory finder over the lite dataset is available in Go and Rust.
+Full-precision lookups ship as experimental `+full` wheels, published only to
+tzfpy's own index and GitHub Releases from pre-release tags (2.1.0b1 and
+2.1.0b2 so far), never to PyPI:
+
+```bash
+pip install --pre tzfpy --index-url https://ringsaturn.github.io/tzfpy/full/simple/
+```
+
+The `+full` build runs tzf-rs's `EmbeddedFinder` over `full.tzb`, so it holds
+less memory than the lite wheel and answers border points from the unsimplified
+boundaries. Same import name, same API; `importlib.metadata.version("tzfpy")`
+ends in `+full`. Measured on an Apple M3 Max (CPython 3.14) over all 154,694
+cities in citiespy, tzfpy 2.1.0b2:
+
+| Metric | Lite | `+full` |
+| --- | ---: | ---: |
+| Wheel size (macOS arm64) | 3.0 MB | 11.8 MB |
+| RSS delta after first query | 39.0 MB | 16.0 MB |
+| Cold start (import + first query) | 15 ms | 10 ms |
+| `get_tz` median | 208 ns | 250 ns |
+| `get_tzs` median (polygon scan) | 375 ns | 791 ns |
+
 [Choosing a Finder]({{< relref "choosing-a-finder" >}}) covers both.
 
 ## Datetime conversion
@@ -283,9 +305,10 @@ The four query functions are unchanged.
 What changed underneath: dropping protobuf took the wheel from 4.31 MB to
 2.76 MB and finder initialization from 68 ms to 15 ms, with query latency
 unchanged (measured by the maintainer on the v2 switchover commit).
-In the [tz-benchmark](https://github.com/ringsaturn/tz-benchmark) 2026-09-11
-snapshot on an Apple M3 Max, tzfpy's resident set after load is 62.2 MiB against
-an interpreter floor of 22.4 MiB, and the median random-city lookup is 708 ns.
+In the [tz-benchmark](https://github.com/ringsaturn/tz-benchmark) 2026-09-14
+snapshot on an Apple M3 Max (tzfpy 2.1.0b2), the lite wheel's resident set after
+load is 60.2 MiB against an interpreter floor of 22.4 MiB, and its median
+random-city lookup is 625 ns; the `+full` wheel reports 38.2 MiB and 667 ns.
 
 The v1 line (tzfpy 1.3.x) remains available and is frozen at its last data
 release, because tzf-dist stops publishing the protobuf artifacts once the v2 set

@@ -2,7 +2,7 @@
 date: '2025-07-19T12:19:49+09:00'
 description: Install and use Project tzf in your preferred programming language — Go, Rust, Python, Swift, Ruby, Wasm, and more.
 draft: false
-lastmod: '2026-09-12T00:00:00+09:00'
+lastmod: '2026-09-14T00:00:00+09:00'
 seo:
   description: Install and run timezone lookup from GPS coordinates in Go, Rust, Python, Swift, Ruby, WebAssembly, or via HTTP API.
   title: Getting Started — Project tzf
@@ -61,7 +61,7 @@ There are exactly five constructors, all returning the `tzf.F` interface:
 | Constructor | Applies to |
 | --- | --- |
 | `NewDefaultFinder()` | General-purpose use: lite memory image, ~12 MB heap + 10 MB read-only data, 298 ns queries |
-| `NewEmbeddedFinder()` | Embedded and memory-constrained targets: ~3 MB total, microsecond queries |
+| `NewEmbeddedFinder()` | Embedded and memory-constrained targets: ~4 MB total, ~1.2 µs on a preindex miss |
 | `NewFullFinder()` | Results matching the full-precision dataset (~145 MB) |
 | `NewFinderFromTZB(data)` | Caller-supplied `.tzb` bytes, expanded at load |
 | `NewFinderFromTZM(data)` | Caller-supplied `.tzm` bytes, aliased in place |
@@ -110,11 +110,12 @@ fn main() {
 }
 ```
 
-tzf-rs 2.0 ships two finders: `DefaultFinder` (the default, ~47 MiB peak RSS,
-229 ns per random-city lookup) and `EmbeddedFinder`, which queries the embedded
-file in place at ~10 MiB and microsecond latency. Both are measured in the
-[tz-benchmark](https://github.com/ringsaturn/tz-benchmark) 2026-09-11 snapshot on
-an Apple M3 Max against the `2026c` dataset.
+tzf-rs 2.1 ships two finders: `DefaultFinder` (the default, ~47 MiB peak RSS,
+221 ns per random-city lookup) and `EmbeddedFinder`, which queries the embedded
+file in place at ~10 MiB, 293 ns per random-city lookup and 666 ns on border
+cities. Both are measured in the
+[tz-benchmark](https://github.com/ringsaturn/tz-benchmark) 2026-09-14 snapshot on
+an Apple M3 Max against the `2026c` dataset, tzf-rs 2.1.1.
 
 <details>
 <summary>Full-precision support</summary>
@@ -166,7 +167,9 @@ conda install -c conda-forge tzfpy
 
 tzfpy 2.0 requires Python 3.10 or newer and binds tzf-rs 2.0. It also exposes
 `timezonenames()`, `data_version()`, `get_tz_polygon_geojson(name)`, and
-`get_tz_index_geojson(name)`. Full-precision mode is not available in Python.
+`get_tz_index_geojson(name)`. Full-precision mode ships as experimental `+full`
+pre-release wheels on tzfpy's own index, not on PyPI; see the
+[Python guide]({{< relref "guides/tzfpy#scope" >}}).
 
 ## Swift
 

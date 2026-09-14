@@ -2,7 +2,7 @@
 date: '2025-07-19T12:19:49+09:00'
 description: 使用 Go、Rust、Python、Swift、Ruby、Wasm 等语言安装并运行 Project tzf。
 draft: false
-lastmod: '2026-09-12T00:00:00+09:00'
+lastmod: '2026-09-14T00:00:00+09:00'
 seo:
   description: 使用 Go、Rust、Python、Swift、Ruby、WebAssembly 安装并运行 GPS 坐标到时区查询，也可通过 HTTP API 调用。
   title: '快速开始 - Project tzf'
@@ -61,7 +61,7 @@ func main() {
 | 构造函数 | 适用场景 |
 | --- | --- |
 | `NewDefaultFinder()` | 通用场景：lite 内存镜像，~12 MB 堆 + 10 MB 只读数据，查询 298 ns |
-| `NewEmbeddedFinder()` | 嵌入式和内存受限目标：合计约 3 MB，查询为微秒级 |
+| `NewEmbeddedFinder()` | 嵌入式和内存受限目标：合计约 4 MB，预索引未命中时查询约 1.2 µs |
 | `NewFullFinder()` | 结果与完整精度数据集一致（~145 MB） |
 | `NewFinderFromTZB(data)` | 调用方提供的 `.tzb` 字节，加载时展开 |
 | `NewFinderFromTZM(data)` | 调用方提供的 `.tzm` 字节，原地引用 |
@@ -109,7 +109,7 @@ fn main() {
 }
 ```
 
-tzf-rs 2.0 提供两个查找器：`DefaultFinder`（默认，峰值 RSS 约 47 MiB，随机城市查询 229 ns），以及 `EmbeddedFinder`，后者原地查询嵌入的文件，占用约 10 MiB，延迟为微秒级。两者的数据来自 [tz-benchmark](https://github.com/ringsaturn/tz-benchmark) 的 2026-09-11 快照，在 Apple M3 Max 上针对 `2026c` 数据集测得。
+tzf-rs 2.1 提供两个查找器：`DefaultFinder`（默认，峰值 RSS 约 47 MiB，随机城市查询 221 ns），以及 `EmbeddedFinder`，后者原地查询嵌入的文件，占用约 10 MiB，随机城市查询 293 ns，边界城市 666 ns。两者的数据来自 [tz-benchmark](https://github.com/ringsaturn/tz-benchmark) 的 2026-09-14 快照，在 Apple M3 Max 上针对 `2026c` 数据集测得 tzf-rs 2.1.1。
 
 <details>
 <summary>完整精度支持</summary>
@@ -157,7 +157,7 @@ conda install -c conda-forge tzfpy
 ['Asia/Shanghai', 'Asia/Urumqi']
 ```
 
-tzfpy 2.0 需要 Python 3.10 或更高版本，绑定 tzf-rs 2.0。它还提供 `timezonenames()`、`data_version()`、`get_tz_polygon_geojson(name)` 和 `get_tz_index_geojson(name)`。Python 版本不提供完整精度模式。
+tzfpy 2.0 需要 Python 3.10 或更高版本，绑定 tzf-rs 2.0。它还提供 `timezonenames()`、`data_version()`、`get_tz_polygon_geojson(name)` 和 `get_tz_index_geojson(name)`。完整精度模式以实验性的 `+full` 预发布 wheel 形式在 tzfpy 自有索引上提供，不发布到 PyPI；参见 [Python 指南]({{< relref "guides/tzfpy#scope" >}})。
 
 ## Swift
 

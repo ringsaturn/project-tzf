@@ -2,7 +2,7 @@
 date: '2025-07-21T12:14:46+09:00'
 description: Go 版 tzf (v2) のベストプラクティスと高度な使用パターン。
 draft: false
-lastmod: '2026-09-11T00:00:00+09:00'
+lastmod: '2026-09-14T00:00:00+09:00'
 seo:
   description: Go tzf v2 ライブラリのベストプラクティス。5 つのコンストラクタ、Finder の再利用、GeoJSON エクスポート、インプレースクエリ、v1 からの移行を扱います。
   noindex: false
@@ -34,12 +34,12 @@ import "github.com/ringsaturn/tzf/v2"
 | コンストラクタ | データ | 常駐 | クエリ |
 | --- | --- | --- | --- |
 | `NewDefaultFinder()` | lite `.tzm` メモリイメージ、ポリゴンをインプレースで参照 | ヒープ約 12 MB + 読み取り専用データ約 10 MB | 298 ns |
-| `NewEmbeddedFinder()` | lite `.tzb` をインプレースで参照 | 約 3 MB（ファイルバイト列 + 1 KB 未満のヒープ） | プレインデックスヒット時 p50 542 ns、ミス時約 6 µs |
+| `NewEmbeddedFinder()` | lite `.tzb` をインプレースで参照 | 約 4 MB（ファイルバイト列 + 約 30 KB のヒープ） | プレインデックスヒット時 p50 333 ns、ミス時約 1.2 µs |
 | `NewFullFinder()` | full `.tzb`、ロード時に展開 | 約 145 MB | 約 300 ns |
 | `NewFinderFromTZB(data)` | 呼び出し側の `.tzb` バイト列、常に展開 | ファイルに依存（lite: 約 27 MB） | 約 290 ns |
 | `NewFinderFromTZM(data)` | 呼び出し側の `.tzm` バイト列、常にインプレースで参照 | 同一ファイルであれば `NewDefaultFinder` と同等 | 約 300 ns |
 
-Apple M3 Max で `2026c` データセットを対象に測定した値です。
+Apple M3 Max で `2026c` データセットを対象に測定した値です。`NewEmbeddedFinder` の行は tzf-dist `v0.0.2026-c-tzb2` 上の tzf v2.1.1 の値です。インプレースのクエリ走査の書き直しと 64 点チャンクにより、プレインデックスミス時の p50 は v2.0.0 の約 6 µs から 1.2 µs になり、Finder はオープン時に構築するチャンクのブロックテーブルとプレインデックスのズーム範囲を保持するようになりました。
 
 パッケージのドキュメントでは `NewDefaultFinder()` を汎用の Finder として位置づけています。ファイルシステムのない環境、cgroup クォータ下の Pod、配布サイズなどのその他のケースについては [Finder の選択]({{< relref "choosing-a-finder" >}})を参照してください。
 
@@ -144,7 +144,7 @@ go run github.com/ringsaturn/tzf/v2/cmd/tzb2tzm@latest lite.tzb
 
 ## 呼び出し側が保持するバイト列へのインプレースクエリ
 
-`x.NewFinderFromTZBReaderAt` は `io.ReaderAt` 経由で `.tzb` にクエリします。対象はファイル、`mmap` した領域、組み込みフラッシュのアダプタ、あるいは既に保持しているバイト列に対する `bytes.Reader` です。クエリはアロケーションを行わず、ヒープコストは 1 KB 未満に収まります。
+`x.NewFinderFromTZBReaderAt` は `io.ReaderAt` 経由で `.tzb` にクエリします。対象はファイル、`mmap` した領域、組み込みフラッシュのアダプタ、あるいは既に保持しているバイト列に対する `bytes.Reader` です。クエリはアロケーションを行わず、ヒープコストは約 30 KB に収まります。
 
 ```go
 import (

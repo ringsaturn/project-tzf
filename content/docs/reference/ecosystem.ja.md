@@ -2,7 +2,7 @@
 date: '2025-07-19T11:25:25+09:00'
 description: タイムゾーン境界データがソースから各言語実装に流れるまでの 5 層アーキテクチャ。
 draft: false
-lastmod: '2026-09-12T00:00:00+09:00'
+lastmod: '2026-09-14T00:00:00+09:00'
 seo:
   description: 5 層の tzf エコシステム：evansiroky/timezone-boundary-builder の GeoJSON から処理、tzf-dist 経由の配布、言語実装、アプリケーションまで。
   noindex: false
@@ -117,4 +117,4 @@ graph TD
     `GetTZPreindexGeoJSON` がエクスポートする FUZZY プレインデックスタイルも描画します
   - [racemap/rust-tz-service](https://github.com/racemap/rust-tz-service)
 
-2026-09-12 時点で、tzf (Go)、tzf-rs (Rust)、tzfpy、tzf-wasm、tzf-swift は v2 の `.tzb` 成果物を読み込みます。tzf-wasm 2.0.0 は tzf-rs 2.0.0 の上に構築されており、tzf-swift 2.0.0 は protobuf に依存せず `lite.tzb` を直接読み込む移植です。tzf-rb は [HarlemSquirrel](https://github.com/HarlemSquirrel) が独立して保守しており、現在は v1 系列の上に構築されています。
+2026-09-12 時点で、tzf (Go)、tzf-rs (Rust)、tzfpy、tzf-wasm、tzf-swift は v2 の `.tzb` 成果物を読み込みます。tzf-wasm 2.0.0 は tzf-rs 2.0.0 の上に構築されており、tzf-swift 2.0.0 は protobuf に依存せず `lite.tzb` を直接読み込む移植です。2026-09-14 に tzf v2.1.1、tzf-rs 2.1.1、tzfpy 2.1.0b2 プレリリースは tzf-dist `v0.0.2026-c-tzb2`（同じ `2026c` データを 64 点チャンクで符号化）に移行しました。tzf-wasm と tzf-swift は 2.0.0 のままです。tzf-rb は [HarlemSquirrel](https://github.com/HarlemSquirrel) が独立して保守しており、現在は v1 系列の上に構築されています。

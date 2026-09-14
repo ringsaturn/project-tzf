@@ -2,7 +2,7 @@
 date: '2026-09-10T00:00:00+09:00'
 description: TZF 嵌入式二进制格式参考：.tzb 与 .tzm 文件的布局、profile、区段类型及查询语义。
 draft: false
-lastmod: '2026-09-11T00:00:00+09:00'
+lastmod: '2026-09-14T00:00:00+09:00'
 seo:
   description: TZF 嵌入式二进制格式：文件头、区段表、CRC 校验尾、E 与 M 两种 profile、区段类型 1 到 14，以及复现 tzf 查询结果所需的规则。
   noindex: false
@@ -291,6 +291,8 @@ bits 0..30: group index into GROUPDIR
 同一 group 的各 chunk 连续、有序，并划分该 group 的全部点；每个 group 至少有一个 chunk，每个 chunk 至少有一个点。`point_off` 在 CHUNKDIR 中严格递增，chunk 的字节区间在下一个 chunk 的 `point_off` 处结束，最后一个 chunk 在 POINTS 末尾结束。
 
 chunk 包围盒覆盖该 chunk 内相邻点之间的线段；当同一 group 中还有下一个 chunk 时，也覆盖从本 chunk 末点到下一个 chunk 首点的线段。读取方因此可以在不解码的情况下跳过某个 chunk。
+
+编码器的目标 chunk 大小记录在头部的 `chunk_target` 字段中，不影响解码。tzf-dist `v0.0.2026-c-tzb1` 及之前发布的工件使用 256 点 chunk；`v0.0.2026-c-tzb2`（2026-09-14）以及 tzf v2.1.0 起 `topo2embed` 的默认值使用 64 点，这缩短了读取方在查询点周围需要解码的字节区间，代价是文件体积增加约 5%（lite）到 11%（full）。格式本身不变，两个版本的读取器都能打开两个版本的数据。
 
 解码器在 chunk 的字节区间内恰好消费 `point_count` 个点。读到最后一个纬度 varint 之后，游标必须正好等于区间末尾；越过区间边界或残留字节均为错误。
 

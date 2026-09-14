@@ -2,7 +2,7 @@
 date: '2025-07-21T21:09:40+09:00'
 description: Reference of project-specific terms and concepts in the tzf ecosystem.
 draft: false
-lastmod: '2026-09-11T00:00:00+09:00'
+lastmod: '2026-09-14T00:00:00+09:00'
 seo:
   description: 'Reference of tzf-specific terms: finders, the .tzb and .tzm file formats, FUZZY preindex, E and M profiles, in-place and expanded loading, polygon simplification, tile indexing, and YStripes.'
   noindex: false
@@ -45,13 +45,15 @@ the FUZZY preindex as the fast path and polygon geometry behind it. In Go the
 polygon storage aliases the `.tzm` memory image in place: ~12 MB heap plus ~10 MB
 of read-only data, 298 ns per query on an Apple M3 Max against the `2026c`
 dataset. In Rust the same constructor expands `lite.tzb` into polygons and
-reports ~46 MiB peak RSS with 236 ns queries.
+reports ~47 MiB peak RSS with 221 ns queries (2026-09-14 snapshot).
 
 ### Embedded finder {#embeddedfinder}
 
 Go `NewEmbeddedFinder()`, Rust `EmbeddedFinder::new()`. Queries the lite `.tzb`
-in place, holding under 1 KB of heap beyond the file bytes. Query latency is
-microseconds when the preindex does not cover the point. Applies to embedded
+in place, holding a small open-time index beyond the file bytes (about 30 KB in
+Go, about 100 KB in Rust, since 2.1). Queries the preindex does not cover take
+about 1 µs on border cities (Go p50 1,000 ns, Rust mean 666 ns in the
+2026-09-14 snapshot). Applies to embedded
 targets, memory-limited processes, and no-filesystem deployments.
 
 ### Full finder {#fullfinder}
@@ -102,7 +104,8 @@ about 880 KB.
 ### In-place versus expanded loading {#in-place-expanded}
 
 **In place:** the finder reads geometry out of the file bytes as each query needs
-it. No decode at open, minimal heap, microsecond queries on a preindex miss.
+it. No geometry decode at open, a small open-time index on the heap, about 1 µs
+per query on a preindex miss.
 Go `NewEmbeddedFinder`, `x.NewFinderFromTZBReaderAt`, Rust `EmbeddedFinder`.
 
 **Aliased in place:** the M profile stores points in the query-time layout, so

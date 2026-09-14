@@ -1,7 +1,7 @@
 ---
 date: '2025-07-19T12:39:57+09:00'
 description: Other GPS-coordinate-to-timezone libraries across Go, Rust, Python, Ruby, Swift, and databases.
-lastmod: '2026-09-11T00:00:00+09:00'
+lastmod: '2026-09-14T00:00:00+09:00'
 seo:
   description: Other GPS-coordinate-to-timezone libraries for Go, Rust, Python, Ruby, Swift, and databases.
   noindex: false
@@ -30,8 +30,8 @@ All three axes share logarithmic scales, so further out is better; click a packa
 
 {{< tzf-radar >}}
 
-The chart data is from the 2026-09-11 snapshot (local Apple M3 Max run), which
-measured the released v2.0.0 packages; see [Benchmarks]({{< relref "../reference/benchmarks" >}})
+The chart data is from the 2026-09-14 snapshot (local Apple M3 Max run), which
+measured tzf v2.1.1, tzf-rs 2.1.1 and the tzfpy 2.1.0b2 pre-release; see [Benchmarks]({{< relref "../reference/benchmarks" >}})
 for the full tables.
 
 ## Go

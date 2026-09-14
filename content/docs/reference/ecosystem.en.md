@@ -2,7 +2,7 @@
 date: '2025-07-19T11:25:25+09:00'
 description: Five-layer architecture showing how timezone boundary data flows from source to every language implementation.
 draft: false
-lastmod: '2026-09-12T00:00:00+09:00'
+lastmod: '2026-09-14T00:00:00+09:00'
 seo:
   description: 'The five-layer tzf ecosystem: from evansiroky/timezone-boundary-builder GeoJSON through processing, distribution via tzf-dist, language implementations, and applications.'
   noindex: false
@@ -119,6 +119,9 @@ graph TD
 
 As of 2026-09-12, tzf (Go), tzf-rs (Rust), tzfpy, tzf-wasm and tzf-swift read
 the v2 `.tzb` artifacts; tzf-wasm 2.0.0 builds on tzf-rs 2.0.0, and tzf-swift
-2.0.0 is a protobuf-free port over `lite.tzb`. tzf-rb is maintained independently by
+2.0.0 is a protobuf-free port over `lite.tzb`. On 2026-09-14, tzf v2.1.1, tzf-rs
+2.1.1 and the tzfpy 2.1.0b2 pre-release moved to tzf-dist `v0.0.2026-c-tzb2`
+(the same `2026c` data at 64-point chunks); tzf-wasm and tzf-swift stay on
+2.0.0. tzf-rb is maintained independently by
 [HarlemSquirrel](https://github.com/HarlemSquirrel) and currently builds on the
 v1 line.
