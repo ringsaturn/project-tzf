@@ -1,8 +1,10 @@
 {{- /* Radar charts comparing timezone lookup packages (data from
      https://github.com/ringsaturn/tz-benchmark, snapshot 2026-09-14, local Apple M3 Max run). Latency
-     is the random-world-cities benchmark, memory is retained live bytes (RSS
-     after load for Python, which holds its data off the Python heap), and
-     accuracy uses the `cities` wrong rate. Colors follow the site theme via
+     is the random-world-cities benchmark, memory is the growth in resident
+     memory over the process baseline once the package has loaded (the
+     harness's `delta` column, same basis in every language; go-tz loads its
+     data at package init, so its figure is RSS after load minus the Go
+     runtime floor), and accuracy uses the `cities` wrong rate. Colors follow the site theme via
      the `dark` class hextra sets on <html>. */ -}}
 <div id="tzf-radar" aria-label="Radar charts comparing timezone lookup packages in Go, Python, and Rust">
   <div class="tzr-grid"></div>
@@ -176,27 +178,27 @@
   (() => {
     const grid = document.querySelector("#tzf-radar .tzr-grid");
     const packages = [
-      { language: "Go", name: "tzf Default", tzf: true, latency: 345.8, memory: 13.1, wrong: 0.0006 },
-      { language: "Go", name: "tzf Embedded", tzf: true, latency: 533.7, memory: 0.3, wrong: 0.0006 },
-      { language: "Go", name: "tzf Full", tzf: true, latency: 347.9, memory: 147.0, wrong: 0 },
-      { language: "Go", name: "latlong", tzf: false, latency: 106.6, memory: 1.1, wrong: 0.2637 },
-      { language: "Go", name: "timezonemapper", tzf: false, latency: 99.08, memory: 1.1, wrong: 0.5275 },
-      { language: "Go", name: "localtimezone", tzf: false, latency: 24781, memory: 2.8, wrong: 0.0142 },
-      { language: "Go", name: "go-tz", tzf: false, latency: 51946, memory: 32.6, wrong: 0 },
-      { language: "Python", name: "tzfpy Default", tzf: true, latency: 718.7261, memory: 60.2, wrong: 0.0006 },
-      { language: "Python", name: "tzfpy +full", tzf: true, latency: 822.6876, memory: 38.2, wrong: 0 },
-      { language: "Python", name: "timezonefinder", tzf: false, latency: 1739.9675, memory: 75.0, wrong: 0 },
-      { language: "Rust", name: "tzf-rs Default", tzf: true, latency: 221.13, memory: 22.8, wrong: 0.0006 },
-      { language: "Rust", name: "tzf-rs Embedded", tzf: true, latency: 292.68, memory: 0.2, wrong: 0.0006 },
-      { language: "Rust", name: "tz-search", tzf: false, latency: 103.23, memory: 2.2, wrong: 0.5288 },
-      { language: "Rust", name: "rtz OSM", tzf: false, latency: 1513.03, memory: 4.2, wrong: 0.0381 },
-      { language: "Rust", name: "rtz NED", tzf: false, latency: 393.80, memory: 4.1, wrong: 18.5909 }
+      { language: "Go", name: "tzf Default", tzf: true, latency: 345.8, memory: 36.4, wrong: 0.0006 },
+      { language: "Go", name: "tzf Embedded", tzf: true, latency: 533.7, memory: 4.4, wrong: 0.0006 },
+      { language: "Go", name: "tzf Full", tzf: true, latency: 347.9, memory: 310.3, wrong: 0 },
+      { language: "Go", name: "latlong", tzf: false, latency: 106.6, memory: 3.2, wrong: 0.2637 },
+      { language: "Go", name: "timezonemapper", tzf: false, latency: 99.08, memory: 0.5, wrong: 0.5275 },
+      { language: "Go", name: "localtimezone", tzf: false, latency: 24781, memory: 12.7, wrong: 0.0142 },
+      { language: "Go", name: "go-tz", tzf: false, latency: 51946, memory: 105.3, wrong: 0 },
+      { language: "Python", name: "tzfpy Default", tzf: true, latency: 718.7261, memory: 37.8, wrong: 0.0006 },
+      { language: "Python", name: "tzfpy +full", tzf: true, latency: 822.6876, memory: 15.9, wrong: 0 },
+      { language: "Python", name: "timezonefinder", tzf: false, latency: 1739.9675, memory: 52.6, wrong: 0 },
+      { language: "Rust", name: "tzf-rs Default", tzf: true, latency: 221.13, memory: 40.7, wrong: 0.0006 },
+      { language: "Rust", name: "tzf-rs Embedded", tzf: true, latency: 292.68, memory: 4.6, wrong: 0.0006 },
+      { language: "Rust", name: "tz-search", tzf: false, latency: 103.23, memory: 3.2, wrong: 0.5288 },
+      { language: "Rust", name: "rtz OSM", tzf: false, latency: 1513.03, memory: 9.0, wrong: 0.0381 },
+      { language: "Rust", name: "rtz NED", tzf: false, latency: 393.80, memory: 5.9, wrong: 18.5909 }
     ];
 
     const languages = ["Go", "Python", "Rust"];
     const domains = {
       latency: [80, 10000000],
-      memory: [1, 400],
+      memory: [0.5, 400],
       wrong: [0.0001, 100]
     };
     const center = { x: 120, y: 122 };
@@ -243,9 +245,9 @@
       return `${(value / 1000000).toFixed(1)} ms`;
     };
     const formatWrong = value => value < 0.01 ? `${value.toFixed(4)}%` : value < 1 ? `${value.toFixed(3)}%` : `${value.toFixed(2)}%`;
-    // Go and Rust report retained live bytes; Python keeps its data outside the
-    // Python heap, so the closest comparable figure is RSS once loaded.
-    const memoryBasis = item => item.language === "Python" ? "MiB RSS" : "MiB live";
+    // Every language reports the same basis: resident-memory growth over the
+    // process baseline once the package has loaded.
+    const memoryBasis = item => "MiB over baseline";
 
     const makeSvg = (tag, attributes = {}) => {
       const element = document.createElementNS(ns, tag);

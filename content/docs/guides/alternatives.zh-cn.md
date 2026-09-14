@@ -30,7 +30,7 @@ Stack Overflow 上还有一个相关问题：[How to get a time zone from a loca
 {{< tzf-radar >}}
 
 图表数据来自针对 tzf v2.1.1、tzf-rs 2.1.1 和 tzfpy 2.1.0b2 预发布版测量的 2026-09-14 快照（Apple M3 Max 本地运行），完整表格
-请参见[基准测试]({{< relref "../reference/benchmarks" >}})。
+请参见[基准测试]({{< relref "../reference/benchmarks" >}})。内存轴是包加载完成后进程常驻内存相对基线的增量，只计入该包自身增加的字节，不含 Go、Rust 或 Python 运行时本身。
 
 ## Go
 
