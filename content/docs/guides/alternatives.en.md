@@ -1,7 +1,7 @@
 ---
 date: '2025-07-19T12:39:57+09:00'
 description: Other GPS-coordinate-to-timezone libraries across Go, Rust, Python, Ruby, Swift, and databases.
-lastmod: '2026-09-14T00:00:00+09:00'
+lastmod: '2026-11-01T00:00:00+09:00'
 seo:
   description: Other GPS-coordinate-to-timezone libraries for Go, Rust, Python, Ruby, Swift, and databases.
   noindex: false
@@ -30,8 +30,8 @@ All three axes share logarithmic scales, so further out is better; click a packa
 
 {{< tzf-radar >}}
 
-The chart data is from the 2026-09-14 snapshot (local Apple M3 Max run), which
-measured tzf v2.1.1, tzf-rs 2.1.1 and the tzfpy 2.1.0b2 pre-release; see [Benchmarks]({{< relref "../reference/benchmarks" >}})
+The chart data is from the 2026-11-01 snapshot (local Apple M3 Max run), which
+measured tzf v2.1.4, tzf-rs 2.1.4 and tzfpy 2.1.2 on the `2026f` dataset; see [Benchmarks]({{< relref "../reference/benchmarks" >}})
 for the full tables. The memory axis is the growth in resident memory over the process baseline once the package has loaded, so it counts the bytes each package adds and not the Go, Rust or Python runtime itself.
 
 ## Go

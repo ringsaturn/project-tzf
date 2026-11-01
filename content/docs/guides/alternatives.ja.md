@@ -1,7 +1,7 @@
 ---
 date: '2025-07-19T12:39:57+09:00'
 description: Go、Rust、Python、Ruby、Swift、データベース向けの他の GPS 座標→タイムゾーン変換ライブラリ。
-lastmod: '2026-09-14T00:00:00+09:00'
+lastmod: '2026-11-01T00:00:00+09:00'
 seo:
   description: Go、Rust、Python、Ruby、Swift、データベース向けの他の GPS 座標→タイムゾーン変換ライブラリ。
   noindex: false
@@ -29,7 +29,7 @@ Go・Python・Rust の主要なタイムゾーン検索パッケージを検索�
 
 {{< tzf-radar >}}
 
-チャートのデータは、tzf v2.1.1、tzf-rs 2.1.1、tzfpy 2.1.0b2 プレリリースを測定した 2026-09-14 スナップショット（Apple M3 Max でのローカル実行）のものです。
+チャートのデータは、`2026f` データセット上で tzf v2.1.4、tzf-rs 2.1.4、tzfpy 2.1.2 を測定した 2026-11-01 スナップショット（Apple M3 Max でのローカル実行）のものです。
 全体の表は[ベンチマーク]({{< relref "../reference/benchmarks" >}})を参照してください。メモリ軸は、パッケージ読み込み後のプロセス常駐メモリのベースラインからの増分で、Go、Rust、Python のランタイム自体は含まず、各パッケージが追加したバイト数だけを数えます。
 
 ## Go
