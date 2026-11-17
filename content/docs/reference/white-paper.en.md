@@ -2,7 +2,7 @@
 date: '2025-07-21T14:20:56+09:00'
 description: How tzf achieves high-performance timezone lookup — topology-aware simplification, shared-edge deduplication, Polyline encoding, tile-based indexing, YStripes, and 1°×1° grid index.
 draft: false
-lastmod: '2026-09-14T00:00:00+09:00'
+lastmod: '2026-11-17T00:00:00+09:00'
 seo:
   description: 'How tzf achieves fast timezone lookup: topology-aware simplification, shared-edge deduplication, Polyline encoding, tile-based indexing, YStripes index, and 1°×1° grid index.'
   noindex: false
@@ -12,6 +12,10 @@ title: Technical White Paper
 toc: true
 weight: 1
 ---
+
+The same material is available in longer form as a paper, with the full
+benchmark and accuracy evaluation (PDF, November 2026 revision, covering tzf
+2.1.4 and tzf-dist `2026f`): [English](https://dataset.ringsaturn.me/tzf/paper.pdf), [中文](https://dataset.ringsaturn.me/tzf/paper-zh.pdf).
 
 ## Introduction
 

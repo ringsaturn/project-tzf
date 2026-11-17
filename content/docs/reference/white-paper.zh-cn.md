@@ -2,7 +2,7 @@
 date: '2025-07-21T14:20:56+09:00'
 description: tzf 的高性能时区查询实现，包括拓扑感知简化、共享边去重、Polyline 编码、瓦片索引、YStripes 和 1°×1° 格子索引。
 draft: false
-lastmod: '2026-09-14T00:00:00+09:00'
+lastmod: '2026-11-17T00:00:00+09:00'
 seo:
   description: tzf 快速时区查询的实现方式：拓扑感知简化、共享边去重、Polyline 编码、瓦片索引、YStripes 索引和 1°×1° 格子索引。
   noindex: false
@@ -12,6 +12,9 @@ title: 技术白皮书
 toc: true
 weight: 1
 ---
+
+本页内容另有一份篇幅更长的论文版本，包含完整的基准测试与精度评估（PDF，2026 年 11
+月修订，对应 tzf 2.1.4 与 tzf-dist `2026f`）：[中文版](https://dataset.ringsaturn.me/tzf/paper-zh.pdf)、[English](https://dataset.ringsaturn.me/tzf/paper.pdf)。
 
 ## 引言
 

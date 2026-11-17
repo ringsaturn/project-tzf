@@ -2,7 +2,7 @@
 date: '2025-07-21T14:20:56+09:00'
 description: tzf の高性能なタイムゾーン検索を支える実装。トポロジー認識簡略化、共有エッジ重複排除、Polyline エンコーディング、タイルインデックス、YStripes、1°×1° グリッドインデックスを扱います。
 draft: false
-lastmod: '2026-09-14T00:00:00+09:00'
+lastmod: '2026-11-17T00:00:00+09:00'
 seo:
   description: tzf の高速なタイムゾーン検索の実装：トポロジー認識簡略化、共有エッジ重複排除、Polyline エンコーディング、タイルインデックス、YStripes インデックス、1°×1° グリッドインデックス。
   noindex: false
@@ -12,6 +12,9 @@ title: 技術ホワイトペーパー
 toc: true
 weight: 1
 ---
+
+本ページの内容をより詳しくまとめた論文版があり、ベンチマークと精度評価の全体を含みます
+（PDF、2026 年 11 月改訂、tzf 2.1.4 および tzf-dist `2026f` に対応）：[English](https://dataset.ringsaturn.me/tzf/paper.pdf)、[中文](https://dataset.ringsaturn.me/tzf/paper-zh.pdf)。
 
 ## はじめに
 
